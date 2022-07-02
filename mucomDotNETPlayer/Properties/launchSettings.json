@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Player": {
-      "commandName": "Project",
-      "commandLineArgs": "\"D:\\bootcamp\\FM音源\\data\\自作\\muc\\testOPM.mub\""
-    }
-  }
-}
