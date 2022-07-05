@@ -1,117 +1,116 @@
-﻿using System.Collections.Generic;
-using System.Text;
+package vgm;
 
-namespace Vgm
-{
-    public class GD3
-    {
-        public GD3()
-        { }
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
-        public string TrackName = "";
-        public string TrackNameJ = "";
-        public string GameName = "";
-        public string GameNameJ = "";
-        public string SystemName = "";
-        public string SystemNameJ = "";
-        public string Composer = "";
-        public string ComposerJ = "";
-        public string Converted = "";
-        public string Notes = "";
-        public string VGMBy = "";
-        public string Version = "";
-        public string UsedChips = "";
+import dotnet4j.util.compat.StringUtilities;
+import mdsound.Common;
 
-        public byte[] make()
-        {
-            List<byte> dat = new List<byte>();
 
-            //'Gd3 '
-            dat.Add(0x47);
-            dat.Add(0x64);
-            dat.Add(0x33);
-            dat.Add(0x20);
+public class GD3 {
 
-            //GD3 Version
-            dat.Add(0x00);
-            dat.Add(0x01);
-            dat.Add(0x00);
-            dat.Add(0x00);
+    public String TrackName = "";
+    public String TrackNameJ = "";
+    public String GameName = "";
+    public String GameNameJ = "";
+    public String SystemName = "";
+    public String SystemNameJ = "";
+    public String Composer = "";
+    public String ComposerJ = "";
+    public String Converted = "";
+    public String Notes = "";
+    public String VGMBy = "";
+    public String Version = "";
+    public String UsedChips = "";
 
-            //GD3 Length(dummy)
-            dat.Add(0x00);
-            dat.Add(0x00);
-            dat.Add(0x00);
-            dat.Add(0x00);
+    public byte[] make() {
+        List<Byte> dat = new ArrayList<>();
 
-            //TrackName
-            if (!string.IsNullOrEmpty(TrackName))
-                foreach (byte b in Encoding.Unicode.GetBytes(TrackName)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        // 'Gd3 '
+        dat.add((byte) 0x47);
+        dat.add((byte) 0x64);
+        dat.add((byte) 0x33);
+        dat.add((byte) 0x20);
 
-            if (!string.IsNullOrEmpty(TrackNameJ))
-                foreach (byte b in Encoding.Unicode.GetBytes(TrackNameJ)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        // GD3 Version
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x01);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            //GameName
-            if (!string.IsNullOrEmpty(GameName))
-                foreach (byte b in Encoding.Unicode.GetBytes(GameName)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        // GD3 Length(dummy)
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            if (!string.IsNullOrEmpty(GameNameJ))
-                foreach (byte b in Encoding.Unicode.GetBytes(GameNameJ)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        // TrackName
+        if (!StringUtilities.isNullOrEmpty(TrackName))
+            for (byte b : TrackName.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            //SystemName
-            if (!string.IsNullOrEmpty(SystemName))
-                foreach (byte b in Encoding.Unicode.GetBytes(SystemName)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        if (!StringUtilities.isNullOrEmpty(TrackNameJ))
+            for (byte b : TrackNameJ.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            if (!string.IsNullOrEmpty(SystemNameJ))
-                foreach (byte b in Encoding.Unicode.GetBytes(SystemNameJ)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        // GameName
+        if (!StringUtilities.isNullOrEmpty(GameName))
+            for (byte b : GameName.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            //Composer
-            if (!string.IsNullOrEmpty(Composer))
-                foreach (byte b in Encoding.Unicode.GetBytes(Composer)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        if (!StringUtilities.isNullOrEmpty(GameNameJ))
+            for (byte b : GameNameJ.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            if (!string.IsNullOrEmpty(ComposerJ))
-                foreach (byte b in Encoding.Unicode.GetBytes(ComposerJ)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        // SystemName
+        if (!StringUtilities.isNullOrEmpty(SystemName))
+            for (byte b : SystemName.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            //Converted
-            if (!string.IsNullOrEmpty(Converted))
-                foreach (byte b in Encoding.Unicode.GetBytes(Converted)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        if (!StringUtilities.isNullOrEmpty(SystemNameJ))
+            for (byte b : SystemNameJ.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            //ReleaseDate
-            foreach (byte b in Encoding.Unicode.GetBytes(VGMBy)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        // Composer
+        if (!StringUtilities.isNullOrEmpty(Composer))
+            for (byte b : Composer.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            //Notes
-            if (!string.IsNullOrEmpty(Notes))
-                foreach (byte b in Encoding.Unicode.GetBytes(Notes)) dat.Add(b);
-            dat.Add(0x00);
-            dat.Add(0x00);
+        if (!StringUtilities.isNullOrEmpty(ComposerJ))
+            for (byte b : ComposerJ.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            dat[8] = (byte)dat.Count;
-            dat[9] = (byte)(dat.Count >> 8);
-            dat[10] = (byte)(dat.Count >> 16);
-            dat[11] = (byte)(dat.Count >> 24);
+        // Converted
+        if (!StringUtilities.isNullOrEmpty(Converted))
+            for (byte b : Converted.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
-            return dat.ToArray();
-        }
+        // ReleaseDate
+        for (byte b : VGMBy.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
 
+        // Notes
+        if (!StringUtilities.isNullOrEmpty(Notes))
+            for (byte b : Notes.getBytes(StandardCharsets.UTF_16)) dat.add(b);
+        dat.add((byte) 0x00);
+        dat.add((byte) 0x00);
+
+        dat.set(8, (byte) dat.size());
+        dat.set(9, (byte) (dat.size() >> 8));
+        dat.set(10, (byte) (dat.size() >> 16));
+        dat.set(11, (byte) (dat.size() >> 24));
+
+        return Common.toByteArray(dat);
     }
 }

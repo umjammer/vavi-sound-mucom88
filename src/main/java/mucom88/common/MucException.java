@@ -1,4 +1,4 @@
-﻿package mucom88.common;
+package mucom88.common;
 
 import java.io.Serializable;
 

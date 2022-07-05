@@ -1,4 +1,4 @@
-﻿package mucom88.driver;
+package mucom88.driver;
 
 import java.util.ArrayList;
 import java.util.Arrays;

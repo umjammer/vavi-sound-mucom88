@@ -14,6 +14,9 @@
         <configuration>
           <source>17</source>
           <target>17</target>
+          <excludes>
+            <exclude>mucom88/player/real/*</exclude>
+          </excludes>
           <testExcludes>
             <testExclude>test/RealChip.java</testExclude>
           </testExcludes>

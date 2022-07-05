@@ -1,4 +1,4 @@
-﻿package mucom88.compiler.PCMTool;
+package mucom88.compiler.PCMTool;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,21 +27,21 @@ public class AdpcmMaker {
         this.appendFileReaderCallback = appendFileReaderCallback;
     }
 
-    public byte[] Make() {
+    public byte[] make() {
         Config config;
         PCMFileManager fileManager;
         if (i == -1) {
             config = GetConfig();
             fileManager = GetPCMFiles(config);
-            return Make(config, fileManager);
+            return make(config, fileManager);
         } else {
             config = new Config();
-            if (i == 0) config.FormatType = enmFormatType.mucom88;
-            else if (i == 1) config.FormatType = enmFormatType.mucomDotNET_OPNA_ADPCM;
-            else if (i == 2) config.FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMB;
-            else if (i == 3) config.FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMB;
-            else if (i == 4) config.FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMA;
-            else if (i == 5) config.FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMA;
+            if (i == 0) config.FormatType = FormatType.mucom88;
+            else if (i == 1) config.FormatType = FormatType.mucomDotNET_OPNA_ADPCM;
+            else if (i == 2) config.FormatType = FormatType.mucomDotNET_OPNB_ADPCMB;
+            else if (i == 3) config.FormatType = FormatType.mucomDotNET_OPNB_ADPCMB;
+            else if (i == 4) config.FormatType = FormatType.mucomDotNET_OPNB_ADPCMA;
+            else if (i == 5) config.FormatType = FormatType.mucomDotNET_OPNB_ADPCMA;
             fileManager = new PCMFileManager(config, appendFileReaderCallback);
             for (String line : list) {
                 String lin = line.trim();
@@ -51,7 +51,7 @@ public class AdpcmMaker {
 
                 fileManager.Add(lin);
             }
-            return Make(config, fileManager);
+            return make(config, fileManager);
         }
     }
 
@@ -100,7 +100,7 @@ public class AdpcmMaker {
         return filemanager;
     }
 
-    private byte[] Make(Config config, PCMFileManager fileManager) {
+    private byte[] make(Config config, PCMFileManager fileManager) {
         List<Byte> dst = new ArrayList<>();
         dst = MakeHeader(config, fileManager, dst);
         List<Byte> raw = fileManager.GetRawData();

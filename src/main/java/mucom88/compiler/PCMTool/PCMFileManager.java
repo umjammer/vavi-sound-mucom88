@@ -1,4 +1,4 @@
-﻿package mucom88.compiler.PCMTool;
+package mucom88.compiler.PCMTool;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;

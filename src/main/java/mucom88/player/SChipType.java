@@ -1,400 +1,290 @@
-﻿import System;
-import System.Collections.Generic;
-import System.Linq;
-import System.Text;
-import System.Threading.Tasks;
-
-package mucomDotNET.Player;
-    internal class SChipType
-    {
-        private boolean _UseEmu = true;
-        public boolean UseEmu
-        {
-            get
-            {
-                return _UseEmu;
-            }
-
-            set
-            {
-                _UseEmu = value;
-            }
-        }
-
-        private boolean _UseEmu2 = false;
-        public boolean UseEmu2
-        {
-            get
-            {
-                return _UseEmu2;
-            }
-
-            set
-            {
-                _UseEmu2 = value;
-            }
-        }
-
-        private boolean _UseEmu3 = false;
-        public boolean UseEmu3
-        {
-            get
-            {
-                return _UseEmu3;
-            }
-
-            set
-            {
-                _UseEmu3 = value;
-            }
-        }
+package mucom88.player;
 
 
-        private boolean _UseScci = false;
-        public boolean UseScci
-        {
-            get
-            {
-                return _UseScci;
-            }
+public class SChipType {
 
-            set
-            {
-                _UseScci = value;
-            }
-        }
+    private boolean useEmu = true;
 
-        private String _InterfaceName = "";
-        public String InterfaceName
-        {
-            get
-            {
-                return _InterfaceName;
-            }
+    public boolean getUseEmu() {
+        return useEmu;
+    }
 
-            set
-            {
-                _InterfaceName = value;
-            }
-        }
+    public void setUseEmu(boolean value) {
+        useEmu = value;
+    }
 
-        private int _SoundLocation = -1;
-        public int SoundLocation
-        {
-            get
-            {
-                return _SoundLocation;
-            }
+    private boolean useEmu2 = false;
 
-            set
-            {
-                _SoundLocation = value;
-            }
-        }
+    public boolean getUseEmu2() {
+        return useEmu2;
+    }
 
-        private int _BusID = -1;
-        public int BusID
-        {
-            get
-            {
-                return _BusID;
-            }
+    public void setUseEmu2(boolean value) {
+        useEmu2 = value;
+    }
 
-            set
-            {
-                _BusID = value;
-            }
-        }
+    private boolean useEmu3 = false;
 
-        private int _SoundChip = -1;
-        public int SoundChip
-        {
-            get
-            {
-                return _SoundChip;
-            }
+    public boolean getUseEmu3() {
+        return useEmu3;
+    }
 
-            set
-            {
-                _SoundChip = value;
-            }
-        }
+    public void setUseEmu3(boolean value) {
+        useEmu3 = value;
+    }
 
-        private String _ChipName = "";
-        public String ChipName
-        {
-            get
-            {
-                return _ChipName;
-            }
+    private boolean useScci = false;
 
-            set
-            {
-                _ChipName = value;
-            }
-        }
+    public boolean getUseScci() {
+        return useScci;
+    }
 
+    public void setUseScci(boolean value) {
+        useScci = value;
+    }
 
-        private boolean _UseScci2 = false;
-        public boolean UseScci2
-        {
-            get
-            {
-                return _UseScci2;
-            }
+    private String interfaceName = "";
 
-            set
-            {
-                _UseScci2 = value;
-            }
-        }
+    public String getInterfaceName() {
+        return interfaceName;
+    }
 
-        private String _InterfaceName2A = "";
-        public String InterfaceName2A
-        {
-            get
-            {
-                return _InterfaceName2A;
-            }
+    public void setInterfaceName(String value) {
+        interfaceName = value;
+    }
 
-            set
-            {
-                _InterfaceName2A = value;
-            }
-        }
+    private int soundLocation = -1;
 
-        private int _SoundLocation2A = -1;
-        public int SoundLocation2A
-        {
-            get
-            {
-                return _SoundLocation2A;
-            }
+    public int getSoundLocation() {
+        return soundLocation;
+    }
 
-            set
-            {
-                _SoundLocation2A = value;
-            }
-        }
+    public void setSoundLocation(int value) {
+        soundLocation = value;
+    }
 
-        private int _BusID2A = -1;
-        public int BusID2A
-        {
-            get
-            {
-                return _BusID2A;
-            }
+    private int busID = -1;
 
-            set
-            {
-                _BusID2A = value;
-            }
-        }
+    public int getBusID() {
+        return busID;
+    }
 
-        private int _SoundChip2A = -1;
-        public int SoundChip2A
-        {
-            get
-            {
-                return _SoundChip2A;
-            }
+    public void setBusID(int value) {
+        busID = value;
+    }
 
-            set
-            {
-                _SoundChip2A = value;
-            }
-        }
+    private int soundChip = -1;
 
-        private String _ChipName2A = "";
-        public String ChipName2A
-        {
-            get
-            {
-                return _ChipName2A;
-            }
+    public int getSoundChip() {
+        return soundChip;
+    }
 
-            set
-            {
-                _ChipName2A = value;
-            }
-        }
+    public void setSoundChip(int value) {
+        soundChip = value;
+    }
 
-        private String _InterfaceName2B = "";
-        public String InterfaceName2B
-        {
-            get
-            {
-                return _InterfaceName2B;
-            }
+    private String chipName = "";
 
-            set
-            {
-                _InterfaceName2B = value;
-            }
-        }
+    public String getChipName() {
+        return chipName;
+    }
 
-        private int _SoundLocation2B = -1;
-        public int SoundLocation2B
-        {
-            get
-            {
-                return _SoundLocation2B;
-            }
+    public void setChipName(String value) {
+        chipName = value;
+    }
 
-            set
-            {
-                _SoundLocation2B = value;
-            }
-        }
+    private boolean useScci2 = false;
 
-        private int _BusID2B = -1;
-        public int BusID2B
-        {
-            get
-            {
-                return _BusID2B;
-            }
+    public boolean getUseScci2() {
+        return useScci2;
+    }
 
-            set
-            {
-                _BusID2B = value;
-            }
-        }
+    public void setUseScci2(boolean value) {
+        useScci2 = value;
+    }
 
-        private int _SoundChip2B = -1;
-        public int SoundChip2B
-        {
-            get
-            {
-                return _SoundChip2B;
-            }
+    private String interfaceName2A = "";
 
-            set
-            {
-                _SoundChip2B = value;
-            }
-        }
+    public String getInterfaceName2A() {
+        return interfaceName2A;
+    }
 
-        private String _ChipName2B = "";
-        public String ChipName2B
-        {
-            get
-            {
-                return _ChipName2B;
-            }
+    public void setInterfaceName2A(String value) {
+        interfaceName2A = value;
+    }
 
-            set
-            {
-                _ChipName2B = value;
-            }
-        }
+    private int soundLocation2A = -1;
 
+    public int getSoundLocation2A() {
+        return soundLocation2A;
+    }
 
-        private boolean _UseWait = true;
-        public boolean UseWait
-        {
-            get
-            {
-                return _UseWait;
-            }
+    public void setSoundLocation2A(int value) {
+        soundLocation2A = value;
+    }
 
-            set
-            {
-                _UseWait = value;
-            }
-        }
+    private int busID2A = -1;
 
-        private boolean _UseWaitBoost = false;
-        public boolean UseWaitBoost
-        {
-            get
-            {
-                return _UseWaitBoost;
-            }
+    public int getBusID2A() {
+        return busID2A;
+    }
 
-            set
-            {
-                _UseWaitBoost = value;
-            }
-        }
+    public void setBusID2A(int value) {
+        busID2A = value;
+    }
 
-        private boolean _OnlyPCMEmulation = false;
-        public boolean OnlyPCMEmulation
-        {
-            get
-            {
-                return _OnlyPCMEmulation;
-            }
+    private int soundChip2A = -1;
 
-            set
-            {
-                _OnlyPCMEmulation = value;
-            }
-        }
+    public int getSoundChip2A() {
+        return soundChip2A;
+    }
 
-        private int _LatencyForEmulation = 0;
-        public int LatencyForEmulation
-        {
-            get
-            {
-                return _LatencyForEmulation;
-            }
+    public void setSoundChip2A(int value) {
+        soundChip2A = value;
+    }
 
-            set
-            {
-                _LatencyForEmulation = value;
-            }
-        }
+    private String chipName2A = "";
 
-        private int _LatencyForScci = 0;
-        public int LatencyForScci
-        {
-            get
-            {
-                return _LatencyForScci;
-            }
+    public String getChipName2A() {
+        return chipName2A;
+    }
 
-            set
-            {
-                _LatencyForScci = value;
-            }
-        }
+    public void setChipName2A(String value) {
+        chipName2A = value;
+    }
 
+    private String interfaceName2B = "";
 
-        public SChipType Copy()
-        {
-            SChipType ct = new SChipType();
-            ct.UseEmu = this.UseEmu;
-            ct.UseEmu2 = this.UseEmu2;
-            ct.UseEmu3 = this.UseEmu3;
-            ct.UseScci = this.UseScci;
-            ct.SoundLocation = this.SoundLocation;
+    public String getInterfaceName2B() {
+        return interfaceName2B;
+    }
 
-            ct.BusID = this.BusID;
-            ct.InterfaceName = this.InterfaceName;
-            ct.SoundChip = this.SoundChip;
-            ct.ChipName = this.ChipName;
-            ct.UseScci2 = this.UseScci2;
-            ct.SoundLocation2A = this.SoundLocation2A;
+    public void setInterfaceName2B(String value) {
+        interfaceName2B = value;
+    }
 
-            ct.InterfaceName2A = this.InterfaceName2A;
-            ct.BusID2A = this.BusID2A;
-            ct.SoundChip2A = this.SoundChip2A;
-            ct.ChipName2A = this.ChipName2A;
-            ct.SoundLocation2B = this.SoundLocation2B;
+    private int soundLocation2B = -1;
 
-            ct.InterfaceName2B = this.InterfaceName2B;
-            ct.BusID2B = this.BusID2B;
-            ct.SoundChip2B = this.SoundChip2B;
-            ct.ChipName2B = this.ChipName2B;
+    public int getSoundLocation2B() {
+        return soundLocation2B;
+    }
 
-            ct.UseWait = this.UseWait;
-            ct.UseWaitBoost = this.UseWaitBoost;
-            ct.OnlyPCMEmulation = this.OnlyPCMEmulation;
-            ct.LatencyForEmulation = this.LatencyForEmulation;
-            ct.LatencyForScci = this.LatencyForScci;
+    public void setSoundLocation2B(int value) {
+        soundLocation2B = value;
+    }
 
-            return ct;
-        }
+    private int busID2B = -1;
+
+    public int getBusID2B() {
+        return busID2B;
+    }
+
+    public void setBusID2B(int value) {
+        busID2B = value;
+    }
+
+    private int soundChip2B = -1;
+
+    public int getSoundChip2B() {
+        return soundChip2B;
+    }
+
+    public void setSoundChip2B(int value) {
+        soundChip2B = value;
+    }
+
+    private String chipName2B = "";
+
+    public String getChipName2B() {
+        return chipName2B;
+    }
+
+    public void setChipName2B(String value) {
+        chipName2B = value;
+    }
+
+    private boolean useWait = true;
+
+    public boolean getUseWait() {
+        return useWait;
+    }
+
+    public void setUseWait(boolean value) {
+        useWait = value;
+    }
+
+    private boolean useWaitBoost = false;
+
+    public boolean getUseWaitBoost() {
+        return useWaitBoost;
+    }
+
+    public void setUseWaitBoost(boolean value) {
+        useWaitBoost = value;
+    }
+
+    private boolean onlyPCMEmulation = false;
+
+    public boolean getOnlyPCMEmulation() {
+        return onlyPCMEmulation;
+    }
+
+    public void setOnlyPCMEmulation(boolean value) {
+        onlyPCMEmulation = value;
+    }
+
+    private int latencyForEmulation = 0;
+
+    public int getLatencyForEmulation() {
+        return latencyForEmulation;
+    }
+
+    public void setLatencyForEmulation(int value) {
+        latencyForEmulation = value;
+    }
+
+    private int latencyForScci = 0;
+
+    public int getLatencyForScci() {
+        return latencyForScci;
+    }
+
+    public void setLatencyForScci(int value) {
+        latencyForScci = value;
+    }
+
+    public SChipType Copy() {
+        SChipType ct = new SChipType();
+        ct.useEmu = this.useEmu;
+        ct.useEmu2 = this.useEmu2;
+        ct.useEmu3 = this.useEmu3;
+        ct.useScci = this.useScci;
+        ct.soundLocation = this.soundLocation;
+
+        ct.busID = this.busID;
+        ct.interfaceName = this.interfaceName;
+        ct.soundChip = this.soundChip;
+        ct.chipName = this.chipName;
+        ct.useScci2 = this.useScci2;
+        ct.soundLocation2A = this.soundLocation2A;
+
+        ct.interfaceName2A = this.interfaceName2A;
+        ct.busID2A = this.busID2A;
+        ct.soundChip2A = this.soundChip2A;
+        ct.chipName2A = this.chipName2A;
+        ct.soundLocation2B = this.soundLocation2B;
+
+        ct.interfaceName2B = this.interfaceName2B;
+        ct.busID2B = this.busID2B;
+        ct.soundChip2B = this.soundChip2B;
+        ct.chipName2B = this.chipName2B;
+
+        ct.useWait = this.useWait;
+        ct.useWaitBoost = this.useWaitBoost;
+        ct.onlyPCMEmulation = this.onlyPCMEmulation;
+        ct.latencyForEmulation = this.latencyForEmulation;
+        ct.latencyForScci = this.latencyForScci;
+
+        return ct;
     }
 }

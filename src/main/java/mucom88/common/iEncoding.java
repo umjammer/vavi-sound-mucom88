@@ -1,9 +1,9 @@
-﻿package mucom88.common;
+package mucom88.common;
 
 public interface iEncoding {
-    String GetStringFromSjisArray(byte[] sjisArray);
+    String getStringFromSjisArray(byte[] sjisArray);
 
-    String GetStringFromSjisArray(byte[] sjisArray, int index, int count);
+    String getStringFromSjisArray(byte[] sjisArray, int index, int count);
 
     byte[] GetSjisArrayFromString(String utfString);
 

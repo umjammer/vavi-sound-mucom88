@@ -1,11 +1,11 @@
-﻿package mucom88.driver;
+package mucom88.driver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import dotnet4j.Tuple;
 import dotnet4j.util.compat.StringUtilities;
+import dotnet4j.util.compat.Tuple;
 import mucom88.common.Common;
 import mucom88.common.MubException;
 import mucom88.common.iEncoding;
@@ -230,7 +230,7 @@ public class MUBHeader {
                 lb.add(srcBuf[dataoffset + i]);
             }
 
-            return lb.toArray(new MmlDatum[0]);
+            return lb.toArray(MmlDatum[]::new);
         } catch (Exception e) {
             return null;
         }
@@ -269,7 +269,7 @@ public class MUBHeader {
     }
 
     private List<Tuple<String, String>> GetTagsByteArray(byte[] buf) {
-        var text = Arrays.stream(enc.GetStringFromSjisArray(buf).split("\r\n"))
+        var text = Arrays.stream(enc.getStringFromSjisArray(buf).split("\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
 
         List<Tuple<String, String>> tags = new ArrayList<>();

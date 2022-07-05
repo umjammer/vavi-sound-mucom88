@@ -1,4 +1,4 @@
-﻿package mucom88.driver;
+package mucom88.driver;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Level;
 
-import dotnet4j.TriConsumer;
-import dotnet4j.Tuple;
 import dotnet4j.io.File;
 import dotnet4j.io.FileAccess;
 import dotnet4j.io.FileMode;
@@ -22,18 +21,21 @@ import dotnet4j.io.MemoryStream;
 import dotnet4j.io.Path;
 import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
+import dotnet4j.util.compat.TriConsumer;
+import dotnet4j.util.compat.Tuple;
 import mdsound.Log;
 import mdsound.LogLevel;
 import mucom88.common.Common;
 import mucom88.common.MubException;
-import mucom88.common.iEncoding;
 import mucom88.common.MyEncoding;
+import mucom88.common.iEncoding;
 import musicDriverInterface.ChipAction;
 import musicDriverInterface.ChipDatum;
 import musicDriverInterface.GD3Tag;
 import musicDriverInterface.MmlDatum;
 import musicDriverInterface.enmTag;
 import musicDriverInterface.iDriver;
+import vavi.util.Debug;
 import vavi.util.serdes.Serdes;
 
 
@@ -102,7 +104,7 @@ public class Driver implements iDriver {
             List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm,
             List<BiConsumer<Long, Integer>> opnaWaitSend,
             boolean notSoundBoard2, boolean isLoadADPCM, boolean loadADPCMOnly, Function<String, Stream> appendFileReaderCallback/* =null*/) {
-        if (!Path.getExtension(fileName).toLowerCase().equals(".xml")) {
+        if (!Path.getExtension(fileName).equalsIgnoreCase(".xml")) {
             byte[] srcBuf = File.readAllBytes(fileName);
             if (srcBuf.length < 1) return;
             Init(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, notSoundBoard2, srcBuf, isLoadADPCM, loadADPCMOnly, appendFileReaderCallback != null ? appendFileReaderCallback : CreateAppendFileReaderCallback(Path.getDirectoryName(fileName)));
@@ -113,7 +115,7 @@ public class Driver implements iDriver {
                     MmlDatum m = new MmlDatum();
                     s.add(Serdes.Util.deserialize(sr, m));
                 }
-                InitT(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, s.toArray(new MmlDatum[0]), new Object[] {notSoundBoard2, isLoadADPCM, loadADPCMOnly}, appendFileReaderCallback);
+                InitT(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, s.toArray(MmlDatum[]::new), new Object[] {notSoundBoard2, isLoadADPCM, loadADPCMOnly}, appendFileReaderCallback);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -129,7 +131,7 @@ public class Driver implements iDriver {
         if (srcBuf == null || srcBuf.length < 1) return;
         List<MmlDatum> bl = new ArrayList<>();
         for (byte b : srcBuf) bl.add(new MmlDatum(b));
-        InitT(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, bl.toArray(new MmlDatum[0]), new Object[] {notSoundBoard2, isLoadADPCM, loadADPCMOnly}, appendFileReaderCallback);
+        InitT(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, bl.toArray(MmlDatum[]::new), new Object[] {notSoundBoard2, isLoadADPCM, loadADPCMOnly}, appendFileReaderCallback);
     }
 
     private void Init(String fileName, List<Consumer<ChipDatum>> lstChipWrite, List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm, List<BiConsumer<Long, Integer>> chipWaitSend, MmlDatum[] srcBuf, Object addtionalOption) {
@@ -373,7 +375,7 @@ public class Driver implements iDriver {
             for (int i = 0; i < cnt; i++) {
                 List<Byte> b = new ArrayList<>();
                 while (pcm[id][ptr] != 0x0) b.add(pcm[id][ptr++]);
-                String item1 = enc.GetStringFromSjisArray(mdsound.Common.toByteArray(b));
+                String item1 = enc.getStringFromSjisArray(mdsound.Common.toByteArray(b));
                 ptr++;
                 ptr++;
                 short[] item2 = new short[4];
@@ -401,7 +403,7 @@ public class Driver implements iDriver {
                     item2[3] = (short) (pcm[id][inftable + 26] | (pcm[id][inftable + 27] * 0x100));
                     System.arraycopy(pcm[id], i * 32, pcmname, 0, 16);
                     pcmname[16] = 0;
-                    String item1 = enc.GetStringFromSjisArray(pcmname);
+                    String item1 = enc.getStringFromSjisArray(pcmname);
 
                     Tuple<String, short[]> pd = new Tuple<String, short[]>(item1, item2);
                     pcmtable.add(pd);
@@ -413,7 +415,7 @@ public class Driver implements iDriver {
             break;
         }
 
-        return pcmtable.toArray(new Tuple[0]);
+        return pcmtable.toArray(Tuple[]::new);
     }
 
     public ChipDatum[] GetPCMSendData(int c, int id, int tp) {
@@ -452,7 +454,7 @@ public class Driver implements iDriver {
         dat.add(new ChipDatum(0x1, 0x00, 0x00));
         dat.add(new ChipDatum(0x1, 0x10, 0x80));
 
-        return dat.toArray(new ChipDatum[0]);
+        return dat.toArray(ChipDatum[]::new);
     }
 
     //
@@ -476,13 +478,13 @@ public class Driver implements iDriver {
             }
             work.timerOPNA1 = new OPNATimer(renderingFreq, opnaMasterClock);
             work.timerOPNA2 = new OPNATimer(renderingFreq, opnaMasterClock);
-            Log.writeLine(LogLevel.TRACE, String.format("OPNA MasterClock %d", opnaMasterClock));
+            Debug.printf(Level.FINEST, String.format("OPNA MasterClock %d", opnaMasterClock));
             work.timerOPNB1 = new OPNATimer(renderingFreq, opnbMasterClock);
             work.timerOPNB2 = new OPNATimer(renderingFreq, opnbMasterClock);
-            Log.writeLine(LogLevel.TRACE, String.format("OPNB MasterClock %d", opnbMasterClock));
+            Debug.printf(Level.FINEST, String.format("OPNB MasterClock %d", opnbMasterClock));
             work.timerOPM = new OPMTimer(renderingFreq, opmMasterClock);
-            Log.writeLine(LogLevel.TRACE, String.format("OPM  MasterClock %d", opmMasterClock));
-            Log.writeLine(LogLevel.TRACE, "Start rendering.");
+            Debug.printf(Level.FINEST, String.format("OPM  MasterClock %d", opmMasterClock));
+            Debug.printf(Level.FINEST, "Start rendering.");
 
         }
     }
@@ -490,7 +492,7 @@ public class Driver implements iDriver {
     public void StopRendering() {
         synchronized (work.SystemInterrupt) {
             if (work.Status > 0) work.Status = 0;
-            Log.writeLine(LogLevel.TRACE, "Stop rendering.");
+            Debug.printf(Level.FINEST, "Stop rendering.");
 
         }
     }
@@ -592,28 +594,28 @@ public class Driver implements iDriver {
     //
 
     public void MusicSTART(int musicNumber) {
-        Log.writeLine(LogLevel.TRACE, "演奏開始");
+        Debug.printf(Level.FINEST, "演奏開始");
         music2.MSTART(musicNumber);
         music2.SkipCount((int) header.jumpcount);
     }
 
     public void MusicSTOP() {
-        Log.writeLine(LogLevel.TRACE, "演奏停止");
+        Debug.printf(Level.FINEST, "演奏停止");
         music2.MSTOP();
     }
 
     public void FadeOut() {
-        Log.writeLine(LogLevel.TRACE, "フェードアウト");
+        Debug.printf(Level.FINEST, "フェードアウト");
         music2.FDO();
     }
 
     public Object GetWork() {
-        Log.writeLine(LogLevel.TRACE, "ワークエリア取得");
+        Debug.printf(Level.FINEST, "ワークエリア取得");
         return music2.RETW();
     }
 
     public void ShotEffect() {
-        Log.writeLine(LogLevel.TRACE, "効果音");
+        Debug.printf(Level.FINEST, "効果音");
         music2.EFC();
     }
 
@@ -712,7 +714,7 @@ public class Driver implements iDriver {
         return 0;
     }
 
-    public GD3Tag GetGD3TagInfo(byte[] srcBuf) {
+    public GD3Tag getGD3TagInfo(byte[] srcBuf) {
         int tagdata = Common.getLE32(srcBuf, 0x000c);
         int tagsize = Common.getLE32(srcBuf, 0x0010);
         if (srcBuf[0] == 'm' && srcBuf[1] == 'u' && srcBuf[2] == 'P' && srcBuf[3] == 'b') {
@@ -764,7 +766,7 @@ public class Driver implements iDriver {
     }
 
     private List<Tuple<String, String>> GetTagsByteArray(byte[] buf) {
-        var text = Arrays.stream(enc.GetStringFromSjisArray(buf).split("\r\n"))
+        var text = Arrays.stream(enc.getStringFromSjisArray(buf).split("\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
 
         List<Tuple<String, String>> tags = new ArrayList<>();

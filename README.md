@@ -1,72 +1,85 @@
-# mucom.NET  
-  mucom88の.NET版です。  
-  
-[概要]  
-  mucom88を.NET版に移植したものです。  
-  OPNAx2,OPNBx2,OPMx1の同時使用が可能です。  
-  (ぼうきちさんのWの機能を盛り込んだ形です。Thanks!>ぼうきちさん)  
-  古代さんのご厚意でAMD98の機能も盛り込んでおります。  
-  公式ページ  
-- [OPEN MUCOM PROJECT (株式会社エインシャント様)](https://www.ancient.co.jp/~mucom88/)  
-- [OPEN MUCOM88 Wiki (ONION software/おにたま様)](https://github.com/onitama/mucom88/wiki)  
-  
-[機能、特徴]  
- ・１パートを最大10ページに分けて記述できます。  
- ・１ページ毎に64Kbyteフルに使用したmubが作成できます。未確認。  
- ・一部mucom88ではオミットされた機能などが使えちゃいます。  
- このため、それらを使用したデータをmucom88で演奏するとおかしな事態になってしまいます。  
- (今のところ対策は何も行われていません。)  
-  
-[必要な環境]  
- ・Windows7以降のOSがインストールされたPC  
- ・テキストエディタ  
- ・気合と根性  
-  
-[著作権・免責]  
-mucom.NETはクリエイティブコモンズで規定されたCC BY-NC-SA 4.0ライセンスとします。  
-https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja  
-著作権は作者が保有しています。  
-このソフトは無保証であり、このソフトを使用した事による  
-いかなる損害も作者は一切の責任を負いません。  
-  
-以下のソフトウェアのソースコードをC#向けに改変し使用しています。  
-これらのソースは各著作者が著作権を持ちます。  
-ライセンスに関しては、各ドキュメントを参照してください。  
-  
-  ・EncAdpcmA.cs  参考元：https://wiki.neogeodev.org/index.php?title=ADPCM_codecs  
-  
-  
-以下のソフトウェアのソースコードをC#向けに改変し使用しています。  
-又はコード/dllを使用させていただいております。  
-これらのソース/バイナリは各著作者が著作権を持ちます。  
-ライセンスに関しては、各ドキュメントを参照してください。  
-  
- ・mucom88/mucom88win   -> CC BY-NC-SA 4.0 -> コード改変  
- ・AMD98                -> ?               -> コード改変  
- ・MDSound              -> LGPL            -> dll動的リンクで使用  
- ・musicDriverInterface -> MIT             -> dll動的リンクで使用  
- ・RealChipCtlWrap      -> MIT             -> dll動的リンクで使用  
- ・NAudio               -> MS-PL           -> dll動的リンクで使用  
- ・SCCI                 -> ?               -> dll動的リンクで使用  
- ・c86ctl               -> BSD 3-Clause    -> dll動的リンクで使用  
-  
-  
-[SpecialThanks]  
- 本ツールは以下の方々にお世話になっております。また以下のソフトウェア、ウェブページを参考、使用しています。  
- 本当にありがとうございます。  
- ・古代 さん(おぉ～!!)  
- ・くろま さん  
- ・mucom さん  
- ・ぼうきち さん  
- ・TAN-Y さん  
- ・ゆきにゃん さん  
+# vavi-sound-mucom88
 
- ・mucom88/mucom88win  
- ・Music LALF  
- ・MXDRV  
- ・MNDRV  
- ・Visual Studio Community 2019  
- ・さくらエディター  
-  
- ・[mucomさんとこのwiki](https://github.com/MUCOM88/mucom88/wiki)  
- ・[ぼうきちさんとこのwiki](https://github.com/BouKiCHi/mucom88/wiki)  
+Java version of mucom88.
+
+## Overview
+
+It is a port of mucom88 to the .NET version.
+OPNAx2, OPNBx2, OPMx1 can be used at the same time.
+(It is a form that incorporates the W function of Boukichi-san. Thanks! Boukichi-san)
+The functions of AMD98 are also included with the kindness of Kodai-san.
+
+Official page
+
+ - OPEN MUCOM PROJECT (Ancient Co., Ltd.)
+ - OPEN MUCOM88 Wiki (ONION software / Onitama-sama)
+
+## Functions and features
+
+ - One part can be divided into up to 10 pages.
+ - You can create a mub that uses the full 64Kbyte for each page. unconfirmed.
+ - Some mucom88 can use the omitted functions.
+
+For this reason, playing data using them on mucom88 would be a strange situation.
+
+(No measures have been taken so far.)
+
+## Necessary environment
+
+ - PC with Windows 7 or later OS installed
+ - Text editor
+ - Spirit and guts
+
+## Copyright / Disclaimer
+
+mucom.NET is a CC BY-NC-SA 4.0 license specified by Creative Commons.
+
+ https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja
+
+The copyright is owned by the author.
+This software is not guaranteed and is due to the use of this software
+The author does not take any responsibility for any damage.
+
+The source code of the following software is modified and used for C #.
+These sources are copyrighted by their respective authors.
+Please refer to each document for the license.
+
+ EncAdpcmA.cs Reference source: https://wiki.neogeodev.org/index.php?title=ADPCM_codecs
+
+The source code of the following software is modified and used for C #.
+Or I am using the code / dll.
+These sources / binaries are copyrighted by their respective authors.
+Please refer to each document for the license.
+
+ - Mucom88 / mucom88win -> CC BY-NC-SA 4.0 -> Code modification
+ - AMD98 -> ? -> Code modification
+
+ - Used in MDSound -> LGPL -> dll dynamic linking
+ - MusicDriverInterface -> MIT -> dll Used for dynamic linking
+ - RealChipCtlWrap -> MIT -> dll Used for dynamic linking
+ - NAudio -> MS-PL -> dll Used for dynamic linking
+ - SCCI -> ? -> dll Used for dynamic linking
+ - C86ctl -> BSD 3-Clause -> dll Used for dynamic linking
+
+## Special Thanks
+
+This tool is indebted to the following people. We also refer to and use the following software and web pages.
+
+thank you very much.
+
+ - Kodai-san!!
+ - Kuroma-san
+ - mucom-san
+ - Boukichi-san
+ - TAN-Y-san
+ - Yuki Nyan-san
+
+ - mucom88/mucom88win
+ - Music LALF
+ - MXDRV
+ - MNDRV
+ - Visual Studio Community 2019
+ - Sakura Editor
+
+ - [mucom wiki](https://github.com/MUCOM88/mucom88/wiki)
+ - [Boukichi-san's wiki](https://github.com/BouKiCHi/mucom88/wiki)

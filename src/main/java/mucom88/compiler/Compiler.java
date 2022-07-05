@@ -1,4 +1,4 @@
-﻿package mucom88.compiler;
+package mucom88.compiler;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -6,14 +6,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.logging.Level;
 
-import dotnet4j.Tuple;
-import dotnet4j.Tuple3;
 import dotnet4j.io.MemoryStream;
 import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
-import mdsound.Log;
-import mdsound.LogLevel;
+import dotnet4j.util.compat.Tuple;
+import dotnet4j.util.compat.Tuple3;
 import mucom88.common.MUCInfo;
 import mucom88.common.Message;
 import mucom88.common.MucException;
@@ -26,6 +25,7 @@ import musicDriverInterface.GD3Tag;
 import musicDriverInterface.MmlDatum;
 import musicDriverInterface.enmTag;
 import musicDriverInterface.iCompiler;
+import vavi.util.Debug;
 
 
 public class Compiler implements iCompiler {
@@ -53,7 +53,7 @@ public class Compiler implements iCompiler {
 
     private Point skipPoint = Common.EmptyPoint;
 
-    private iEncoding enc = null;
+    private iEncoding enc;
     private boolean isIDE = false;
 
     public enum EnmMUCOMFileType {
@@ -81,82 +81,81 @@ public class Compiler implements iCompiler {
         expand.muc88 = muc88;
     }
 
-    public MmlDatum[] Compile(Stream sourceMML, Function<String, Stream> appendFileReaderCallback) {
+    public MmlDatum[] compile(Stream sourceMML, Function<String, Stream> appendFileReaderCallback) {
         try {
-            srcBuf = ReadAllBytes(sourceMML);
-            mucInfo = GetMUCInfo(srcBuf);
-            mucInfo.setisIDE(isIDE);
-            mucInfo.setskipPoint(skipPoint);
+            srcBuf = readAllBytes(sourceMML);
+            mucInfo = getMUCInfo(srcBuf);
+            mucInfo.setIDE(isIDE);
+            mucInfo.setSkipPoint(skipPoint);
             mucInfo.setErrSign(false);
             voice = null;
             for (int i = 0; i < 6; i++) pcmdata[i] = null;
 
-            try (Stream vd = appendFileReaderCallback.apply(StringUtilities.isNullOrEmpty(mucInfo.getvoice()) ? "voice.dat" : mucInfo.getvoice())) {
-                voice = ReadAllBytes(vd);
+            try (Stream vd = appendFileReaderCallback.apply(StringUtilities.isNullOrEmpty(mucInfo.getVoice()) ? "voice.dat" : mucInfo.getVoice())) {
+                voice = readAllBytes(vd);
             }
 
-            String[] pcmdefaultFilename = new String[]
-                    {
-                            "mucompcm.bin",
-                            "mucompcm_2nd.bin",
-                            "mucompcm_3rd_B.bin",
-                            "mucompcm_4th_B.bin",
-                            "mucompcm_3rd_A.bin",
-                            "mucompcm_4th_A.bin"
-                    };
+            String[] pcmDefaultFilenames = new String[] {
+                    "mucompcm.bin",
+                    "mucompcm_2nd.bin",
+                    "mucompcm_3rd_B.bin",
+                    "mucompcm_4th_B.bin",
+                    "mucompcm_3rd_A.bin",
+                    "mucompcm_4th_A.bin"
+            };
 
             for (int i = 0; i < 6; i++) {
-                if (mucInfo.getpcmAt()[i].size() > 0) {
-                    pcmdata[i] = GetPackedPCM(i, mucInfo.getpcmAt()[i], appendFileReaderCallback);
+                if (mucInfo.getPcmAt()[i].size() > 0) {
+                    pcmdata[i] = getPackedPCM(i, mucInfo.getPcmAt()[i], appendFileReaderCallback);
                 }
 
                 if (pcmdata[i] == null) {
-                    try(Stream pd = appendFileReaderCallback.apply(StringUtilities.isNullOrEmpty(mucInfo.getpcm()[i])
-                            ? pcmdefaultFilename[i]
-                            : mucInfo.getpcm()[i]))
-                    {
-                        pcmdata[i] = ReadAllBytes(pd);
+                    try (Stream pd = appendFileReaderCallback.apply(StringUtilities.isNullOrEmpty(mucInfo.getPcm()[i])
+                            ? pcmDefaultFilenames[i]
+                            : mucInfo.getPcm()[i])) {
+                        pcmdata[i] = readAllBytes(pd);
                     }
                 }
             }
 
-            mucInfo.setlines(StoreBasicSource(srcBuf));
-            mucInfo.setvoiceData(voice);
-            mucInfo.setpcmData(pcmdata[0]);
-            mucInfo.setbasSrc(basSrc);
+            mucInfo.setLines(storeBasicSource(srcBuf));
+            mucInfo.setVoiceData(voice);
+            mucInfo.setPcmData(pcmdata[0]);
+            mucInfo.setBasSrc(basSrc);
             mucInfo.setSrcCPtr(0);
             mucInfo.setsrcLinPtr(-1);
             //Work.compilerInfo.jumpRow = -1;
             //Work.compilerInfo.jumpCol = -1;
 
-            //MUCOM88 初期化
-            int ret = muc88.COMPIL();//vector 0xeea8
+            // MUCOM88 初期化
+            int ret = muc88.COMPIL(); // vector 0xeea8
 
-            //コンパイルエラー発生時は0以外が返る
+            // コンパイルエラー発生時は 0 以外が返る
             if (ret != 0) {
                 int errLine = muc88.GetErrorLine();
                 work.compilerInfo.errorList.add(
                         new Tuple3<>(
-                                mucInfo.getrow()
-                                , mucInfo.getcol()
-                                , String.format(Message.get("E0100"), mucInfo.getrow(), mucInfo.getcol())
+                                mucInfo.getRow()
+                                , mucInfo.getCol()
+                                , String.format(Message.get("E0100"), mucInfo.getRow(), mucInfo.getCol())
                         ));
-                Log.writeLine(LogLevel.ERROR, String.format(Message.get("E0100"), mucInfo.getrow(), mucInfo.getcol()));
+                Debug.printf(Level.SEVERE, String.format(Message.get("E0100"), mucInfo.getRow(), mucInfo.getCol()));
                 return null;
             }
 
-            ret = SaveMub();
+            ret = saveMub();
             if (ret == 0) {
-                return dat.toArray(new MmlDatum[0]);
+                return dat.toArray(MmlDatum[]::new);
             }
         } catch (MucException me) {
             if (work.compilerInfo == null) work.compilerInfo = new CompilerInfo();
-            work.compilerInfo.errorList.add(new Tuple3<Integer, Integer, String>(-1, -1, me.getMessage()));
-            Log.writeLine(LogLevel.ERROR, me.getMessage());
+            work.compilerInfo.errorList.add(new Tuple3<>(-1, -1, me.getMessage()));
+            Debug.printf(Level.SEVERE, me.getMessage());
         } catch (Exception e) {
+e.printStackTrace();
             if (work.compilerInfo == null) work.compilerInfo = new CompilerInfo();
-            work.compilerInfo.errorList.add(new Tuple3<Integer, Integer, String>(-1, -1, e.getMessage()));
-            Log.writeLine(LogLevel.ERROR, String.format(
+            work.compilerInfo.errorList.add(new Tuple3<>(-1, -1, e.getMessage()));
+            Debug.printf(Level.SEVERE, String.format(
                     Message.get("E0000")
                     , e.getMessage()
                     , Arrays.toString(e.getStackTrace())));
@@ -165,13 +164,12 @@ public class Compiler implements iCompiler {
         return null;
     }
 
-    public boolean Compile(Stream sourceMML, Stream destCompiledBin, Function<String, Stream> appendFileReaderCallback) {
-        var dat = Compile(sourceMML, appendFileReaderCallback);
+    public boolean compile(Stream sourceMML, Stream destCompiledBin, Function<String, Stream> appendFileReaderCallback) {
+        var dat = compile(sourceMML, appendFileReaderCallback);
         if (dat == null) {
             return false;
         }
-        for(MmlDatum md : dat)
-        {
+        for (MmlDatum md : dat) {
             if (md == null) {
                 destCompiledBin.writeByte((byte) 0);
             } else {
@@ -184,12 +182,11 @@ public class Compiler implements iCompiler {
     /**
      * ストリームから一括でバイナリを読み込む
      */
-    private byte[] ReadAllBytes(Stream stream) {
+    private byte[] readAllBytes(Stream stream) {
         if (stream == null) return null;
 
         var buf = new byte[8192];
-        try(var ms = new MemoryStream())
-        {
+        try (var ms = new MemoryStream()) {
             while (true) {
                 var r = stream.read(buf, 0, buf.length);
                 if (r < 1) {
@@ -201,117 +198,116 @@ public class Compiler implements iCompiler {
         }
     }
 
-    public MUCInfo GetMUCInfo(byte[] buf) {
-        if (CheckFileType(buf) != EnmMUCOMFileType.MUC) {
+    public MUCInfo getMUCInfo(byte[] buf) {
+        if (checkFileType(buf) != EnmMUCOMFileType.MUC) {
             throw new UnsupportedOperationException();
         }
 
-        List<Tuple<String, String>> tags = GetTagsFromMUC(buf);
-        mucInfo.Clear();
-        for(Tuple < String, String > tag : tags)
-        {
+        List<Tuple<String, String>> tags = getTagsFromMUC(buf);
+        mucInfo.clear();
+        for (Tuple<String, String> tag : tags) {
             switch (tag.getItem1()) {
             case "title":
-                mucInfo.settitle(tag.getItem2());
+                mucInfo.setTitle(tag.getItem2());
                 break;
             case "composer":
-                mucInfo.setcomposer(tag.getItem2());
+                mucInfo.setComposer(tag.getItem2());
                 break;
             case "author":
-                mucInfo.setauthor(tag.getItem2());
+                mucInfo.setAuthor(tag.getItem2());
                 break;
             case "comment":
-                if (StringUtilities.isNullOrEmpty(mucInfo.getcomment()))
-                    mucInfo.setcomment(tag.getItem2());
+                if (StringUtilities.isNullOrEmpty(mucInfo.getComment()))
+                    mucInfo.setComment(tag.getItem2());
                 else
-                    mucInfo.addcomment("\n" + tag.getItem2());
+                    mucInfo.addComment("\n" + tag.getItem2());
                 break;
             case "mucom88":
-                mucInfo.setmucom88(tag.getItem2());
+                mucInfo.setMucom88(tag.getItem2());
                 break;
             case "date":
-                mucInfo.setdate(tag.getItem2());
+                mucInfo.setDate(tag.getItem2());
                 break;
             case "voice":
-                mucInfo.setvoice(tag.getItem2());
+                mucInfo.setVoice(tag.getItem2());
                 break;
             case "pcm":
-                mucInfo.getpcm()[0] = tag.getItem2();
+                mucInfo.getPcm()[0] = tag.getItem2();
                 break;
             case "pcm_2nd":
-                mucInfo.getpcm()[1] = tag.getItem2();
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcm()[1] = tag.getItem2();
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "pcm_3rd_b":
-                mucInfo.getpcm()[2] = tag.getItem2();
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcm()[2] = tag.getItem2();
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "pcm_4th_b":
-                mucInfo.getpcm()[3] = tag.getItem2();
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcm()[3] = tag.getItem2();
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "pcm_3rd_a":
-                mucInfo.getpcm()[4] = tag.getItem2();
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcm()[4] = tag.getItem2();
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "pcm_4th_a":
-                mucInfo.getpcm()[5] = tag.getItem2();
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcm()[5] = tag.getItem2();
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "@pcm":
-                mucInfo.getpcmAt()[0].add(tag.getItem2());
+                mucInfo.getPcmAt()[0].add(tag.getItem2());
                 break;
             case "@pcm_2nd":
-                mucInfo.getpcmAt()[1].add(tag.getItem2());
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcmAt()[1].add(tag.getItem2());
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "@pcm_3rd_b":
-                mucInfo.getpcmAt()[2].add(tag.getItem2());
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcmAt()[2].add(tag.getItem2());
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "@pcm_4th_b":
-                mucInfo.getpcmAt()[3].add(tag.getItem2());
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcmAt()[3].add(tag.getItem2());
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "@pcm_3rd_a":
-                mucInfo.getpcmAt()[4].add(tag.getItem2());
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcmAt()[4].add(tag.getItem2());
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "@pcm_4th_a":
-                mucInfo.getpcmAt()[5].add(tag.getItem2());
-                mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
+                mucInfo.getPcmAt()[5].add(tag.getItem2());
+                mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
                 break;
             case "driver":
-                mucInfo.setdriver(tag.getItem2());
-                if (mucInfo.getdriver().toLowerCase().equals("mucomdotnet")) {
-                    mucInfo.setDriverType(MUCInfo.enmDriverType.DotNet);
-                } else if (mucInfo.getdriver().toLowerCase().equals("mucom88e")) {
-                    mucInfo.setDriverType(MUCInfo.enmDriverType.E);
-                } else if (mucInfo.getdriver().toLowerCase().equals("mucom88em")) {
-                    mucInfo.setDriverType(MUCInfo.enmDriverType.em);
+                mucInfo.setDriver(tag.getItem2());
+                if (mucInfo.getDriver().equalsIgnoreCase("mucomdotnet")) {
+                    mucInfo.setDriverType(MUCInfo.DriverType.DotNet);
+                } else if (mucInfo.getDriver().equalsIgnoreCase("mucom88e")) {
+                    mucInfo.setDriverType(MUCInfo.DriverType.E);
+                } else if (mucInfo.getDriver().equalsIgnoreCase("mucom88em")) {
+                    mucInfo.setDriverType(MUCInfo.DriverType.em);
                 } else
-                    mucInfo.setDriverType(MUCInfo.enmDriverType.normal);
+                    mucInfo.setDriverType(MUCInfo.DriverType.normal);
                 break;
             case "invert":
-                mucInfo.setinvert(tag.getItem2());
+                mucInfo.setInvert(tag.getItem2());
                 break;
             case "pcminvert":
-                mucInfo.setpcminvert(tag.getItem2());
+                mucInfo.setPcmInvert(tag.getItem2());
                 break;
             case "carriercorrection":
                 String val = tag.getItem2().toLowerCase().trim();
 
-                mucInfo.setcarriercorrection(false);
+                mucInfo.setCarrierCorrection(false);
                 if (val.equals("yes") || val.equals("y") || val.equals("1") || val.equals("true") || val.equals("t")) {
-                    mucInfo.setcarriercorrection(true);
+                    mucInfo.setCarrierCorrection(true);
                 }
                 break;
             case "opmclockmode":
                 String ocmval = tag.getItem2().toLowerCase().trim();
 
-                mucInfo.setopmclockmode(MUCInfo.enmOpmClockMode.normal);
+                mucInfo.setOpmClockMode(MUCInfo.OpmClockMode.normal);
                 if (ocmval.equals("x68000") || ocmval.equals("x68k") || ocmval.equals("x68") || ocmval.equals("x") || ocmval.equals("40000") || ocmval.equals("x680x0")) {
-                    mucInfo.setopmclockmode(MUCInfo.enmOpmClockMode.X68000);
+                    mucInfo.setOpmClockMode(MUCInfo.OpmClockMode.X68000);
                 }
                 break;
             case "ssgextend":
@@ -325,9 +321,9 @@ public class Compiler implements iCompiler {
             case "opmpanreverse":
                 String opmpanval = tag.getItem2().toLowerCase().trim();
 
-                mucInfo.setopmpanreverse(false);
+                mucInfo.setOpmPanReverse(false);
                 if (opmpanval.equals("on") || opmpanval.equals("yes") || opmpanval.equals("y") || opmpanval.equals("1") || opmpanval.equals("true") || opmpanval.equals("t")) {
-                    mucInfo.setopmpanreverse(true);
+                    mucInfo.setOpmPanReverse(true);
                 }
                 break;
             case "opna1rhythmmute":
@@ -342,48 +338,48 @@ public class Compiler implements iCompiler {
                 break;
             case "opna2rhythmmute":
                 String rhythmmute2 = tag.getItem2().toLowerCase().trim();
-                mucInfo.setopna2rhythmmute(0);
-                if (rhythmmute2.indexOf('b') > -1) mucInfo.oropna2rhythmmute(1);
-                if (rhythmmute2.indexOf('s') > -1) mucInfo.oropna2rhythmmute(2);
-                if (rhythmmute2.indexOf('c') > -1) mucInfo.oropna2rhythmmute(4);
-                if (rhythmmute2.indexOf('h') > -1) mucInfo.oropna2rhythmmute(8);
-                if (rhythmmute2.indexOf('t') > -1) mucInfo.oropna2rhythmmute(16);
-                if (rhythmmute2.indexOf('r') > -1) mucInfo.oropna2rhythmmute(32);
+                mucInfo.setOpna2RhythmMute(0);
+                if (rhythmmute2.indexOf('b') > -1) mucInfo.orOpna2RhythmMute(1);
+                if (rhythmmute2.indexOf('s') > -1) mucInfo.orOpna2RhythmMute(2);
+                if (rhythmmute2.indexOf('c') > -1) mucInfo.orOpna2RhythmMute(4);
+                if (rhythmmute2.indexOf('h') > -1) mucInfo.orOpna2RhythmMute(8);
+                if (rhythmmute2.indexOf('t') > -1) mucInfo.orOpna2RhythmMute(16);
+                if (rhythmmute2.indexOf('r') > -1) mucInfo.orOpna2RhythmMute(32);
                 break;
             case "opnb1adpcmamute":
                 String adpcmamute1 = tag.getItem2().toLowerCase().trim();
-                mucInfo.setopnb1adpcmamute(0);
-                if (adpcmamute1.indexOf('1') > -1) mucInfo.oropnb1adpcmamute(1);
-                if (adpcmamute1.indexOf('2') > -1) mucInfo.oropnb1adpcmamute(2);
-                if (adpcmamute1.indexOf('3') > -1) mucInfo.oropnb1adpcmamute(4);
-                if (adpcmamute1.indexOf('4') > -1) mucInfo.oropnb1adpcmamute(8);
-                if (adpcmamute1.indexOf('5') > -1) mucInfo.oropnb1adpcmamute(16);
-                if (adpcmamute1.indexOf('6') > -1) mucInfo.oropnb1adpcmamute(32);
+                mucInfo.setOpnb1AdpcmAMute(0);
+                if (adpcmamute1.indexOf('1') > -1) mucInfo.orOpnb1AdpcmAMute(1);
+                if (adpcmamute1.indexOf('2') > -1) mucInfo.orOpnb1AdpcmAMute(2);
+                if (adpcmamute1.indexOf('3') > -1) mucInfo.orOpnb1AdpcmAMute(4);
+                if (adpcmamute1.indexOf('4') > -1) mucInfo.orOpnb1AdpcmAMute(8);
+                if (adpcmamute1.indexOf('5') > -1) mucInfo.orOpnb1AdpcmAMute(16);
+                if (adpcmamute1.indexOf('6') > -1) mucInfo.orOpnb1AdpcmAMute(32);
                 break;
             case "opnb2adpcmamute":
                 String adpcmamute2 = tag.getItem2().toLowerCase().trim();
-                mucInfo.setopnb2adpcmamute(0);
-                if (adpcmamute2.indexOf('1') > -1) mucInfo.oropnb2adpcmamute(1);
-                if (adpcmamute2.indexOf('2') > -1) mucInfo.oropnb2adpcmamute(2);
-                if (adpcmamute2.indexOf('3') > -1) mucInfo.oropnb2adpcmamute(4);
-                if (adpcmamute2.indexOf('4') > -1) mucInfo.oropnb2adpcmamute(8);
-                if (adpcmamute2.indexOf('5') > -1) mucInfo.oropnb2adpcmamute(16);
-                if (adpcmamute2.indexOf('6') > -1) mucInfo.oropnb2adpcmamute(32);
+                mucInfo.setOpnb2AdpcmAMute(0);
+                if (adpcmamute2.indexOf('1') > -1) mucInfo.orOpnb2AdpcmAMute(1);
+                if (adpcmamute2.indexOf('2') > -1) mucInfo.orOpnb2AdpcmAMute(2);
+                if (adpcmamute2.indexOf('3') > -1) mucInfo.orOpnb2AdpcmAMute(4);
+                if (adpcmamute2.indexOf('4') > -1) mucInfo.orOpnb2AdpcmAMute(8);
+                if (adpcmamute2.indexOf('5') > -1) mucInfo.orOpnb2AdpcmAMute(16);
+                if (adpcmamute2.indexOf('6') > -1) mucInfo.orOpnb2AdpcmAMute(32);
                 break;
             }
         }
 
-        if (mucInfo.getSSGExtend() && mucInfo.getDriverType() != MUCInfo.enmDriverType.DotNet) mucInfo.setSSGExtend(false);
+        if (mucInfo.getSSGExtend() && mucInfo.getDriverType() != MUCInfo.DriverType.DotNet) mucInfo.setSSGExtend(false);
 
         return mucInfo;
     }
 
-    public CompilerInfo GetCompilerInfo() {
+    public CompilerInfo getCompilerInfo() {
         return work.compilerInfo;
     }
 
 
-    private EnmMUCOMFileType CheckFileType(byte[] buf) {
+    private EnmMUCOMFileType checkFileType(byte[] buf) {
         if (buf == null || buf.length < 4) {
             return EnmMUCOMFileType.unknown;
         }
@@ -402,28 +398,24 @@ public class Compiler implements iCompiler {
 
     /**
      * mucからタグのリストを抽出する
-     * <param name="buf">
-     * muc(バイト配列、実態はsjisのテキスト)</param>
-     * <returns>
-     * tupleのリスト。
+     * @param buf muc(バイト配列、実態はsjisのテキスト)
+     * @return tupleのリスト。
      * item1がタグ名。トリム、小文字化済み。
      * item2が値。トリム済み。
-     * </returns>
      */
-    private List<Tuple<String, String>> GetTagsFromMUC(byte[] buf) {
-        var text = Arrays.stream(enc.GetStringFromSjisArray(buf).split("\r\n"))
+    private List<Tuple<String, String>> getTagsFromMUC(byte[] buf) {
+        var text = Arrays.stream(enc.getStringFromSjisArray(buf).split("\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
         if (tags != null) tags.clear();
         else tags = new ArrayList<>();
 
-        for (String v : text)
-        {
+        for (String v : text) {
             try {
                 int p = v.indexOf(' ');
                 String tag = "";
                 String ele = "";
                 if (p >= 0) {
-                    tag = v.substring(1, 1 +p).trim().toLowerCase();
+                    tag = v.substring(1, 1 + p).trim().toLowerCase();
                     ele = v.substring(p + 1).trim();
                     Tuple<String, String> item = new Tuple<String, String>(tag, ele);
                     tags.add(item);
@@ -435,9 +427,9 @@ public class Compiler implements iCompiler {
         return tags;
     }
 
-    private int StoreBasicSource(byte[] buf) {
+    private int storeBasicSource(byte[] buf) {
         int line = 0;
-        var text = enc.GetStringFromSjisArray(buf).split("\r\n");
+        var text = enc.getStringFromSjisArray(buf).split("\n");
 
         basSrc.clear();
         for (String txt : text) {
@@ -450,30 +442,29 @@ public class Compiler implements iCompiler {
         return line;
     }
 
-    private int SaveMub() {
+    private int saveMub() {
         try {
             String msg;
             byte[] textLineBuf = new byte[80];
             for (int i = 0; i < work.title.length(); i++) textLineBuf[i] = (byte) work.title.charAt(i);
 
-            //int fmvoice = Work.OTONUM[0];//.fmvoiceCnt;
             int pcmflag = 0;
             int maxcount = 0;
             int mubsize = 0;
-            StringBuilder strTcount = new StringBuilder();
-            StringBuilder strLcount = new StringBuilder();
-            StringBuilder strBcount = new StringBuilder();
+            StringBuilder tCount = new StringBuilder();
+            StringBuilder lCount = new StringBuilder();
+            StringBuilder bCount = new StringBuilder();
 
             work.compilerInfo.totalCount = new ArrayList<>();
             work.compilerInfo.loopCount = new ArrayList<>();
             work.compilerInfo.bufferCount = new ArrayList<>();
 
-            boolean isExtendFormat = mucInfo.getisExtendFormat();// false;
+            boolean isExtendFormat = mucInfo.isExtendFormat(); // false;
             int bufferLength = 0;
             for (int i = 0; i < (isExtendFormat ? Work.MAXChips : 1); i++) {
-                StringBuilder Tc = new StringBuilder();
-                StringBuilder Lc = new StringBuilder();
-                StringBuilder Bc = new StringBuilder();
+                StringBuilder tc = new StringBuilder();
+                StringBuilder lc = new StringBuilder();
+                StringBuilder bc = new StringBuilder();
                 for (int j = 0; j < Work.MAXCH; j++) {
                     if (!isExtendFormat) {
                         work.compilerInfo.formatType = "mub";
@@ -481,14 +472,14 @@ public class Compiler implements iCompiler {
                             work.lcnt[i][j][0] = work.tcnt[i][j][0] - (work.lcnt[i][j][0] - 1);
                         }
                         if (work.tcnt[i][j][0] > maxcount) maxcount = work.tcnt[i][j][0];
-                        strTcount.append(String.format("%s:%05d ", work.GetTrackCharacterFromChipValue(i, j), work.tcnt[i][j][0]));
+                        tCount.append(String.format("%s:%05d ", work.getTrackCharacterFromChipValue(i, j), work.tcnt[i][j][0]));
                         work.compilerInfo.totalCount.add(work.tcnt[i][j][0]);
-                        strLcount.append(String.format("%s:%05d ", work.GetTrackCharacterFromChipValue(i, j), work.lcnt[i][j][0]));
+                        lCount.append(String.format("%s:%05d ", work.getTrackCharacterFromChipValue(i, j), work.lcnt[i][j][0]));
                         work.compilerInfo.loopCount.add(work.lcnt[i][j][0]);
-                        strBcount.append(String.format("%s:$%04x ", work.GetTrackCharacterFromChipValue(i, j), work.getbufCount()[i][j][0]));
+                        bCount.append(String.format("%s:$%04x ", work.getTrackCharacterFromChipValue(i, j), work.getbufCount()[i][j][0]));
                         work.compilerInfo.bufferCount.add(work.getbufCount()[i][j][0]);
                         if (work.getbufCount()[i][j][0] > 0xffff) {
-                            throw new MucException(String.format(Message.get("E0700"), work.GetTrackCharacterFromChipValue(i, j), Arrays.deepToString(work.getbufCount()[i])));
+                            throw new MucException(String.format(Message.get("E0700"), work.getTrackCharacterFromChipValue(i, j), Arrays.deepToString(work.getbufCount()[i])));
                         }
                     } else {
                         work.compilerInfo.formatType = "mupb";
@@ -501,16 +492,16 @@ public class Compiler implements iCompiler {
                             work.compilerInfo.totalCount.add(work.tcnt[i][j][pg]);
                             work.compilerInfo.loopCount.add(work.lcnt[i][j][pg]);
                             if (work.getbufCount()[i][j][pg] > 1) {
-                                Tc.append(String.format("%s%s:%05d ", work.GetTrackCharacterFromChipValue(i, j), pg, work.tcnt[i][j][pg]));
-                                Lc.append(String.format("%s%s:%05d ", work.GetTrackCharacterFromChipValue(i, j), pg, work.lcnt[i][j][pg]));
-                                Bc.append(String.format("%s%s:$%04x ", work.GetTrackCharacterFromChipValue(i, j), pg, work.getbufCount()[i][j][pg]));
+                                tc.append(String.format("%s%s:%05d ", work.getTrackCharacterFromChipValue(i, j), pg, work.tcnt[i][j][pg]));
+                                lc.append(String.format("%s%s:%05d ", work.getTrackCharacterFromChipValue(i, j), pg, work.lcnt[i][j][pg]));
+                                bc.append(String.format("%s%s:$%04x ", work.getTrackCharacterFromChipValue(i, j), pg, work.getbufCount()[i][j][pg]));
                                 bufferLength = work.getbufCount()[i][j][pg];
                                 n++;
                                 if (n == 10) {
                                     n = 0;
-                                    Tc.append("\n");
-                                    Lc.append("\n");
-                                    Bc.append("\n");
+                                    tc.append("\n");
+                                    lc.append("\n");
+                                    bc.append("\n");
                                 }
                                 //if (j != 0) usePageFunction = true;
                             }
@@ -519,7 +510,7 @@ public class Compiler implements iCompiler {
                             work.compilerInfo.bufferCount.add(work.getbufCount()[i][j][pg]);
                             if (work.getbufCount()[i][j][pg] > 0xffff) {
                                 throw new MucException(String.format(Message.get("E0700")
-                                        , work.GetTrackCharacterFromChipValue(i, j) + String.valueOf(pg)
+                                        , work.getTrackCharacterFromChipValue(i, j) + String.valueOf(pg)
                                         , Arrays.toString(work.getbufCount()[i][j])));
                             }
                         }
@@ -527,16 +518,16 @@ public class Compiler implements iCompiler {
                 }
 
                 if (!isExtendFormat) {
-                    if (strTcount.length() > 2) strTcount.append("\r\n");
-                    if (strLcount.length() > 2) strLcount.append("\r\n");
-                    if (strBcount.length() > 2) strBcount.append("\r\n");
+                    if (tCount.length() > 2) tCount.append("\n");
+                    if (lCount.length() > 2) lCount.append("\n");
+                    if (bCount.length() > 2) bCount.append("\n");
                 } else {
-                    strTcount.append(Tc);
-                    if (Tc.length() > 2) strTcount.append("\r\n");
-                    strLcount.append(Lc);
-                    if (Lc.length() > 2) strLcount.append("\r\n");
-                    strBcount.append(Bc);
-                    if (Bc.length() > 2) strBcount.append("\r\n");
+                    tCount.append(tc);
+                    if (tc.length() > 2) tCount.append("\n");
+                    lCount.append(lc);
+                    if (lc.length() > 2) lCount.append("\n");
+                    bCount.append(bc);
+                    if (bc.length() > 2) bCount.append("\n");
                 }
             }
 
@@ -544,53 +535,50 @@ public class Compiler implements iCompiler {
             work.compilerInfo.jumpChannel = work.getJCHCOM();
 
             if (work.pcmFlag == 0) pcmflag = 2;
-            msg = enc.GetStringFromSjisArray(textLineBuf, 31, 4);
+            msg = enc.getStringFromSjisArray(textLineBuf, 31, 4);
             int start = Integer.parseInt(msg, 16);
-            msg = enc.GetStringFromSjisArray(textLineBuf, 41, 4);
-            int length = mucInfo.getbufDst().size();
+            msg = enc.getStringFromSjisArray(textLineBuf, 41, 4);
+            int length = mucInfo.getBufDst().size();
             if (isExtendFormat) length = bufferLength;
             mubsize = length;
 
-            Log.writeLine(LogLevel.INFO, "- mucom.NET -");
-            Log.writeLine(LogLevel.INFO, "[ Total count ]\r\n" + strTcount);
-            Log.writeLine(LogLevel.INFO, "[ Loop count  ]\r\n" + strLcount);
+            Debug.printf("- mucom.NET -");
+            Debug.printf("[ Total count ]\n" + tCount);
+            Debug.printf("[ Loop count  ]\n" + lCount);
             if (isExtendFormat)
-                Log.writeLine(LogLevel.INFO, "[ Buffer count  ]\r\n" + strBcount);
-            Log.writeLine(LogLevel.INFO, "");
-            Log.writeLine(LogLevel.INFO, String.format("#mucom type    : %s", mucInfo.getDriverType()));
-            Log.writeLine(LogLevel.INFO, String.format("#MUB Format    : %s", isExtendFormat ? "Extend" : "Normal"));
-            Log.writeLine(LogLevel.INFO, "#Used FM voice : ");
-            Log.writeLine(LogLevel.INFO, String.format("#      @ count : %s ", work.getusedFMVoiceNumber().size()));//, Work.OTONUM[0], Work.OTONUM[1], Work.OTONUM[2], Work.OTONUM[3], Work.OTONUM[4]);
+                Debug.printf("[ Buffer count  ]\n" + bCount);
+            Debug.printf("");
+            Debug.printf("#mucom type    : %s", mucInfo.getDriverType());
+            Debug.printf("#MUB Format    : %s", isExtendFormat ? "Extend" : "Normal");
+            Debug.printf("#Used FM voice : ");
+            Debug.printf("#      @ count : %s ", work.getusedFMVoiceNumber().size());//, Work.OTONUM[0], Work.OTONUM[1], Work.OTONUM[2], Work.OTONUM[3], Work.OTONUM[4]);
             List<Integer> usedFMVoiceNumberList = new ArrayList<>(work.getusedFMVoiceNumber());
             Collections.sort(usedFMVoiceNumberList);
-            Log.writeLine(LogLevel.INFO, String.format("#      @ list  : %s ", String.join(" ", usedFMVoiceNumberList.stream().map(String::valueOf).toArray(String[]::new))));
-            Log.writeLine(LogLevel.INFO, String.format("#Data Buffer   : $%05x - $%05x ($%05x)", start, start + length - 1, length));
-            Log.writeLine(LogLevel.INFO, String.format("#Max Count     : %s", maxcount));
-            Log.writeLine(LogLevel.INFO, String.format("#MML Lines     : %s", mucInfo.getlines()));
-            Log.writeLine(LogLevel.INFO, String.format("#Data          : %s", mubsize));
+            Debug.printf("#      @ list  : %s ", String.join(" ", usedFMVoiceNumberList.stream().map(String::valueOf).toArray(String[]::new)));
+            Debug.printf("#Data Buffer   : $%05x - $%05x ($%05x)", start, start + length - 1, length);
+            Debug.printf("#Max Count     : %s", maxcount);
+            Debug.printf("#MML Lines     : %s", mucInfo.getLines());
+            Debug.printf("#Data          : %s", mubsize);
 
-            return SaveMusic(length, pcmflag, isExtendFormat);
+            return saveMusic(length, pcmflag, isExtendFormat);
         } catch (MucException me) {
             work.compilerInfo.errorList.add(new Tuple3<Integer, Integer, String>(-1, -1, me.getMessage()));
-            Log.writeLine(LogLevel.ERROR, me.getMessage());
+            Debug.printf(Level.SEVERE, me.getMessage());
             return -1;
-        } catch(Exception e)
-        {
+        } catch (Exception e) {
             return -1;
         }
     }
 
-    //private int SaveMusic(String fname, ushort start, ushort length, int option)
-    private int SaveMusic(int length, int option, boolean isExtendFormat) {
-        //音楽データファイルを出力(コンパイルが必要)
-        //option : 1   = #タグによるvoice設定を無視
-        //         2   = PCM埋め込みをスキップ
-        //(戻り値が0以外の場合はエラー)
-        //      usePageFunc : ページ機能を使用しているか
-        //
+    private int saveMusic(int length, int option, boolean isExtendFormat) {
+        // 音楽データファイルを出力(コンパイルが必要)
+        // option : 1   = #タグによるvoice設定を無視
+        //          2   = PCM埋め込みをスキップ
+        // (戻り値が0以外の場合はエラー)
+        //       usePageFunc : ページ機能を使用しているか
 
         if (isExtendFormat) {
-            return SaveMusicExtendFormat(length, option);
+            return saveMusicExtendFormat(length, option);
         }
 
         int footsize;
@@ -636,25 +624,25 @@ public class Compiler implements iCompiler {
         dat.add(new MmlDatum((byte) (tagOffset >> 16)));
         dat.add(new MmlDatum((byte) (tagOffset >> 24)));
 
-        dat.add(new MmlDatum(0));//tagdata size(dummy)
+        dat.add(new MmlDatum(0)); //tagdata size(dummy)
         dat.add(new MmlDatum(0));
         dat.add(new MmlDatum(0));
         dat.add(new MmlDatum(0));
 
-        dat.add(new MmlDatum((byte) pcmptr));//pcmdata ptr(32bit)
+        dat.add(new MmlDatum((byte) pcmptr)); // pcmdata ptr(32bit)
         dat.add(new MmlDatum((byte) (pcmptr >> 8)));
         dat.add(new MmlDatum((byte) (pcmptr >> 16)));
         dat.add(new MmlDatum((byte) (pcmptr >> 24)));
 
-        dat.add(new MmlDatum((byte) pcmsize));//pcmdata size(32bit)
+        dat.add(new MmlDatum((byte) pcmsize)); // pcmdata size(32bit)
         dat.add(new MmlDatum((byte) (pcmsize >> 8)));
         dat.add(new MmlDatum((byte) (pcmsize >> 16)));
         dat.add(new MmlDatum((byte) (pcmsize >> 24)));
 
-        dat.add(new MmlDatum((byte) work.JCLOCK));// JCLOCKの値(Jコマンドのタグ位置)
+        dat.add(new MmlDatum((byte) work.JCLOCK)); // JCLOCKの値(Jコマンドのタグ位置)
         dat.add(new MmlDatum((byte) (work.JCLOCK >> 8)));
 
-        dat.add(new MmlDatum((byte) work.getJPLINE()));//jump line number
+        dat.add(new MmlDatum((byte) work.getJPLINE())); // jump line number
         dat.add(new MmlDatum((byte) (work.getJPLINE() >> 8)));
 
         dat.add(new MmlDatum(0)); // ext_flags(?)
@@ -667,7 +655,7 @@ public class Compiler implements iCompiler {
         dat.add(new MmlDatum(11)); // ext_channel_num
         dat.add(new MmlDatum(0));
 
-        dat.add(new MmlDatum((byte) work.OTONUM[0]));//ext_fmvoice_num
+        dat.add(new MmlDatum((byte) work.OTONUM[0])); // ext_fmvoice_num
         dat.add(new MmlDatum((byte) (work.OTONUM[0] >> 8)));
 
         dat.add(new MmlDatum(0)); // ext_player(?)
@@ -681,61 +669,59 @@ public class Compiler implements iCompiler {
         dat.add(new MmlDatum(0));
 
         for (int i = 0; i < 32; i++) {
-            dat.add(new MmlDatum((byte) (int) mucInfo.getbufDefVoice().get(i)));
+            dat.add(new MmlDatum((byte) (int) mucInfo.getBufDefVoice().get(i)));
         }
 
         work.compilerInfo.jumpRow = -1;
         work.compilerInfo.jumpCol = -1;
         if (work.getJPLINE() >= 0) {
-            Log.writeLine(LogLevel.INFO, String.format("#Jump count [%s]. channelNumber[%s]", work.JCLOCK, work.getJCHCOM().get(0)));
-            Log.writeLine(LogLevel.INFO, String.format("#Jump line [row:%s col:%s].", work.getJPLINE(), work.getJPCOL()));
+            Debug.printf("#Jump count [%s]. channelNumber[%s]", work.JCLOCK, work.getJCHCOM().get(0));
+            Debug.printf("#Jump line [row:%s col:%s].", work.getJPLINE(), work.getJPCOL());
             work.compilerInfo.jumpRow = work.getJPLINE();
             work.compilerInfo.jumpCol = work.getJPCOL();
         }
 
-        for (int i = 0; i < length; i++) dat.add(mucInfo.getbufDst().get(i));
+        for (int i = 0; i < length; i++) dat.add(mucInfo.getBufDst().get(i));
 
-        dat.set(dataOffset + 0, new MmlDatum(0));//バイナリに含まれる曲データ数-1
+        dat.set(dataOffset + 0, new MmlDatum(0)); // バイナリに含まれる曲データ数-1
         dat.set(dataOffset + 1, new MmlDatum((byte) work.OTODAT));
         dat.set(dataOffset + 2, new MmlDatum((byte) (work.OTODAT >> 8)));
         dat.set(dataOffset + 3, new MmlDatum((byte) work.ENDADR));
         dat.set(dataOffset + 4, new MmlDatum((byte) (work.ENDADR >> 8)));
         if (dat.get(dataOffset + 5) == null) {
-            dat.set(dataOffset + 5, new MmlDatum(0));//テンポコマンド(タイマーB)を未設定時nullのままになってしまうので、とりあえず値をセット
+            dat.set(dataOffset + 5, new MmlDatum(0)); // テンポコマンド(タイマーB)を未設定時nullのままになってしまうので、とりあえず値をセット
         }
 
         footsize = 0;
 
         boolean useDriverTAG = false;
         if (tags != null) {
-            for(Tuple < String, String > tag : tags)
-            {
+            for (Tuple<String, String> tag : tags) {
                 if (tag.getItem1().equals("driver")) useDriverTAG = true;
             }
         }
 
-        //データサイズが64k超えていたらdotnet確定
+        // データサイズが64k超えていたらdotnet確定
         if (work.ENDADR - work.MU_NUM > 0xffff) {
-            if (mucInfo.getDriverType() != MUCInfo.enmDriverType.DotNet) {
-                //TBD
+            if (mucInfo.getDriverType() != MUCInfo.DriverType.DotNet) {
+                // TODO
                 return 1;
             }
         }
 
-        if (!useDriverTAG && mucInfo.getDriverType() == MUCInfo.enmDriverType.DotNet) {
+        if (!useDriverTAG && mucInfo.getDriverType() == MUCInfo.DriverType.DotNet) {
             if (tags == null) tags = new ArrayList<>();
-            tags.add(new Tuple<>("driver", MUCInfo.DotNET));
+            tags.add(new Tuple<>("driver", MUCInfo.dotNET));
         }
 
         if (tags != null) {
-            for (Tuple < String, String > tag : tags)
-            {
+            for (Tuple<String, String> tag : tags) {
                 if (tag.getItem1() != null && tag.getItem1().length() > 0 && tag.getItem1().charAt(0) == '*') continue;
                 if (StringUtilities.isNullOrEmpty(tag.getItem1()) && !StringUtilities.isNullOrEmpty(tag.getItem2()) && tag.getItem2().trim().charAt(0) == '*')
                     continue;
                 byte[] b = enc.GetSjisArrayFromString(String.format("#%s %s\n", tag.getItem1(), tag.getItem2()));
                 footsize += b.length;
-                for( byte bd : b)dat.add(new MmlDatum(bd));
+                for (byte bd : b) dat.add(new MmlDatum(bd));
             }
         }
 
@@ -775,7 +761,7 @@ public class Compiler implements iCompiler {
         return 0;
     }
 
-    private int SaveMusicExtendFormat(int length, int option) {
+    private int saveMusicExtendFormat(int length, int option) {
 
         dat.clear();
 
@@ -811,7 +797,7 @@ public class Compiler implements iCompiler {
 
         int instSets = 0;
         for (int i = 0; i < Work.MAXChips; i++) instSets += work.OTONUM[i];
-        if (mucInfo.getssgVoice().size() > 0) instSets = 2;
+        if (mucInfo.getSsgVoice().size() > 0) instSets = 2;
         else instSets = instSets > 0 ? 1 : 0;
 
         dat.add(new MmlDatum(instSets)); // 使用するInstrumentセットの総数(0～)
@@ -859,8 +845,8 @@ public class Compiler implements iCompiler {
         work.compilerInfo.jumpRow = -1;
         work.compilerInfo.jumpCol = -1;
         if (work.getJPLINE() >= 0) {
-            Log.writeLine(LogLevel.INFO, String.format("#Jump count [%s]. channelNumber[%s]", work.JCLOCK, work.getJCHCOM().get(0)));
-            Log.writeLine(LogLevel.INFO, String.format("#Jump line [row:%s col:%s].", work.getJPLINE(), work.getJPCOL()));
+            Debug.printf("#Jump count [%s]. channelNumber[%s]", work.JCLOCK, work.getJCHCOM().get(0));
+            Debug.printf("#Jump line [row:%s col:%s].", work.getJPLINE(), work.getJPCOL());
             work.compilerInfo.jumpRow = work.getJPLINE();
             work.compilerInfo.jumpCol = work.getJPCOL();
         }
@@ -951,19 +937,19 @@ public class Compiler implements iCompiler {
 
         //Part division.
 
-        for (int i = 0; i < work.MAXChips; i++) {
-            for (int j = 0; j < work.MAXCH; j++) {
+        for (int i = 0; i < Work.MAXChips; i++) {
+            for (int j = 0; j < Work.MAXCH; j++) {
                 n = 0;
-                for (int pg = 0; pg < work.MAXPG; pg++) if (work.getbufCount()[i][j][pg] > 1) n++;
+                for (int pg = 0; pg < Work.MAXPG; pg++) if (work.getbufCount()[i][j][pg] > 1) n++;
                 dat.add(new MmlDatum(n));//ページの数(0～)
             }
         }
 
         //Page division.
 
-        for (int i = 0; i < work.MAXChips; i++)
-            for (int j = 0; j < work.MAXCH; j++)
-                for (int pg = 0; pg < work.MAXPG; pg++) {
+        for (int i = 0; i < Work.MAXChips; i++)
+            for (int j = 0; j < Work.MAXCH; j++)
+                for (int pg = 0; pg < Work.MAXPG; pg++) {
                     if (work.getbufCount()[i][j][pg] < 2) continue;
 
                     n = work.getbufCount()[i][j][pg];
@@ -978,28 +964,24 @@ public class Compiler implements iCompiler {
                     dat.add(new MmlDatum((byte) (n >> 24)));
                 }
 
-
         //Instrument set division.
 
         // 使用するInstrumentセットの総数(0～)
-        if (instSets > 0)//FM の音色を使用する場合は1(但しSSG波形を使用している場合は、FMを使用していなくとも定義する)
-        {
-            dat.add(new MmlDatum((byte) mucInfo.getbufUseVoice().size()));
-            dat.add(new MmlDatum((byte) (mucInfo.getbufUseVoice().size() >> 8)));
-            dat.add(new MmlDatum((byte) (mucInfo.getbufUseVoice().size() >> 16)));
-            dat.add(new MmlDatum((byte) (mucInfo.getbufUseVoice().size() >> 24)));
+        if (instSets > 0) { // FM の音色を使用する場合は1(但しSSG波形を使用している場合は、FMを使用していなくとも定義する)
+            dat.add(new MmlDatum((byte) mucInfo.getBufUseVoice().size()));
+            dat.add(new MmlDatum((byte) (mucInfo.getBufUseVoice().size() >> 8)));
+            dat.add(new MmlDatum((byte) (mucInfo.getBufUseVoice().size() >> 16)));
+            dat.add(new MmlDatum((byte) (mucInfo.getBufUseVoice().size() >> 24)));
         }
-        if (instSets == 2)//SSG の波形を使用する場合は2
-        {
-            int ssgVoiceSize = mucInfo.getssgVoice().size() * 65;//65 : 64(dataSize) + 1(音色番号)
+        if (instSets == 2) { // SSG の波形を使用する場合は2
+            int ssgVoiceSize = mucInfo.getSsgVoice().size() * 65;//65 : 64(dataSize) + 1(音色番号)
             dat.add(new MmlDatum((byte) ssgVoiceSize));
             dat.add(new MmlDatum((byte) (ssgVoiceSize >> 8)));
             dat.add(new MmlDatum((byte) (ssgVoiceSize >> 16)));
             dat.add(new MmlDatum((byte) (ssgVoiceSize >> 24)));
         }
 
-
-        //PCM set division.
+        // PCM set division.
 
         if (pcmuse) {
             for (int i = 0; i < pcmI; i++) {
@@ -1010,47 +992,39 @@ public class Compiler implements iCompiler {
             }
         }
 
+        // ページデータ出力
 
-        //ページデータ出力
-
-        for (int i = 0; i < work.MAXChips; i++)
-            for (int j = 0; j < work.MAXCH; j++)
-                for (int pg = 0; pg < work.MAXPG; pg++) {
+        for (int i = 0; i < Work.MAXChips; i++)
+            for (int j = 0; j < Work.MAXCH; j++)
+                for (int pg = 0; pg < Work.MAXPG; pg++) {
                     if (work.getbufCount()[i][j][pg] < 2) continue;
                     for (int p = 0; p < work.getbufCount()[i][j][pg]; p++) {
                         dat.add(mucInfo.getbufPage()[i][j][pg].get(p));
                     }
                 }
 
-
-        //Instrumentデータ出力
+        // Instrumentデータ出力
 
         if (instSets > 0) {
-            for (int i = 0; i < mucInfo.getbufUseVoice().size(); i++) {
-                dat.add(mucInfo.getbufUseVoice().get(i));
-            }
+            dat.addAll(mucInfo.getBufUseVoice());
         }
         if (instSets == 2) {
-            for( int key : mucInfo.getssgVoice().keySet())
-            {
+            for (int key : mucInfo.getSsgVoice().keySet()) {
                 dat.add(new MmlDatum((byte) key));
-                for( byte d : mucInfo.getssgVoice().get(key))
-                {
+                for (byte d : mucInfo.getSsgVoice().get(key)) {
                     dat.add(new MmlDatum((byte) d));
                 }
             }
         }
 
-
-        //PCMデータ出力
+        // PCMデータ出力
 
         if (pcmuse) {
             for (int i = 0; i < pcmI; i++)
                 for (int j = 0; j < pcmsize[i]; j++) dat.add(new MmlDatum(pcmdata[i][j]));
         }
 
-
-        //曲情報出力
+        // 曲情報出力
 
         int infoAdr = dat.size();
         dat.set(0x12, new MmlDatum((byte) infoAdr));
@@ -1060,25 +1034,23 @@ public class Compiler implements iCompiler {
 
         boolean useDriverTAG = false;
         if (tags != null) {
-            for(Tuple < String, String > tag : tags)
-            {
+            for (Tuple<String, String> tag : tags) {
                 if (tag.getItem1().equals("driver")) useDriverTAG = true;
             }
         }
 
-        if (!useDriverTAG && mucInfo.getDriverType() == MUCInfo.enmDriverType.DotNet) {
-            if (tags == null) tags = new ArrayList<Tuple<String, String>>();
-            tags.add(new Tuple<>("driver", MUCInfo.DotNET));
+        if (!useDriverTAG && mucInfo.getDriverType() == MUCInfo.DriverType.DotNet) {
+            if (tags == null) tags = new ArrayList<>();
+            tags.add(new Tuple<>("driver", MUCInfo.dotNET));
         }
 
         if (tags != null) {
             int tagsize = 0;
-            for(Tuple < String, String > tag : tags)
-            {
+            for (Tuple<String, String> tag : tags) {
                 if (tag.getItem1() != null && tag.getItem1().length() > 0 && tag.getItem1().charAt(0) == '*') continue;
-                byte[] b = enc.GetSjisArrayFromString(String.format("#%s %s\r\n", tag.getItem1(), tag.getItem2()));
+                byte[] b = enc.GetSjisArrayFromString(String.format("#%s %s\n", tag.getItem1(), tag.getItem2()));
                 tagsize += b.length;
-                for( byte bd : b)dat.add(new MmlDatum(bd));
+                for (byte bd : b) dat.add(new MmlDatum(bd));
             }
 
             dat.set(0x16, new MmlDatum((byte) tagsize));
@@ -1090,7 +1062,7 @@ public class Compiler implements iCompiler {
         return 0;
     }
 
-    public void SetCompileSwitch(Object... param) {
+    public void setCompileSwitch(Object... param) {
         this.isIDE = false;
         this.skipPoint = Common.EmptyPoint;
 
@@ -1100,7 +1072,7 @@ public class Compiler implements iCompiler {
             if (!(prm instanceof String)) continue;
 
             //IDEフラグオン
-            if (((String) prm).equals("IDE")) {
+            if (prm.equals("IDE")) {
                 this.isIDE = true;
             }
 
@@ -1120,8 +1092,8 @@ public class Compiler implements iCompiler {
         }
     }
 
-    public GD3Tag GetGD3TagInfo(byte[] srcBuf) {
-        List<Tuple<String, String>> tags = GetTagsFromMUC(srcBuf);
+    public GD3Tag getGD3TagInfo(byte[] srcBuf) {
+        List<Tuple<String, String>> tags = getTagsFromMUC(srcBuf);
 
         GD3Tag gt = new GD3Tag();
 
@@ -1168,8 +1140,8 @@ public class Compiler implements iCompiler {
         }
     }
 
-    private byte[] GetPackedPCM(int i, java.util.List<String> list, Function<String, Stream> appendFileReaderCallback) {
+    private byte[] getPackedPCM(int i, java.util.List<String> list, Function<String, Stream> appendFileReaderCallback) {
         AdpcmMaker adpcmMaker = new AdpcmMaker(i, list, appendFileReaderCallback);
-        return adpcmMaker.Make();
+        return adpcmMaker.make();
     }
 }

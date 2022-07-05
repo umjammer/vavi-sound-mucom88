@@ -1,65 +1,65 @@
 How to mucom.NET !
 
-[Žè‡]
-  1.mucƒtƒ@ƒCƒ‹‚ðƒeƒLƒXƒgƒGƒfƒBƒ^‚Åì‚é
-    ì‚è•û‚ÍƒIƒŠƒWƒiƒ‹‚Ìmucom88win‚Æ“¯‚¶‚Å‚·B
-  2.ƒRƒ“ƒpƒCƒ‰‚Åmubƒtƒ@ƒCƒ‹‚ðì‚é
-    ƒGƒ‰[‚ªo‚½‚ç1‚É–ß‚Á‚ÄC³
-  3.ƒvƒŒƒCƒ„[‚Åmubƒtƒ@ƒCƒ‹‚ð‰‰‘t‚·‚é
-    ‰x‚É“ü‚è‚Ü‚·B‹C‚ÉH‚í‚È‚¯‚ê‚Î1‚É–ß‚Á‚ÄC³
-  4.Š®¬!! Let's 8801 Programing!
+[ï¿½è‡]
+  1.mucï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½eï¿½Lï¿½Xï¿½gï¿½Gï¿½fï¿½Bï¿½^ï¿½Åï¿½ï¿½
+    ï¿½ï¿½ï¿½ï¿½ï¿½ÍƒIï¿½ï¿½ï¿½Wï¿½iï¿½ï¿½ï¿½ï¿½mucom88winï¿½Æ“ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½B
+  2.ï¿½Rï¿½ï¿½ï¿½pï¿½Cï¿½ï¿½ï¿½ï¿½mubï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    ï¿½Gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½oï¿½ï¿½ï¿½ï¿½1ï¿½É–ß‚ï¿½ï¿½ÄCï¿½ï¿½
+  3.ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½mubï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½ï¿½
+    ï¿½xï¿½É“ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½Bï¿½Cï¿½ÉHï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½1ï¿½É–ß‚ï¿½ï¿½ÄCï¿½ï¿½
+  4.ï¿½ï¿½ï¿½ï¿½!! Let's 8801 Programing!
 
 
 
-[Žg‚¢•û]
-–ƒRƒ“ƒpƒCƒ‰
-  mucomDotNETConsole.exe file.muc ...
+[ï¿½gï¿½ï¿½ï¿½ï¿½]
+ï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½pï¿½Cï¿½ï¿½
+  console.exe file.muc ...
 
-  *mucomDotNETConsole‚É.mucƒtƒ@ƒCƒ‹‚ðƒhƒƒbƒv‚·‚é‚ÆƒRƒ“ƒpƒCƒ‹‚ðŽÀŽ{‚µAƒGƒ‰[‚ª–³‚¯‚ê‚Îmubƒtƒ@ƒCƒ‹‚ðì¬‚µ‚Ü‚·B
-   •¡”ƒhƒƒbƒv‚·‚é‚±‚Æ‚à‰Â”\‚Å‚·B
-  *‰¹F’è‹`ƒtƒ@ƒCƒ‹‚ÌŽw’è‚ªmucƒtƒ@ƒCƒ‹’†‚É‚È‚¢ê‡‚âŒ©‚Â‚©‚ç‚È‚¢ê‡‚ÍA
-   voice.dat‚Ü‚½‚Ímucompcm.bin‚ðmucomDotNETConsole.exe‚ª‚ ‚éˆÊ’u‚ðŒŸõ‚µ‚Ü‚·B
+  *consoleï¿½ï¿½.mucï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½bï¿½vï¿½ï¿½ï¿½ï¿½ÆƒRï¿½ï¿½ï¿½pï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½{ï¿½ï¿½ï¿½Aï¿½Gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mubï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ì¬ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
+   ï¿½ï¿½ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½bï¿½vï¿½ï¿½ï¿½é‚±ï¿½Æ‚ï¿½ï¿½Â”\ï¿½Å‚ï¿½ï¿½B
+  *ï¿½ï¿½ï¿½Fï¿½ï¿½`ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ÌŽwï¿½è‚ªmucï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½É‚È‚ï¿½ï¿½ê‡ï¿½âŒ©ï¿½Â‚ï¿½ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½ÍA
+   voice.datï¿½Ü‚ï¿½ï¿½ï¿½mucompcm.binï¿½ï¿½console.exeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê’uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
 
 
-–ƒvƒŒƒCƒ„[
+ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[
   mucomDotNETPlayer.exe [-D=[EMU|GIMIC|SCCI]] file.mub
 
-  *mucomDotNETPlayer‚É.mubƒtƒ@ƒCƒ‹‚ðƒhƒƒbƒv‚·‚é‚Æ‰‰‘t‚ðŠJŽn‚µ‚Ü‚·B
-  *ƒIƒvƒVƒ‡ƒ“Žw’è
+  *mucomDotNETPlayerï¿½ï¿½.mubï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½bï¿½vï¿½ï¿½ï¿½ï¿½Æ‰ï¿½ï¿½tï¿½ï¿½ï¿½Jï¿½nï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
+  *ï¿½Iï¿½vï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½wï¿½ï¿½
    -D
-     -DƒIƒvƒVƒ‡ƒ“‚ðŽw’è‚·‚é‚±‚Æ‚É‚æ‚èÄ¶ƒfƒoƒCƒX‚ð•ÏX‚Å‚«‚Ü‚·B
+     -Dï¿½Iï¿½vï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½wï¿½è‚·ï¿½é‚±ï¿½Æ‚É‚ï¿½ï¿½Äï¿½ï¿½fï¿½oï¿½Cï¿½Xï¿½ï¿½ÏXï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½B
      -D=EMU
-       ƒfƒtƒHƒ‹ƒg’l‚Å‚·B
-       ƒGƒ~ƒ…ƒŒ[ƒVƒ‡ƒ“‚É‚æ‚éÄ¶‚ðWindows‚Ì‰¹ºƒfƒoƒCƒX‚©‚çs‚¢‚Ü‚·B
+       ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½lï¿½Å‚ï¿½ï¿½B
+       ï¿½Gï¿½~ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½Äï¿½ï¿½ï¿½Windowsï¿½Ì‰ï¿½ï¿½ï¿½ï¿½fï¿½oï¿½Cï¿½Xï¿½ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
      -D=GIMIC
-       G.I.M.I.C.‚ÌOPNAƒ‚ƒWƒ…[ƒ‹‚É‚æ‚éÄ¶‚ðs‚¢‚Ü‚·Bƒ‚ƒWƒ…[ƒ‹‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡‚ÍEMU‚Æ“¯‚¶“®ì‚É‚È‚è‚Ü‚·
+       G.I.M.I.C.ï¿½ï¿½OPNAï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½É‚ï¿½ï¿½Äï¿½ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½Bï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½ï¿½EMUï¿½Æ“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É‚È‚ï¿½Ü‚ï¿½
      -D=SCCI
-       SCCI‚ÌOPNAƒ‚ƒWƒ…[ƒ‹‚É‚æ‚éÄ¶‚ðs‚¢‚Ü‚·Bƒ‚ƒWƒ…[ƒ‹‚ªŒ©‚Â‚©‚ç‚È‚¢ê‡‚ÍEMU‚Æ“¯‚¶“®ì‚É‚È‚è‚Ü‚·
+       SCCIï¿½ï¿½OPNAï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½É‚ï¿½ï¿½Äï¿½ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½Bï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½ï¿½EMUï¿½Æ“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É‚È‚ï¿½Ü‚ï¿½
 
    -LOADADPCM
-     -LOADADPCMƒIƒvƒVƒ‡ƒ“‚ðŽw’è‚·‚é‚ÆADPCM‚ð‰¹Œ¹‚Ìƒƒ‚ƒŠ‚É“]‘—‚·‚é‚©”Û‚©‚ðŽw’è‚Å‚«‚Ü‚·B
+     -LOADADPCMï¿½Iï¿½vï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½wï¿½è‚·ï¿½ï¿½ï¿½ADPCMï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É“]ï¿½ï¿½ï¿½ï¿½ï¿½é‚©ï¿½Û‚ï¿½ï¿½ï¿½ï¿½wï¿½ï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½B
      -LOADADPCM=TRUE
-       ƒfƒtƒHƒ‹ƒg’l‚Å‚·B
-       ‰‰‘t‘O‚ÉADPCM‚Ì“]‘—ˆ—‚ª“ü‚è‚Ü‚·B
+       ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½lï¿½Å‚ï¿½ï¿½B
+       ï¿½ï¿½ï¿½tï¿½Oï¿½ï¿½ADPCMï¿½Ì“]ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
      -LOADADPCM=FALSE
-       ‰‰‘t‘O‚ÌADPCM‚Ì“]‘—ˆ—‚ðƒXƒLƒbƒv‚µ‚Ü‚·B
+       ï¿½ï¿½ï¿½tï¿½Oï¿½ï¿½ADPCMï¿½Ì“]ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½Lï¿½bï¿½vï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
      -LOADADPCM=ONLY
-       ADPCM‚Ì“]‘—ˆ—‚Ì‚Ýs‚¢‚Ü‚·B‰‰‘t‚Ís‚¢‚Ü‚¹‚ñB
+       ADPCMï¿½Ì“]ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Ýsï¿½ï¿½ï¿½Ü‚ï¿½ï¿½Bï¿½ï¿½ï¿½tï¿½Ísï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½B
 
 
-–PCMTool
+ï¿½ï¿½PCMTool
   PCMTool.exe file.muc
 
-  *PCMTool.exe‚É.mucƒtƒ@ƒCƒ‹‚ðƒhƒƒbƒv‚·‚é‚Æ“à—e‚ð‰ðÍ‚µmucomDotNETŒü‚¯‚Ìadpcmƒf[ƒ^ƒtƒ@ƒCƒ‹‚ð¶¬‚µ‚Ü‚·B
-  *‹@”\ 
-    mucom88ŒÝŠ·PCMƒf[ƒ^ƒtƒ@ƒCƒ‹‚Ìì¬‚·‚é
-    mucomDotNETŒü‚¯OPNA/OPNB‚ÌADPCMƒf[ƒ^ƒtƒ@ƒCƒ‹‚ðì¬‚·‚é
-  *§–ñ
-    .mucƒtƒ@ƒCƒ‹‚ÍSJIS‚ÌCRLFŒ`Ž®‚ÌƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚Å‚ ‚é‚±‚ÆB
-    ‘Ž®‚É‰ˆ‚Á‚½‹Lq‚Å‚ ‚é‚±‚ÆB
-  *“®ì
-    .mucƒtƒ@ƒCƒ‹“à‚É‚ ‚é#@PCMƒ^ƒOŠeŽí‚ðƒŠƒXƒgƒAƒbƒv‚µ
-    wav‚ð“Ç‚Ýž‚ÝAADPCM•ÏŠ·ŒãAƒtƒ@ƒCƒ‹‚ðo—Í‚µ‚Ü‚·B
-    o—Íƒtƒ@ƒCƒ‹–¼‚É‚ÍŠepcmƒ^ƒO–¼‚ª•t‰Á‚³‚ê‚Ü‚·B
+  *PCMTool.exeï¿½ï¿½.mucï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½bï¿½vï¿½ï¿½ï¿½ï¿½Æ“ï¿½ï¿½eï¿½ï¿½ï¿½ï¿½Í‚ï¿½mucomDotNETï¿½ï¿½ï¿½ï¿½ï¿½ï¿½adpcmï¿½fï¿½[ï¿½^ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ð¶ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
+  *ï¿½@ï¿½\ 
+    mucom88ï¿½ÝŠï¿½PCMï¿½fï¿½[ï¿½^ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ìì¬ï¿½ï¿½ï¿½ï¿½
+    mucomDotNETï¿½ï¿½ï¿½ï¿½OPNA/OPNBï¿½ï¿½ADPCMï¿½fï¿½[ï¿½^ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ì¬ï¿½ï¿½ï¿½ï¿½
+  *ï¿½ï¿½ï¿½ï¿½
+    .mucï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½SJISï¿½ï¿½CRLFï¿½`ï¿½ï¿½ï¿½Ìƒeï¿½Lï¿½Xï¿½gï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Å‚ï¿½ï¿½é‚±ï¿½ÆB
+    ï¿½ï¿½ï¿½ï¿½ï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½qï¿½Å‚ï¿½ï¿½é‚±ï¿½ÆB
+  *ï¿½ï¿½ï¿½ï¿½
+    .mucï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½ï¿½#@PCMï¿½^ï¿½Oï¿½eï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½gï¿½Aï¿½bï¿½vï¿½ï¿½
+    wavï¿½ï¿½Ç‚Ýï¿½ï¿½ÝAADPCMï¿½ÏŠï¿½ï¿½ï¿½Aï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½oï¿½Í‚ï¿½ï¿½Ü‚ï¿½ï¿½B
+    ï¿½oï¿½Íƒtï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½É‚ÍŠepcmï¿½^ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B
 
 

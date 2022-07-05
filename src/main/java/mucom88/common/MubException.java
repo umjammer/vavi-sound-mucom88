@@ -1,4 +1,4 @@
-﻿package mucom88.common;
+package mucom88.common;
 
 public class MubException extends RuntimeException {
     public MubException() {

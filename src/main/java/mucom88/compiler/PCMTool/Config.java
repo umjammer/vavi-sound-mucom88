@@ -1,14 +1,15 @@
-﻿package mucom88.compiler.PCMTool;
+package mucom88.compiler.PCMTool;
+
+import java.util.logging.Level;
 
 import dotnet4j.util.compat.StringUtilities;
-import mdsound.Log;
-import mdsound.LogLevel;
+import vavi.util.Debug;
 
 
 public class Config {
-    enmFormatType FormatType = enmFormatType.mucom88;
+    mucom88.compiler.PCMTool.FormatType FormatType = mucom88.compiler.PCMTool.FormatType.mucom88;
 
-    public enmFormatType getFormatType() {
+    public mucom88.compiler.PCMTool.FormatType getFormatType() {
         return FormatType;
     }
 
@@ -25,27 +26,27 @@ public class Config {
         switch (contents) {
         case "FORMAT":
             String val = value.toUpperCase();
-            if (val.equals("MUCOM88")) FormatType = enmFormatType.mucom88;
+            if (val.equals("MUCOM88")) FormatType = mucom88.compiler.PCMTool.FormatType.mucom88;
             else if (val.equals("MUCOMDOTNET"))
-                FormatType = enmFormatType.mucomDotNET_OPNA_ADPCM;
-            else if (val.equals("OPNA")) FormatType = enmFormatType.mucomDotNET_OPNA_ADPCM;
+                FormatType = mucom88.compiler.PCMTool.FormatType.mucomDotNET_OPNA_ADPCM;
+            else if (val.equals("OPNA")) FormatType = mucom88.compiler.PCMTool.FormatType.mucomDotNET_OPNA_ADPCM;
             else if (val.equals("OPNB_B"))
-                FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMB;
+                FormatType = mucom88.compiler.PCMTool.FormatType.mucomDotNET_OPNB_ADPCMB;
             else if (val.equals("OPNB_A"))
-                FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMA;
+                FormatType = mucom88.compiler.PCMTool.FormatType.mucomDotNET_OPNB_ADPCMA;
             else if (val.equals("OPNB-B"))
-                FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMB;
+                FormatType = mucom88.compiler.PCMTool.FormatType.mucomDotNET_OPNB_ADPCMB;
             else if (val.equals("OPNB-A"))
-                FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMA;
+                FormatType = mucom88.compiler.PCMTool.FormatType.mucomDotNET_OPNB_ADPCMA;
             else if (val.equals("OPNBB"))
-                FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMB;
+                FormatType = mucom88.compiler.PCMTool.FormatType.mucomDotNET_OPNB_ADPCMB;
             else if (val.equals("OPNBA"))
-                FormatType = enmFormatType.mucomDotNET_OPNB_ADPCMA;
-            else Log.writeLine(LogLevel.ERROR, String.format("Unknown format type.[%s]", value));
+                FormatType = mucom88.compiler.PCMTool.FormatType.mucomDotNET_OPNB_ADPCMA;
+            else Debug.printf(Level.SEVERE, String.format("Unknown format type.[%s]", value));
             break;
 
         default:
-            Log.writeLine(LogLevel.ERROR, String.format("Unknown command[%s].", contents));
+            Debug.printf(Level.SEVERE, String.format("Unknown command[%s].", contents));
             break;
         }
     }

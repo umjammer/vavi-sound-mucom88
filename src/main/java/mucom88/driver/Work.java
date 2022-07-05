@@ -1,9 +1,8 @@
-﻿package mucom88.driver;
+package mucom88.driver;
 
 import java.util.Map;
 
-import dotnet4j.Tuple;
-import dotnet4j.Tuple6;
+import dotnet4j.util.compat.Tuple;
 import musicDriverInterface.MmlDatum;
 
 

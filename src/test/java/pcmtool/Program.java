@@ -1,168 +1,170 @@
-﻿using mucomDotNET.Compiler.PCMTool;
-using musicDriverInterface;
-using System;
-using System.Collections.Generic;
-using System.IO;
+package pcmtool;
 
-namespace PCMTool
-{
-    class Program
-    {
-        private static string srcFile;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.logging.Level;
 
-        static void Main(string[] args)
-        {
-            Log.writeLine += WriteLine;
-#if DEBUG
-            //Log.writeLine += WriteLineF;
-            Log.level = LogLevel.TRACE;// TRACE;
-#else
-            Log.level = LogLevel.INFO;
-#endif
-            int fnIndex = AnalyzeOption(args);
+import dotnet4j.io.File;
+import dotnet4j.io.FileAccess;
+import dotnet4j.io.FileMode;
+import dotnet4j.io.FileShare;
+import dotnet4j.io.FileStream;
+import dotnet4j.io.IOException;
+import dotnet4j.io.Path;
+import dotnet4j.io.Stream;
+import dotnet4j.util.compat.StringUtilities;
+import mdsound.Log;
+import mdsound.LogLevel;
+import mucom88.compiler.PCMTool.AdpcmMaker;
+import vavi.util.Debug;
 
-            if (args == null || args.Length != fnIndex + 1)
-            {
-                Log.WriteLine(LogLevel.ERROR, "引数(.mucファイル)１個欲しいよぉ");
-                return;
-            }
-            if (!File.Exists(args[fnIndex]))
-            {
-                Log.WriteLine(LogLevel.ERROR, "ファイルが見つかりません");
-                return;
-            }
 
-            make(args[fnIndex]);
+class Program {
+    private static String srcFile;
+
+    static void Main(String[] args) {
+        Log.writeLine = Program::WriteLine;
+//#if DEBUG
+        //Log.writeLine += WriteLineF;
+//            Log.level = LogLevel.FINEST;// TRACE;
+//#else
+        Log.level = LogLevel.INFO;
+//#endif
+        int fnIndex = AnalyzeOption(args);
+
+        if (args == null || args.length != fnIndex + 1) {
+            Debug.printf(Level.SEVERE, "引数(.mucファイル)１個欲しいよぉ");
+            return;
+        }
+        if (!File.exists(args[fnIndex])) {
+            Debug.printf(Level.SEVERE, "ファイルが見つかりません");
+            return;
         }
 
-        static void WriteLine(LogLevel level, string msg)
-        {
-            Console.WriteLine("[{0,-7}] {1}", level, msg);
+        make(args[fnIndex]);
+    }
+
+    static void WriteLine(LogLevel level, String msg) {
+        System.err.printf("[%-7s] %s", level, msg);
+    }
+
+    private static int AnalyzeOption(String[] args) {
+        int i = 0;
+        if (args.length == 0) return i;
+
+        while (args[i] != null && args[i].length() > 0 && args[i].charAt(0) == '-') {
+            String op = args[i].substring(1).toUpperCase();
+
+            i++;
         }
 
-        private static int AnalyzeOption(string[] args)
-        {
-            int i = 0;
-            if (args.Length == 0) return i;
+        return i;
+    }
 
-            while (args[i] != null && args[i].Length > 0 && args[i][0] == '-')
-            {
-                string op = args[i].Substring(1).ToUpper();
+    private static void make(String fn) {
+//#if NETCOREAPP
+//            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+//#endif
+        try {
+            srcFile = fn;
 
-                i++;
-            }
+            //sjis crlf
+//#if NETCOREAPP
+//                String[] src = File.readAllText(fn, System.Text.Encoding.GetEncoding(932)).Split("\n", StringSplitOptions.None);
+//#else
+            String[] src = File.readAllText(fn, Charset.forName("MS932")).split("\n");
+//#endif
 
-            return i;
-        }
-
-        private static void make(string fn)
-        {
-#if NETCOREAPP
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-#endif
-            try
-            {
-                srcFile = fn;
-
-                //sjis crlf
-#if NETCOREAPP
-                string[] src = File.ReadAllText(fn, System.Text.Encoding.GetEncoding(932)).Split("\r\n", StringSplitOptions.None);
-#else
-                string[] src = File.ReadAllText(fn, System.Text.Encoding.GetEncoding(932)).Split(new string[] { "\r\n" }, StringSplitOptions.None);
-#endif
-
-                List<string>[] ret = divider(src);
-                byte[][] pcmdata = new byte[6][];
-                for (int i = 0; i < 6; i++)
-                {
-                    pcmdata[i] = null;
-                    if (ret[i].Count > 0)
-                    {
-                        pcmdata[i] = GetPackedPCM(i, ret[i], appendFileReaderCallback);
-                    }
-                }
-
-                string[] addName = new string[6]
-                {
-                    "_pcm.bin",
-                    "_pcm_2nd.bin" ,
-                    "_pcm_3rd_b.bin",
-                    "_pcm_4th_b.bin",
-                    "_pcm_3rd_a.bin",
-                    "_pcm_4th_a.bin",
-                };
-                for (int i = 0; i < 6; i++)
-                {
-                    if (pcmdata[i] == null) continue;
-                    string dstFn = Path.Combine(Path.GetDirectoryName(fn), Path.GetFileNameWithoutExtension(fn) + addName[i] );
-                    File.WriteAllBytes(dstFn, pcmdata[i]);
-                    Log.WriteLine(LogLevel.INFO, string.Format("Write:{0} size:{1}", dstFn, pcmdata[i].Length));
+            List<String>[] ret = divider(src);
+            byte[][] pcmdata = new byte[6][];
+            for (int i = 0; i < 6; i++) {
+                pcmdata[i] = null;
+                if (ret[i].size() > 0) {
+                    pcmdata[i] = GetPackedPCM(i, ret[i], Program::appendFileReaderCallback);
                 }
             }
-            catch (Exception ex)
-            {
-                Log.WriteLine(LogLevel.FATAL, "Fatal error.");
-                Log.WriteLine(LogLevel.FATAL, " Message:");
-                Log.WriteLine(LogLevel.FATAL, ex.Message);
-                Log.WriteLine(LogLevel.FATAL, " StackTrace:");
-                Log.WriteLine(LogLevel.FATAL, ex.StackTrace);
+
+            String[] addName = new String[] {
+                "_pcm.bin",
+                        "_pcm_2nd.bin",
+                        "_pcm_3rd_b.bin",
+                        "_pcm_4th_b.bin",
+                        "_pcm_3rd_a.bin",
+                        "_pcm_4th_a.bin",
+            } ;
+            for (int i = 0; i < 6; i++) {
+                if (pcmdata[i] == null) continue;
+                String dstFn = Path.combine(Path.getDirectoryName(fn), Path.getFileNameWithoutExtension(fn) + addName[i]);
+                File.writeAllBytes(dstFn, pcmdata[i]);
+                Debug.printf(Level.INFO, String.format("Write:%d size:%d", dstFn, pcmdata[i].length));
             }
-        }
-
-        private static List<string>[] divider(string[] src)
-        {
-            List<string>[] ret = new List<string>[6] { 
-                new List<string>(), new List<string>(), new List<string>(),
-                new List<string>(), new List<string>(), new List<string>() 
-            };
-
-            foreach(string lin in src)
-            {
-                if (string.IsNullOrEmpty(lin)) continue;
-                if (lin.Length < 3) continue;
-                if (lin[0] != '#') continue;
-                if (lin[1] != '@') continue;
-
-                string li = lin.Substring(2).ToLower();
-                //文字列の長いものから比較
-                     if (li.IndexOf("pcm_3rd_b") == 0) { ret[2].Add(lin.Substring(2 + 9)); }
-                else if (li.IndexOf("pcm_4th_b") == 0) { ret[3].Add(lin.Substring(2 + 9)); }
-                else if (li.IndexOf("pcm_3rd_a") == 0) { ret[4].Add(lin.Substring(2 + 9)); }
-                else if (li.IndexOf("pcm_4th_a") == 0) { ret[5].Add(lin.Substring(2 + 9)); }
-                else if (li.IndexOf("pcm_2nd") == 0) { ret[1].Add(lin.Substring(2 + 7)); }
-                else if (li.IndexOf("pcm") == 0) { ret[0].Add(lin.Substring(2 + 3)); }
-            }
-
-            return ret;
-        }
-
-        private static byte[] GetPackedPCM(int i, List<string> list, Func<string, Stream> appendFileReaderCallback)
-        {
-            AdpcmMaker adpcmMaker = new AdpcmMaker(i, list, appendFileReaderCallback);
-            return adpcmMaker.Make();
-        }
-
-        private static Stream appendFileReaderCallback(string arg)
-        {
-
-            string fn = Path.Combine(
-                Path.GetDirectoryName(srcFile)
-                , arg
-                );
-
-            if (!File.Exists(fn)) return null;
-
-            FileStream strm;
-            try
-            {
-                strm = new FileStream(fn, FileMode.Open, FileAccess.Read, FileShare.Read);
-            }
-            catch (IOException)
-            {
-                strm = null;
-            }
-
-            return strm;
+        } catch (Exception ex) {
+            Debug.printf(Level.SEVERE, "Fatal error.");
+            Debug.printf(Level.SEVERE, " Message:");
+            Debug.printf(Level.SEVERE, ex.getMessage());
+            Debug.printf(Level.SEVERE, " StackTrace:");
+            Debug.printf(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
         }
     }
+
+    private static List<String>[] divider(String[] src) {
+        List<String>[] ret = new List[] {
+            new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                    new ArrayList<>(), new ArrayList<>(), new ArrayList<>()
+        } ;
+
+        for (String lin : src)
+        {
+            if (StringUtilities.isNullOrEmpty(lin)) continue;
+            if (lin.length() < 3) continue;
+            if (lin.charAt(0) != '#') continue;
+            if (lin.charAt(1) != '@') continue;
+
+            String li = lin.substring(2).toLowerCase();
+            //文字列の長いものから比較
+            if (li.indexOf("pcm_3rd_b") == 0) {
+                ret[2].add(lin.substring(2 + 9));
+            } else if (li.indexOf("pcm_4th_b") == 0) {
+                ret[3].add(lin.substring(2 + 9));
+            } else if (li.indexOf("pcm_3rd_a") == 0) {
+                ret[4].add(lin.substring(2 + 9));
+            } else if (li.indexOf("pcm_4th_a") == 0) {
+                ret[5].add(lin.substring(2 + 9));
+            } else if (li.indexOf("pcm_2nd") == 0) {
+                ret[1].add(lin.substring(2 + 7));
+            } else if (li.indexOf("pcm") == 0) {
+                ret[0].add(lin.substring(2 + 3));
+            }
+        }
+
+        return ret;
+    }
+
+    private static byte[] GetPackedPCM(int i, List<String> list, Function<String, Stream> appendFileReaderCallback) {
+        AdpcmMaker adpcmMaker = new AdpcmMaker(i, list, appendFileReaderCallback);
+        return adpcmMaker.make();
+    }
+
+    private static Stream appendFileReaderCallback(String arg) {
+
+        String fn = Path.combine(
+                Path.getDirectoryName(srcFile)
+                , arg
+        );
+
+        if (!File.exists(fn)) return null;
+
+        FileStream strm;
+        try {
+            strm = new FileStream(fn, FileMode.Open, FileAccess.Read, FileShare.Read);
+        } catch (IOException e) {
+            strm = null;
+        }
+
+        return strm;
+    }
 }
+

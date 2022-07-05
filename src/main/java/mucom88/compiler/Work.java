@@ -1,4 +1,4 @@
-﻿package mucom88.compiler;
+package mucom88.compiler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -381,7 +381,7 @@ public class Work {
         return true;//セットできた
     }
 
-    public char GetTrackCharacterFromChipValue(int chipIndex, int CHIP_CH) {
+    public char getTrackCharacterFromChipValue(int chipIndex, int CHIP_CH) {
         int no = chipIndex * MAXCH + CHIP_CH;
         if (no < 0 || no >= Tracks.length()) return Character.MIN_VALUE;
         return Tracks.charAt(no);

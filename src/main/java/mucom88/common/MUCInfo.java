@@ -1,106 +1,106 @@
-﻿package mucom88.common;
+package mucom88.common;
 
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import dotnet4j.Tuple;
 import dotnet4j.io.Path;
+import dotnet4j.util.compat.Tuple;
 import musicDriverInterface.MmlDatum;
 
 
 public class MUCInfo {
     private String title;
 
-    public String gettitle() {
+    public String getTitle() {
         return title;
     }
 
-    public void settitle(String value) {
+    public void setTitle(String value) {
         title = value;
     }
 
     private String composer;
 
-    public String getcomposer() {
+    public String getComposer() {
         return composer;
     }
 
-    public void setcomposer(String value) {
+    public void setComposer(String value) {
         composer = value;
     }
 
     private String author;
 
-    public String getauthor() {
+    public String getAuthor() {
         return author;
     }
 
-    public void setauthor(String value) {
+    public void setAuthor(String value) {
         author = value;
     }
 
     private String comment;
-    public String getcomment() {
+    public String getComment() {
         return comment;
     }
-    public void setcomment(String value) {
+    public void setComment(String value) {
         comment = value;
     }
-    public void addcomment(String value) {
+    public void addComment(String value) {
         comment += value;
     }
 
     private String mucom88;
 
-    public String getmucom88() {
+    public String getMucom88() {
         return mucom88;
     }
 
-    public void setmucom88(String value) {
+    public void setMucom88(String value) {
         mucom88 = value;
     }
 
     private String date;
 
-    public String getdate() {
+    public String getDate() {
         return date;
     }
 
-    public void setdate(String value) {
+    public void setDate(String value) {
         date = value;
     }
 
     private String voice;
 
-    public String getvoice() {
+    public String getVoice() {
         return voice;
     }
 
-    public void setvoice(String value) {
+    public void setVoice(String value) {
         voice = value;
     }
 
     private String[] pcm = new String[6];
 
-    public String[] getpcm() {
+    public String[] getPcm() {
         return pcm;
     }
 
-    public void setpcm(String[] value) {
+    public void setPcm(String[] value) {
         pcm = value;
     }
 
-    public List<String>[] getpcmAt() {
+    public List<String>[] getPcmAt() {
         return pcmAt;
     }
 
-    public void setpcmAt(List<String>[] value) {
+    public void setPcmAt(List<String>[] value) {
         pcmAt = value;
     }
 
-    private List<String>[] pcmAt = new ArrayList[] {
+    private List<String>[] pcmAt = new List[] {
             new ArrayList<String>(),
             new ArrayList<String>(),
             new ArrayList<String>(),
@@ -110,44 +110,44 @@ public class MUCInfo {
     };
     private String driver;
 
-    public String getdriver() {
+    public String getDriver() {
         return driver;
     }
 
-    public void setdriver(String value) {
+    public void setDriver(String value) {
         driver = value;
     }
 
     private String invert;
 
-    public String getinvert() {
+    public String getInvert() {
         return invert;
     }
 
-    public void setinvert(String value) {
+    public void setInvert(String value) {
         invert = value;
     }
 
-    private String pcminvert;
+    private String pcmInvert;
 
-    public String getpcminvert() {
-        return pcminvert;
+    public String getPcmInvert() {
+        return pcmInvert;
     }
 
-    public void setpcminvert(String value) {
-        pcminvert = value;
+    public void setPcmInvert(String value) {
+        pcmInvert = value;
     }
 
-    public static final String DotNET = "mucomDotNET";
+    public static final String dotNET = "mucomDotNET";
 
 
     private int lines;
 
-    public int getlines() {
+    public int getLines() {
         return lines;
     }
 
-    public void setlines(int value) {
+    public void setLines(int value) {
         lines = value;
     }
 
@@ -156,11 +156,11 @@ public class MUCInfo {
      */
     private byte[] mmlVoiceData;
 
-    public byte[] getmmlVoiceData() {
+    public byte[] getMmlVoiceData() {
         return mmlVoiceData;
     }
 
-    public void setmmlVoiceData(byte[] value) {
+    public void setMmlVoiceData(byte[] value) {
         mmlVoiceData = value;
     }
 
@@ -169,21 +169,21 @@ public class MUCInfo {
      */
     private byte[] voiceData;
 
-    public byte[] getvoiceData() {
+    public byte[] getVoiceData() {
         return voiceData;
     }
 
-    public void setvoiceData(byte[] value) {
+    public void setVoiceData(byte[] value) {
         voiceData = value;
     }
 
     private byte[] pcmData;
 
-    public byte[] getpcmData() {
+    public byte[] getPcmData() {
         return pcmData;
     }
 
-    public void setpcmData(byte[] value) {
+    public void setPcmData(byte[] value) {
         pcmData = value;
     }
 
@@ -192,21 +192,21 @@ public class MUCInfo {
      */
     private Map<Integer, byte[]> ssgVoice;
 
-    public Map<Integer, byte[]> getssgVoice() {
+    public Map<Integer, byte[]> getSsgVoice() {
         return ssgVoice;
     }
 
-    public void setpssgVoice(Map<Integer, byte[]> value) {
+    public void setSsgVoice(Map<Integer, byte[]> value) {
         ssgVoice = value;
     }
 
     private List<Tuple<Integer, String>> basSrc;
 
-    public List<Tuple<Integer, String>> getbasSrc() {
+    public List<Tuple<Integer, String>> getBasSrc() {
         return basSrc;
     }
 
-    public void setbasSrc(List<Tuple<Integer, String>> value) {
+    public void setBasSrc(List<Tuple<Integer, String>> value) {
         basSrc = value;
     }
 
@@ -218,50 +218,51 @@ public class MUCInfo {
         return _fnSrc;
     }
 
-    public void setfnSrc(String value) {
+    public void setFnSrc(String value) {
         _fnSrc = value;
         _fnSrcOnlyFile = Path.getFileName(value);
     }
 
     private String _fnSrcOnlyFile = null;
 
-    public String getfnSrcOnlyFile() {
+    public String getFnSrcOnlyFile() {
         return _fnSrcOnlyFile;
     }
 
     private String workPath;
 
-    public String getworkPath() {
+    public String getWorkPath() {
         return workPath;
     }
 
-    public void setworkPath(String value) {
+    public void setWorkPath(String value) {
         workPath = value;
     }
 
     private String fnDst;
 
-    public String getfnDst() {
+    public String getFnDst() {
         return fnDst;
     }
 
-    public void setfnDst(String value) {
+    public void setFnDst(String value) {
         fnDst = value;
     }
 
-    //KUMA:作業向けメモリ
-    private List<MmlDatum> bufDst;
+    // KUMA:作業向けメモリ
+    private List<MmlDatum> bufDst; // AutoExtendList
 
-    public List<MmlDatum> getbufDst() {
+    public List<MmlDatum> getBufDst() {
         return bufDst;
     }
 
-    public void setbufDst(List<MmlDatum> value) {
+    public void setBufDst(List<MmlDatum> value) {
+        assert value instanceof AutoExtendList : value.getClass().getName();
         bufDst = value;
     }
 
-    //KUMA:ページ毎のメモリ
-    private List<MmlDatum>[][][] bufPage;
+    // KUMA:ページ毎のメモリ
+    private List<MmlDatum>[][][] bufPage; // AutoExtendList
 
     public List<MmlDatum>[][][] getbufPage() {
         return bufPage;
@@ -271,20 +272,21 @@ public class MUCInfo {
         bufPage = value;
     }
 
-    //KUMA:音色用のメモリ(ページ機能使用時のみ)
-    private List<MmlDatum> bufUseVoice;
+    // KUMA:音色用のメモリ(ページ機能使用時のみ)
+    private List<MmlDatum> bufUseVoice; // AutoExtendList
 
-    public List<MmlDatum> getbufUseVoice() {
+    public List<MmlDatum> getBufUseVoice() {
         return bufUseVoice;
     }
 
-    public void setbufUseVoice(List<MmlDatum> value) {
+    public void setBufUseVoice(List<MmlDatum> value) {
+        assert value instanceof AutoExtendList : value.getClass().getName();
         bufUseVoice = value;
     }
 
     private int srcLinPtr;
 
-    public int getsrcLinPtr() {
+    public int getSrcLinPtr() {
         return srcLinPtr;
     }
 
@@ -316,61 +318,61 @@ public class MUCInfo {
 
     private Tuple<Integer, String> lin;
 
-    public Tuple<Integer, String> getlin() {
+    public Tuple<Integer, String> getLin() {
         return lin;
     }
 
-    public void setlin(Tuple<Integer, String> value) {
+    public void setLin(Tuple<Integer, String> value) {
         lin = value;
     }
 
-    private boolean Carry;
+    private boolean carry;
 
     public boolean getCarry() {
-        return Carry;
+        return carry;
     }
 
     public void setCarry(boolean value) {
-        Carry = value;
+        carry = value;
     }
 
-    private boolean ErrSign;
+    private boolean errSign;
 
     public boolean getErrSign() {
-        return ErrSign;
+        return errSign;
     }
 
     public void setErrSign(boolean value) {
-        ErrSign = value;
+        errSign = value;
     }
 
-    private List<Integer> bufMac;
+    private List<Integer> bufMac; // AutoExtendList
 
-    public List<Integer> getbufMac() {
+    public List<Integer> getBufMac() {
         return bufMac;
     }
 
-    public void setbufMac(List<Integer> value) {
+    public void setBufMac(List<Integer> value) {
         bufMac = value;
     }
 
-    private List<Integer> bufMacStack;
+    private List<Integer> bufMacStack; // AutoExtendList
 
-    public List<Integer> getbufMacStack() {
+    public List<Integer> getBufMacStack() {
         return bufMacStack;
     }
 
-    public void setbufMacStack(List<Integer> value) {
+    public void setBufMacStack(List<Integer> value) {
         bufMacStack = value;
     }
 
-    private List<Byte> bufLoopStack;
+    private List<Byte> bufLoopStack; // AutoExtendList
 
-    public List<Byte> getbufLoopStack() {
+    public List<Byte> getBufLoopStack() {
         return bufLoopStack;
     }
 
-    public void setbufLoopStack(List<Byte> value) {
+    public void setBufLoopStack(List<Byte> value) {
         bufLoopStack = value;
     }
 
@@ -379,251 +381,241 @@ public class MUCInfo {
      * 関連項目:
      * orig:DEFVOICE
      */
-    private List<Integer> bufDefVoice;
+    private List<Integer> bufDefVoice; // AutoExtendList
 
-    public List<Integer> getbufDefVoice() {
+    public List<Integer> getBufDefVoice() {
         return bufDefVoice;
     }
 
-    public void setbufDefVoice(List<Integer> value) {
+    public void setBufDefVoice(List<Integer> value) {
         bufDefVoice = value;
     }
 
     private int useOtoAdr;
 
-    public int getuseOtoAdr() {
+    public int getUseOtoAdr() {
         return useOtoAdr;
     }
 
-    public void setuseOtoAdr(int value) {
+    public void setUseOtoAdr(int value) {
         useOtoAdr = value;
     }
 
-    private List<Integer> bufTitle;
+    private List<Integer> bufTitle; // AutoExtendList
 
-    public List<Integer> getbufTitle() {
+    public List<Integer> getBufTitle() {
         return bufTitle;
     }
 
-    public void setbufTitle(List<Integer> value) {
+    public void setBufTitle(List<Integer> value) {
         bufTitle = value;
     }
 
-    private List<Byte> mmlVoiceDataWork;
+    private List<Byte> mmlVoiceDataWork; // AutoExtendList
 
-    public List<Byte> getmmlVoiceDataWork() {
+    public List<Byte> getMmlVoiceDataWork() {
         return mmlVoiceDataWork;
     }
 
-    public void setmmlVoiceDataWork(List<Byte> value) {
+    public void setMmlVoiceDataWork(List<Byte> value) {
         mmlVoiceDataWork = value;
     }
 
     private int row;
 
-    public int getrow() {
+    public int getRow() {
         return row;
     }
 
-    public void setrow(int value) {
+    public void setRow(int value) {
         row = value;
     }
 
     private int col;
 
-    public int getcol() {
+    public int getCol() {
         return col;
     }
 
-    public void setcol(int value) {
+    public void setCol(int value) {
         col = value;
     }
 
-    private int VM;
+    private int vm;
 
     public int getVM() {
-        return VM;
+        return vm;
     }
 
     public void setVM(int value) {
-        VM = value;
+        vm = value;
     }
-    //private boolean needNormalMucom; public boolean getneedNormalMucom() { return needNormalMucom; } public void setneedNormalMucom(boolean value) { needNormalMucom = value; } = false;
 
-    public enum enmDriverType {
+    public enum DriverType {
         normal,
         E,
         em,
         DotNet
     }
 
-    private enmDriverType _DriverType = enmDriverType.normal;
-    //public boolean needEMucom = false;
+    private DriverType driverType = DriverType.normal;
 
-    //mucomDotNET独自機能を使用したか否か
-    public enmDriverType getDriverType() {
-        return _DriverType;
+    // mucomDotNET独自機能を使用したか否か
+    public DriverType getDriverType() {
+        return driverType;
     }
 
-    public void setDriverType(enmDriverType value) {
-        //if (_DriverType == enmDriverType.normal && value == enmDriverType.DotNet && needNormalMucom)
-        //{
-        //    throw new MucException(msg.get("E0001"), row, col);
-        //}
-
-        //if (_DriverType == enmDriverType.E && needEMucom)
-        //    return;
-
-        _DriverType = value;
+    public void setDriverType(DriverType value) {
+        driverType = value;
     }
 
     private boolean isIDE = false;
 
-    public boolean getisIDE() {
+    public boolean isIDE() {
         return isIDE;
     }
 
-    public void setisIDE(boolean value) {
+    public void setIDE(boolean value) {
         isIDE = value;
     }
 
     private Point skipPoint = new Point(0, 0);
 
-    public Point getskipPoint() {
+    public Point getSkipPoint() {
         return skipPoint;
     }
 
-    public void setskipPoint(Point value) {
+    public void setSkipPoint(Point value) {
         skipPoint = value;
     }
 
     private int skipChannel = -1;
 
-    public int getskipChannel() {
+    public int getSkipChannel() {
         return skipChannel;
     }
 
-    public void setskipChannel(int value) {
+    public void setSkipChannel(int value) {
         skipChannel = value;
     }
 
     private boolean isExtendFormat = false;
 
-    public boolean getisExtendFormat() {
+    public boolean isExtendFormat() {
         return isExtendFormat;
     }
 
-    public void setisExtendFormat(boolean value) {
+    public void setExtendFormat(boolean value) {
         isExtendFormat = value;
     }
 
-    private boolean carriercorrection = false;
+    private boolean carrierCorrection = false;
 
-    public boolean getcarriercorrection() {
-        return carriercorrection;
+    public boolean getCarrierCorrection() {
+        return carrierCorrection;
     }
 
-    public void setcarriercorrection(boolean value) {
-        carriercorrection = value;
+    public void setCarrierCorrection(boolean value) {
+        carrierCorrection = value;
     }
 
-    private enmOpmClockMode opmclockmode = enmOpmClockMode.normal;
+    private OpmClockMode opmClockMode = OpmClockMode.normal;
 
-    public enmOpmClockMode getopmclockmode() {
-        return opmclockmode;
+    public OpmClockMode getOpmClockMode() {
+        return opmClockMode;
     }
 
-    public void setopmclockmode(enmOpmClockMode value) {
-        opmclockmode = value;
+    public void setOpmClockMode(OpmClockMode value) {
+        opmClockMode = value;
     }
 
-    public enum enmOpmClockMode {
+    public enum OpmClockMode {
         normal, X68000
     }
 
-    private boolean SSGExtend = false;
+    private boolean ssgExtend = false;
 
     public boolean getSSGExtend() {
-        return SSGExtend;
+        return ssgExtend;
     }
 
     public void setSSGExtend(boolean value) {
-        SSGExtend = value;
+        ssgExtend = value;
     }
 
     private List<Byte> useSSGWavNum = new ArrayList<>();
 
-    public List<Byte> getuseSSGWavNum() {
+    public List<Byte> getUseSSGWavNum() {
         return useSSGWavNum;
     }
 
-    public void setuseSSGWavNum(List<Byte> value) {
+    public void setUseSSGWavNum(List<Byte> value) {
         useSSGWavNum = value;
     }
 
-    private boolean opmpanreverse = false;
+    private boolean opmPanReverse = false;
 
-    public boolean getopmpanreverse() {
-        return opmpanreverse;
+    public boolean getOpmPanReverse() {
+        return opmPanReverse;
     }
 
-    public void setopmpanreverse(boolean value) {
-        opmpanreverse = value;
+    public void setOpmPanReverse(boolean value) {
+        opmPanReverse = value;
     }
 
-    private int opna1rhythmmute = 0;
+    private int opna1RhythmMute = 0;
 
-    public int getopna1rhythmmute() {
-        return opna1rhythmmute;
+    public int getOpna1RhythmMute() {
+        return opna1RhythmMute;
     }
 
     public void setopna1rhythmmute(int value) {
-        opna1rhythmmute = value;
+        opna1RhythmMute = value;
     }
     public void oropna1rhythmmute(int value) {
-        opna1rhythmmute |= value;
+        opna1RhythmMute |= value;
     }
 
-    private int opna2rhythmmute = 0;
+    private int opna2RhythmMute = 0;
 
-    public int getopna2rhythmmute() {
-        return opna2rhythmmute;
+    public int getOpna2RhythmMute() {
+        return opna2RhythmMute;
     }
 
-    public void setopna2rhythmmute(int value) {
-        opna2rhythmmute = value;
+    public void setOpna2RhythmMute(int value) {
+        opna2RhythmMute = value;
     }
-    public void oropna2rhythmmute(int value) {
-        opna2rhythmmute |= value;
-    }
-
-    private int opnb1adpcmamute = 0;
-
-    public int getopnb1adpcmamute() {
-        return opnb1adpcmamute;
+    public void orOpna2RhythmMute(int value) {
+        opna2RhythmMute |= value;
     }
 
-    public void setopnb1adpcmamute(int value) {
-        opnb1adpcmamute = value;
-    }
-    public void oropnb1adpcmamute(int value) {
-        opnb1adpcmamute |= value;
+    private int opnb1AdpcmAMute = 0;
+
+    public int getOpnb1AdpcmAMute() {
+        return opnb1AdpcmAMute;
     }
 
-    private int opnb2adpcmamute = 0;
-
-    public int getopnb2adpcmamute() {
-        return opnb2adpcmamute;
+    public void setOpnb1AdpcmAMute(int value) {
+        opnb1AdpcmAMute = value;
+    }
+    public void orOpnb1AdpcmAMute(int value) {
+        opnb1AdpcmAMute |= value;
     }
 
-    public void setopnb2adpcmamute(int value) {
-        opnb2adpcmamute = value;
-    }
-    public void oropnb2adpcmamute(int value) {
-        opnb2adpcmamute |= value;
+    private int opnb2AdpcmAMute = 0;
+
+    public int getOpnb2AdpcmAMute() {
+        return opnb2AdpcmAMute;
     }
 
-    public void Clear() {
+    public void setOpnb2AdpcmAMute(int value) {
+        opnb2AdpcmAMute = value;
+    }
+    public void orOpnb2AdpcmAMute(int value) {
+        opnb2AdpcmAMute |= value;
+    }
+
+    public void clear() {
         title = "";
         composer = "";
         author = "";
@@ -637,7 +629,7 @@ public class MUCInfo {
         }
         driver = "";
         invert = "";
-        pcminvert = "";
+        pcmInvert = "";
         lines = 0;
         voiceData = null;
         pcmData = null;
@@ -646,14 +638,14 @@ public class MUCInfo {
         workPath = "";
         fnDst = "";
 
-        //バッファの作成
-        bufPage = new ArrayList[5][][];
+        // バッファの作成
+        bufPage = new List[5][][];
         for (int i = 0; i < 5; i++) {
-            bufPage[i] = new ArrayList[11][];
+            bufPage[i] = new List[11][];
             for (int j = 0; j < 11; j++) {
-                bufPage[i][j] = new ArrayList[10];
+                bufPage[i][j] = new List[10];
                 for (int pg = 0; pg < 10; pg++) {
-                    bufPage[i][j][pg] = new ArrayList<>();
+                    bufPage[i][j][pg] = new AutoExtendList<>(MmlDatum.class);
                 }
             }
         }
@@ -661,20 +653,20 @@ public class MUCInfo {
 
         srcLinPtr = 0;
         srcCPtr = 0;
-        bufMac = new ArrayList<>();
-        bufMacStack = new ArrayList<>();
-        bufLoopStack = new ArrayList<>();
-        bufDefVoice = new ArrayList<>();
-        bufTitle = new ArrayList<>();
-        mmlVoiceDataWork = new ArrayList<>();
+        bufMac = new AutoExtendList<>(Integer.TYPE);
+        bufMacStack = new AutoExtendList<>(Integer.TYPE);
+        bufLoopStack = new AutoExtendList<>(Byte.TYPE);
+        bufDefVoice = new AutoExtendList<>(Integer.TYPE);
+        bufTitle = new AutoExtendList<>(Integer.TYPE);
+        mmlVoiceDataWork = new AutoExtendList<>(Byte.TYPE);
 
-        _DriverType = enmDriverType.DotNet;//.normal;
+        driverType = DriverType.DotNet;//.normal;
         //needNormalMucom = false;
         isIDE = false;
         isExtendFormat = false;
-        carriercorrection = false;
-        opmclockmode = enmOpmClockMode.normal;
-        SSGExtend = false;
-        opmpanreverse = false;
+        carrierCorrection = false;
+        opmClockMode = OpmClockMode.normal;
+        ssgExtend = false;
+        opmPanReverse = false;
     }
 }

@@ -1,4 +1,4 @@
-﻿package mucom88.common;
+package mucom88.common;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +11,10 @@ import dotnet4j.io.File;
 import dotnet4j.io.Path;
 
 
+/**
+ * @deprecated use {@link java.util.ResourceBundle}
+ */
+@Deprecated
 public class Message {
 
     private static Map<String, String> dicMsg = null;
@@ -88,7 +92,7 @@ public class Message {
             while(s.hasNextLine()) {
                 ll.add(s.nextLine());
             }
-            lines = ll.toArray(new String[0]);
+            lines = ll.toArray(String[]::new);
         } catch (Exception e) {
             ;//握りつぶす
         }

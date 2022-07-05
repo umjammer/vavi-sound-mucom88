@@ -1,4 +1,4 @@
-﻿package mucom88.common;
+package mucom88.common;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -30,11 +30,11 @@ public class MyEncoding implements iEncoding {
 
     ;
 
-    public String GetStringFromSjisArray(byte[] sjisArray) {
+    public String getStringFromSjisArray(byte[] sjisArray) {
         return new String(sjisArray, sjis);
     }
 
-    public String GetStringFromSjisArray(byte[] sjisArray, int index, int count) {
+    public String getStringFromSjisArray(byte[] sjisArray, int index, int count) {
         return new String(sjisArray, index, count, sjis);
     }
 

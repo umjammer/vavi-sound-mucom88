@@ -1,4 +1,4 @@
-﻿package mucom88.driver;
+package mucom88.driver;
 
 //
 //  OPNA timer エミュレーション
