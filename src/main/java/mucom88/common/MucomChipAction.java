@@ -10,14 +10,14 @@ import musicDriverInterface.ChipDatum;
 
 public class MucomChipAction implements ChipAction {
 
-    private Consumer<ChipDatum> _Write;
-    private TriConsumer<byte[], Integer, Integer> _WritePCMData;
-    private BiConsumer<Long, Integer> _WaitSend;
+    private Consumer<ChipDatum> write;
+    private TriConsumer<byte[], Integer, Integer> writePCMData;
+    private BiConsumer<Long, Integer> waitSend;
 
-    public MucomChipAction(Consumer<ChipDatum> Write, TriConsumer<byte[], Integer, Integer> WritePCMData, BiConsumer<Long, Integer> WaitSend) {
-        _Write = Write;
-        _WritePCMData = WritePCMData;
-        _WaitSend = WaitSend;
+    public MucomChipAction(Consumer<ChipDatum> write, TriConsumer<byte[], Integer, Integer> writePCMData, BiConsumer<Long, Integer> waitSend) {
+        this.write = write;
+        this.writePCMData = writePCMData;
+        this.waitSend = waitSend;
     }
 
     @Override public String getChipName() {
@@ -25,15 +25,15 @@ public class MucomChipAction implements ChipAction {
     }
 
     @Override public void waitSend(long t1, int t2) {
-        //throw new NotImplementedException();
+//        throw new UnsupportedOperationException();
     }
 
-    public @Override void writePCMData(byte[] data, int startAddress, int endAddress) {
-        _WritePCMData.accept(data, startAddress, endAddress);
+    @Override public void writePCMData(byte[] data, int startAddress, int endAddress) {
+        writePCMData.accept(data, startAddress, endAddress);
     }
 
-    public @Override void writeRegister(ChipDatum cd) {
-        _Write.accept(cd);
+    @Override public void writeRegister(ChipDatum cd) {
+        write.accept(cd);
     }
 }
 

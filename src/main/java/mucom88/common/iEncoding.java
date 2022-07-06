@@ -1,13 +1,14 @@
 package mucom88.common;
 
+@Deprecated
 public interface iEncoding {
     String getStringFromSjisArray(byte[] sjisArray);
 
     String getStringFromSjisArray(byte[] sjisArray, int index, int count);
 
-    byte[] GetSjisArrayFromString(String utfString);
+    byte[] getSjisArrayFromString(String utfString);
 
-    String GetStringFromUtfArray(byte[] utfArray);
+    String getStringFromUtfArray(byte[] utfArray);
 
-    byte[] GetUtfArrayFromString(String utfString);
+    byte[] getUtfArrayFromString(String utfString);
 }

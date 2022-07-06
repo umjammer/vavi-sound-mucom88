@@ -18,7 +18,7 @@ import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
 import mdsound.Log;
 import mdsound.LogLevel;
-import mucom88.compiler.PCMTool.AdpcmMaker;
+import mucom88.compiler.pcmTool.AdpcmMaker;
 import vavi.util.Debug;
 
 
@@ -161,6 +161,7 @@ class Program {
         try {
             strm = new FileStream(fn, FileMode.Open, FileAccess.Read, FileShare.Read);
         } catch (IOException e) {
+            e.printStackTrace();
             strm = null;
         }
 

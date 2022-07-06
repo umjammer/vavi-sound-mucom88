@@ -1,9 +1,12 @@
 package mucom88.player.real;
 
+import java.util.logging.Level;
+
 import mdsound.Log;
 import mdsound.LogLevel;
 import mucom88.player.RSoundChip;
 import mucom88.player.SChipType;
+import vavi.util.Debug;
 
 
 /**
@@ -53,7 +56,7 @@ public class RC86ctlSoundChip extends RSoundChip {
 
     /**
      * マスタークロックの設定
-     * <param name="mClock">設定したい値</param>
+     * <param name="mClock">設定したい値
      * <returns>実際設定された値</returns>
      */
     @Override

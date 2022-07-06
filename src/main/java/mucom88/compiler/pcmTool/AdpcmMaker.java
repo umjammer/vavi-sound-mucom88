@@ -1,4 +1,4 @@
-package mucom88.compiler.PCMTool;
+package mucom88.compiler.pcmTool;
 
 import java.util.ArrayList;
 import java.util.Arrays;

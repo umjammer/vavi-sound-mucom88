@@ -2,6 +2,7 @@ package mucom88.common;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -190,7 +191,7 @@ public class MUCInfo {
     /**
      * SSG波形データ
      */
-    private Map<Integer, byte[]> ssgVoice;
+    private Map<Integer, byte[]> ssgVoice = new HashMap<>();
 
     public Map<Integer, byte[]> getSsgVoice() {
         return ssgVoice;
@@ -214,7 +215,7 @@ public class MUCInfo {
 
     private String _fnSrc = null;
 
-    public String getfnSrc() {
+    public String getFnSrc() {
         return _fnSrc;
     }
 
@@ -264,11 +265,11 @@ public class MUCInfo {
     // KUMA:ページ毎のメモリ
     private List<MmlDatum>[][][] bufPage; // AutoExtendList
 
-    public List<MmlDatum>[][][] getbufPage() {
+    public List<MmlDatum>[][][] getBufPage() {
         return bufPage;
     }
 
-    public void setbufPage(List<MmlDatum>[][][] value) {
+    public void setBufPage(List<MmlDatum>[][][] value) {
         bufPage = value;
     }
 
@@ -294,7 +295,7 @@ public class MUCInfo {
         srcLinPtr++;
     }
 
-    public void setsrcLinPtr(int value) {
+    public void setSrcLinPtr(int value) {
         srcLinPtr = value;
     }
 
@@ -569,7 +570,7 @@ public class MUCInfo {
         return opna1RhythmMute;
     }
 
-    public void setopna1rhythmmute(int value) {
+    public void setOpna1rhythmmute(int value) {
         opna1RhythmMute = value;
     }
     public void oropna1rhythmmute(int value) {

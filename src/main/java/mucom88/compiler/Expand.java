@@ -2,12 +2,14 @@ package mucom88.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import mucom88.common.MUCInfo;
-import mucom88.common.Message;
 
 
 public class Expand {
+
+    static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
 
     private Work work;
     private MUCInfo mucInfo;
@@ -79,9 +81,9 @@ public class Expand {
                 fvfg = 'M';
             }
 
-            int n = msub.REDATA(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
+            int n = msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
             if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                muc88.WriteWarning(Message.get("W0409"), i, srcCPtr[0]);
+                muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
             }
             if (n != vn) continue;
 
@@ -94,9 +96,9 @@ public class Expand {
                     i++;
                     srcCPtr[0] = 1;
                     for (int col = 0; col < 4; col++) {
-                        byte v = (byte) msub.REDATA(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
+                        byte v = (byte) msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
                         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                            muc88.WriteWarning(Message.get("W0409"), i, srcCPtr[0]);
+                            muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
                         srcCPtr[0]++;// SKIP','
                         mucInfo.getMmlVoiceDataWork().set(
@@ -108,7 +110,7 @@ public class Expand {
 
                 i++;
                 srcCPtr[0] = 2;
-                mucInfo.getMmlVoiceDataWork().set(fmlib1, (byte) msub.REDATA(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr));
+                mucInfo.getMmlVoiceDataWork().set(fmlib1, (byte) msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr));
             } else if (fvfg == 'M') {
                 // 42 ﾊﾞｲﾄﾍﾞｰｼｯｸﾎｳｼｷﾉﾄｷﾉ ﾖﾐｺﾐ
 
@@ -116,14 +118,14 @@ public class Expand {
 
                 i++;
                 srcCPtr[0] = 2;
-                int fb = msub.REDATA(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
+                int fb = msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
                 if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                    muc88.WriteWarning(Message.get("W0409"), i, srcCPtr[0]);
+                    muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                 }
                 srcCPtr[0]++;
-                int alg = msub.REDATA(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
+                int alg = msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
                 if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                    muc88.WriteWarning(Message.get("W0409"), i, srcCPtr[0]);
+                    muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                 }
                 srcCPtr[0]++;
 
@@ -134,9 +136,9 @@ public class Expand {
                     i++;
                     srcCPtr[0] = 1;
                     for (int col = 0; col < 10; col++) {
-                        byte v = (byte) msub.REDATA(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
+                        byte v = (byte) msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
                         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                            muc88.WriteWarning(Message.get("W0409"), i, srcCPtr[0]);
+                            muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
                         srcCPtr[0]++; // skip ','
                         voi.add((byte) v);
@@ -149,14 +151,14 @@ public class Expand {
 
                 i++;
                 srcCPtr[0] = 2;
-                int fb = msub.REDATA(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
+                int fb = msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
                 if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                    muc88.WriteWarning(Message.get("W0409"), i, srcCPtr[0]);
+                    muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                 }
                 srcCPtr[0]++;
-                int alg = msub.REDATA(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
+                int alg = msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
                 if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                    muc88.WriteWarning(Message.get("W0409"), i, srcCPtr[0]);
+                    muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                 }
                 srcCPtr[0]++;
 
@@ -164,9 +166,9 @@ public class Expand {
                     i++;
                     srcCPtr[0] = 1;
                     for (int col = 0; col < 9; col++) {
-                        byte v = (byte) msub.REDATA(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
+                        byte v = (byte) msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
                         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                            muc88.WriteWarning(Message.get("W0409"), i, srcCPtr[0]);
+                            muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
                         srcCPtr[0]++; // skip ','
                         mucInfo.getMmlVoiceDataWork().set(
@@ -204,31 +206,31 @@ public class Expand {
             }
         }
 
-        work.getuseSSGVoice().clear();
+        work.getUseSSGVoice().clear();
     }
 
     private void SSGWaveDefine(/*ref*/ int[] srcRow, /*ref*/ int[] srcCPtr) {
         // 定義番号を得る
-        int n = msub.REDATA(mucInfo.getBasSrc().get(srcRow[0]), /*ref*/ srcCPtr);
+        int n = msub.readData(mucInfo.getBasSrc().get(srcRow[0]), /*ref*/ srcCPtr);
         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-            muc88.WriteWarning(Message.get("Wxxxx"), srcRow[0], srcCPtr[0]);
+            muc88.writeWarning(rb.getString("Wxxxx"), srcRow[0], srcCPtr[0]);
         }
-        if (!work.getuseSSGVoice().contains(n)) return;
+        if (!work.getUseSSGVoice().contains(n)) return;
 
         byte[] v = new byte[64];
         for (int row = 0; row < 4; row++) {
 
             srcRow[0]++;
             if (mucInfo.getBasSrc().size() == srcRow[0]) {
-                muc88.WriteWarning(Message.get("Wxxxx"), srcRow[0], srcCPtr[0]);
+                muc88.writeWarning(rb.getString("Wxxxx"), srcRow[0], srcCPtr[0]);
                 return;
             }
 
             srcCPtr[0] = 1;
             for (int col = 0; col < 16; col++) {
-                v[row * 16 + col] = (byte) msub.REDATA(mucInfo.getBasSrc().get(srcRow[0]), /*ref*/ srcCPtr);
+                v[row * 16 + col] = (byte) msub.readData(mucInfo.getBasSrc().get(srcRow[0]), /*ref*/ srcCPtr);
                 if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                    muc88.WriteWarning(Message.get("Wxxxx"), srcRow[0], srcCPtr[0]);
+                    muc88.writeWarning(rb.getString("Wxxxx"), srcRow[0], srcCPtr[0]);
                 }
                 srcCPtr[0]++;// SKIP','
             }
@@ -263,9 +265,9 @@ public class Expand {
     }
 
     public byte getEndNote() {
-        int DE = work.MDATA;
+        int DE = work.mData;
         byte endNote = msub.STTONE();
-        work.MDATA = DE;
+        work.mData = DE;
         if (mucInfo.getCarry()) {
             mucInfo.setCarry(true); // SCF
             return 0; // RET
@@ -293,12 +295,12 @@ public class Expand {
 
         int C = startNote & 0x0F; // KEY
         if (!CULP2_Ptn) {
-            if (chipIndex < 2) work.setFRQBEF(FNUMB[0][C]);
-            else if (chipIndex < 4) work.setFRQBEF(FNUMB[1][C]);
-            else work.setFRQBEF(FNUMBopm[0][C]);
+            if (chipIndex < 2) work.setFrqBef(FNUMB[0][C]);
+            else if (chipIndex < 4) work.setFrqBef(FNUMB[1][C]);
+            else work.setFrqBef(FNUMBopm[0][C]);
         } else {
-            if (chipIndex < 2) work.setFRQBEF(SNUMB[0][C]);
-            else if (chipIndex < 4) work.setFRQBEF(SNUMB[1][C]);
+            if (chipIndex < 2) work.setFrqBef(SNUMB[0][C]);
+            else if (chipIndex < 4) work.setFrqBef(SNUMB[1][C]);
         }
 
         int noteNum = ctone(endNote) - ctone(startNote);
@@ -312,13 +314,13 @@ public class Expand {
 
         if (up) {
             // BEFTONE < NOWTONE (ｱｶﾞﾘ)
-            HL = culc(1.059463f, work.getFRQBEF(), noteNum) - work.getFRQBEF();
+            HL = culc(1.059463f, work.getFrqBef(), noteNum) - work.getFrqBef();
             mucInfo.setCarry(false);
             return HL;
         }
 
         // BEFTONE > NOWTONE (ｻｶﾞﾘ)
-        HL = work.getFRQBEF() - culc(0.943874f, work.getFRQBEF(), noteNum);
+        HL = work.getFrqBef() - culc(0.943874f, work.getFrqBef(), noteNum);
         mucInfo.setCarry(true);
         return HL;
     }
@@ -330,15 +332,15 @@ public class Expand {
      * Zﾌﾗｸﾞ=1 ﾅﾗ ﾍﾝｶｼﾅｲ
      */
     public int CULPTM(int chipIndex) {
-        int DE = work.MDATA;
+        int DE = work.mData;
         byte note = msub.STTONE();
-        work.MDATA = DE;
+        work.mData = DE;
         if (mucInfo.getCarry()) {
             mucInfo.setCarry(true);//  SCF
             return 0;//    RET
         }
 
-        int depth = CULP2(chipIndex, note) / work.getBEFCO();//Mem.LD_8(BEFCO + 1); ?
+        int depth = CULP2(chipIndex, note) / work.getBefCo();//Mem.LD_8(BEFCO + 1); ?
 
         if (!mucInfo.getCarry()) return depth;
         mucInfo.setCarry(false);
@@ -359,17 +361,17 @@ public class Expand {
             CULP2_Ptn = true;
         }
 
-        int C = work.getBEFTONE()[0] & 0x0F; // KEY
+        int C = work.getBeforeTone()[0] & 0x0F; // KEY
         if (!CULP2_Ptn) {
-            if (chipIndex < 2) work.setFRQBEF(FNUMB[0][C]);
-            else if (chipIndex < 4) work.setFRQBEF(FNUMB[1][C]);
-            else work.setFRQBEF(FNUMBopm[0][C]);
+            if (chipIndex < 2) work.setFrqBef(FNUMB[0][C]);
+            else if (chipIndex < 4) work.setFrqBef(FNUMB[1][C]);
+            else work.setFrqBef(FNUMBopm[0][C]);
         } else {
-            if (chipIndex < 2) work.setFRQBEF(SNUMB[0][C]);
-            else if (chipIndex < 4) work.setFRQBEF(SNUMB[1][C]);
+            if (chipIndex < 2) work.setFrqBef(SNUMB[0][C]);
+            else if (chipIndex < 4) work.setFrqBef(SNUMB[1][C]);
         }
 
-        int noteNum = ctone(note) - ctone(work.getBEFTONE()[0]);
+        int noteNum = ctone(note) - ctone(work.getBeforeTone()[0]);
         if (noteNum == 0) return 0;//変化なし
         if (noteNum >= 0) {
             up = !CULP2_Ptn;
@@ -380,13 +382,13 @@ public class Expand {
 
         if (up) {
             // BEFTONE < NOWTONE (ｱｶﾞﾘ)
-            HL = culc(1.059463f, work.getFRQBEF(), noteNum) - work.getFRQBEF();
+            HL = culc(1.059463f, work.getFrqBef(), noteNum) - work.getFrqBef();
             mucInfo.setCarry(false);
             return HL;
         }
 
         // BEFTONE > NOWTONE (ｻｶﾞﾘ)
-        HL = work.getFRQBEF() - culc(0.943874f, work.getFRQBEF(), noteNum);
+        HL = work.getFrqBef() - culc(0.943874f, work.getFrqBef(), noteNum);
         mucInfo.setCarry(true);
         return HL;
     }

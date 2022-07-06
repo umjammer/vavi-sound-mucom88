@@ -18,7 +18,10 @@ import dotnet4j.io.MemoryStream;
 import dotnet4j.io.Stream;
 import mdsound.Log;
 import mdsound.LogLevel;
+import mucom88.common.MubException;
+import mucom88.common.MucException;
 import mucom88.compiler.Compiler;
+import musicDriverInterface.ICompiler;
 import musicDriverInterface.MmlDatum;
 import vavi.util.Debug;
 import vavi.util.serdes.Serdes;
@@ -73,8 +76,8 @@ class Program {
 
             Program.srcFile = path.toAbsolutePath().toString();
 
-            Compiler compiler = new Compiler(null);
-            compiler.Init();
+            Compiler compiler = new Compiler();
+            compiler.init();
 
             //compiler.SetCompileSwitch("IDE");
             //compiler.SetCompileSwitch("SkipPoint=R19:C30");
@@ -86,7 +89,7 @@ class Program {
                 } else {
                     destFileName = path.getParent().resolve(getCompledFilename(path)).toString();
                 }
-Debug.println(srcFile + " -> " + destFileName);
+Debug.println(Level.FINE, srcFile + " -> " + destFileName);
                 if (!Files.exists(path)) {
                     Debug.printf(Level.SEVERE, String.format(rb.getString("E0601"), srcFile));
                     return;
@@ -116,16 +119,20 @@ Debug.println(srcFile + " -> " + destFileName);
                 try (FileStream sourceMML = new FileStream(srcFile, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                     dest = compiler.compile(sourceMML, Program::appendFileReaderCallback);
                 }
-
+if (dest.length == 0) {
+ Debug.println(Level.WARNING, "no data");
+}
                 try (OutputStream sw = Files.newOutputStream(Path.of(destFileName))) {
                     for (var d : dest)
                         Serdes.Util.serialize(sw, d);
                 }
             }
+        } catch (MubException | MucException ex) {
+            System.err.println(ex.getMessage());
         } catch (Exception ex) {
             ex.printStackTrace();
-            Debug.println(Level.SEVERE, ex.getMessage());
-            Debug.println(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
+Debug.println(Level.SEVERE, ex.getMessage());
+Debug.println(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
         }
     }
 
@@ -139,6 +146,7 @@ Debug.println(srcFile + " -> " + destFileName);
         try {
             strm = new FileStream(fn, FileMode.Open, FileAccess.Read, FileShare.Read);
         } catch (IOException e) {
+            e.printStackTrace();
             strm = null;
         }
 

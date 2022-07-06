@@ -7,264 +7,264 @@ public class MupbInfo {
 
     private int version;
 
-    public int getversion() {
+    public int getVersion() {
         return version;
     }
 
-    public void setversion(int value) {
+    public void setVersion(int value) {
         version = value;
     }
 
     private int variableLengthCount;
 
-    public int getvariableLengthCount() {
+    public int getVariableLengthCount() {
         return variableLengthCount;
     }
 
-    public void setvariableLengthCount(int value) {
+    public void setVariableLengthCount(int value) {
         variableLengthCount = value;
     }
 
     private int useChipCount;
 
-    public int getuseChipCount() {
+    public int getUseChipCount() {
         return useChipCount;
     }
 
-    public void setuseChipCount(int value) {
+    public void setUseChipCount(int value) {
         useChipCount = value;
     }
 
     private int usePartCount;
 
-    public int getusePartCount() {
+    public int getPsePartCount() {
         return usePartCount;
     }
 
-    public void setusePartCount(int value) {
+    public void setUsePartCount(int value) {
         usePartCount = value;
     }
 
     private int usePageCount;
 
-    public int getusePageCount() {
+    public int getUsePageCount() {
         return usePageCount;
     }
 
-    public void setusePageCount(int value) {
+    public void setUsePageCount(int value) {
         usePageCount = value;
     }
 
     private int useInstrumentSetCount;
 
-    public int getuseInstrumentSetCount() {
+    public int getUseInstrumentSetCount() {
         return useInstrumentSetCount;
     }
 
-    public void setuseInstrumentSetCount(int value) {
+    public void setUseInstrumentSetCount(int value) {
         useInstrumentSetCount = value;
     }
 
     private int usePCMSetCount;
 
-    public int getusePCMSetCount() {
+    public int getUsePCMSetCount() {
         return usePCMSetCount;
     }
 
-    public void setusePCMSetCount(int value) {
+    public void setUsePCMSetCount(int value) {
         usePCMSetCount = value;
     }
 
     private ChipDefine[] chips;
 
-    public ChipDefine[] getchips() {
+    public ChipDefine[] getChips() {
         return chips;
     }
 
-    public void setchips(ChipDefine[] value) {
+    public void setChips(ChipDefine[] value) {
         chips = value;
     }
 
     private int tagDataOffset;
 
-    public int gettagDataOffset() {
+    public int getTagDataOffset() {
         return tagDataOffset;
     }
 
-    public void settagDataOffset(int value) {
+    public void setTagDataOffset(int value) {
         tagDataOffset = value;
     }
 
     private int tagDataSize;
 
-    public int gettagDataSize() {
+    public int getTagDataSize() {
         return tagDataSize;
     }
 
-    public void settagDataSize(int value) {
+    public void setTagDataSize(int value) {
         tagDataSize = value;
     }
 
-    private int JCLOCK;
+    private int jClock;
 
-    public int getJCLOCK() {
-        return JCLOCK;
+    public int getJClock() {
+        return jClock;
     }
 
-    public void setJCLOCK(int value) {
-        JCLOCK = value;
+    public void setJClock(int value) {
+        jClock = value;
     }
 
-    private int JPLINE;
+    private int jpLine;
 
-    public int getJPLINE() {
-        return JPLINE;
+    public int getJpLine() {
+        return jpLine;
     }
 
-    public void setJPLINE(int value) {
-        JPLINE = value;
+    public void setJpLine(int value) {
+        jpLine = value;
     }
 
     private PartDefine[] parts;
 
-    public PartDefine[] getparts() {
+    public PartDefine[] getParts() {
         return parts;
     }
 
-    public void setparts(PartDefine[] value) {
+    public void setParts(PartDefine[] value) {
         parts = value;
     }
 
     private PageDefine[] pages;
 
-    public PageDefine[] getpages()
+    public PageDefine[] getPages()
     {
         return pages;
     }
-    public void setpages(PageDefine[] value)
+    public void setPages(PageDefine[] value)
     {
         pages = value;
     }
 
     private InstrumentDefine[] instruments;
 
-    public InstrumentDefine[] getinstruments() {
+    public InstrumentDefine[] getInstruments() {
         return instruments;
     }
 
-    public void setinstruments(InstrumentDefine[] value) {
+    public void setInstruments(InstrumentDefine[] value) {
         instruments = value;
     }
 
     private PCMDefine[] pcms;
 
-    public PCMDefine[] getpcms() {
+    public PCMDefine[] getPcms() {
         return pcms;
     }
 
-    public void setpcms(PCMDefine[] value) {
+    public void setPcms(PCMDefine[] value) {
         pcms = value;
     }
 
     public static class ChipDefine {
         private int indexNumber;
 
-        public int getindexNumber() {
+        public int getIndexNumber() {
             return indexNumber;
         }
 
-        public void setindexNumber(int value) {
+        public void setIndexNumber(int value) {
             indexNumber = value;
         }
 
         private int identifyNumber;
 
-        public int getidentifyNumber() {
+        public int getIdentifyNumber() {
             return identifyNumber;
         }
 
-        public void setidentifyNumber(int value) {
+        public void setIdentifyNumber(int value) {
             identifyNumber = value;
         }
 
         private int masterClock;
 
-        public int getmasterClock() {
+        public int getMasterClock() {
             return masterClock;
         }
 
-        public void setmasterClock(int value) {
+        public void setMasterClock(int value) {
             masterClock = value;
         }
 
         private int option;
 
-        public int getoption() {
+        public int getOption() {
             return option;
         }
 
-        public void setoption(int value) {
+        public void setOption(int value) {
             option = value;
         }
 
         private int heartBeat;
 
-        public int getheartBeat() {
+        public int getHeartBeat() {
             return heartBeat;
         }
 
-        public void setheartBeat(int value) {
+        public void setHeartBeat(int value) {
             heartBeat = value;
         }
 
         private int heartBeat2;
 
-        public int getheartBeat2() {
+        public int getHeartBeat2() {
             return heartBeat2;
         }
 
-        public void setheartBeat2(int value) {
+        public void setHeartBeat2(int value) {
             heartBeat2 = value;
         }
 
         private int[] instrumentNumber;
 
-        public int[] getinstrumentNumber() {
+        public int[] getInstrumentNumber() {
             return instrumentNumber;
         }
 
-        public void setinstrumentNumber(int[] value) {
+        public void setInstrumentNumber(int[] value) {
             instrumentNumber = value;
         }
 
         private int[] pcmNumber;
 
-        public int[] getpcmNumber() {
+        public int[] getPcmNumber() {
             return pcmNumber;
         }
 
-        public void setpcmNumber(int[] value) {
+        public void setPcmNumber(int[] value) {
             pcmNumber = value;
         }
 
         private ChipPart[] parts;
 
-        public ChipPart[] getparts() {
+        public ChipPart[] getParts() {
             return parts;
         }
 
-        public void setparts(ChipPart[] value) {
+        public void setParts(ChipPart[] value) {
             parts = value;
         }
 
         public static class ChipPart {
             private PageDefine[] pages;
 
-            public PageDefine[] getpages() {
+            public PageDefine[] getPages() {
                 return pages;
             }
 
-            public void setpages(PageDefine[] value) {
+            public void setPages(PageDefine[] value) {
                 pages = value;
             }
         }
@@ -273,11 +273,11 @@ public class MupbInfo {
     public static class PartDefine {
         private int pageCount;
 
-        public int getpageCount() {
+        public int getPageCount() {
             return pageCount;
         }
 
-        public void setpageCount(int value) {
+        public void setPageCount(int value) {
             pageCount = value;
         }
     }
@@ -285,31 +285,31 @@ public class MupbInfo {
     public static class PageDefine {
         private int length;
 
-        public int getlength() {
+        public int getLength() {
             return length;
         }
 
-        public void setlength(int value) {
+        public void setLength(int value) {
             length = value;
         }
 
         private int loopPoint;
 
-        public int getloopPoint() {
+        public int getLoopPoint() {
             return loopPoint;
         }
 
-        public void setloopPoint(int value) {
+        public void setLoopPoint(int value) {
             loopPoint = value;
         }
 
         private MmlDatum[] data;
 
-        public MmlDatum[] getdata() {
+        public MmlDatum[] getData() {
             return data;
         }
 
-        public void setdata(MmlDatum[] value) {
+        public void setData(MmlDatum[] value) {
             data = value;
         }
     }
@@ -317,21 +317,21 @@ public class MupbInfo {
     public static class InstrumentDefine {
         private int length;
 
-        public int getlength() {
+        public int getLength() {
             return length;
         }
 
-        public void setlength(int value) {
+        public void setLength(int value) {
             length = value;
         }
 
         private byte[] data;
 
-        public byte[] getdata() {
+        public byte[] getData() {
             return data;
         }
 
-        public void setdata(byte[] value) {
+        public void setData(byte[] value) {
             data = value;
         }
     }
@@ -339,21 +339,21 @@ public class MupbInfo {
     public static class PCMDefine {
         private int length;
 
-        public int getlength() {
+        public int getLength() {
             return length;
         }
 
-        public void setlength(int value) {
+        public void setLength(int value) {
             length = value;
         }
 
         private byte[] data;
 
-        public byte[] getdata() {
+        public byte[] getData() {
             return data;
         }
 
-        public void setdata(byte[] value) {
+        public void setData(byte[] value) {
             data = value;
         }
     }

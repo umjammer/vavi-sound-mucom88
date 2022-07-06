@@ -1,4 +1,4 @@
-package mucom88.compiler.PCMTool;
+package mucom88.compiler.pcmTool;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -28,9 +28,9 @@ public class PCMFileManager {
 
         List<String> itemList = AnalyzeLine(lin);
         PCMFileInfo fi = new PCMFileInfo(itemList, appendFileReaderCallback);
-        if (dicFile.containsKey(fi.getnumber() - 1)) dicFile.remove(fi.getnumber() - 1);
-        dicFile.put(fi.getnumber() - 1, fi);
-        if (fi.getlength() > -1) fi.Encode(config.FormatType);
+        if (dicFile.containsKey(fi.getNumber() - 1)) dicFile.remove(fi.getNumber() - 1);
+        dicFile.put(fi.getNumber() - 1, fi);
+        if (fi.getLength() > -1) fi.Encode(config.FormatType);
     }
 
     public List<Byte> GetRawData() {
@@ -40,10 +40,10 @@ public class PCMFileManager {
         while (cnt < dicFile.size() && num < 65536) {
             if (dicFile.containsKey(num)) {
                 PCMFileInfo o = dicFile.get(num);
-                if (o.getencData() != null)
-                    for (byte d : o.getencData()) ret.add(d);
-                else if (o.getraw() != null)
-                    for (byte d : o.getraw()) ret.add(d);
+                if (o.getEncData() != null)
+                    for (byte d : o.getEncData()) ret.add(d);
+                else if (o.getRaw() != null)
+                    for (byte d : o.getRaw()) ret.add(d);
 
                 cnt++;
             }
@@ -56,12 +56,12 @@ public class PCMFileManager {
     public List<Byte> GetName(int i, int v) {
         List<Byte> ret = new ArrayList<>();
 
-        if (!dicFile.containsKey(i) || dicFile.get(i) == null || StringUtilities.isNullOrEmpty(dicFile.get(i).getname())) {
+        if (!dicFile.containsKey(i) || dicFile.get(i) == null || StringUtilities.isNullOrEmpty(dicFile.get(i).getName())) {
             for (int n = 0; n < v; n++) ret.add((byte) 0);
             return ret;
         }
 
-        byte[] data = dicFile.get(i).getname().getBytes(Charset.forName("MS932"));
+        byte[] data = dicFile.get(i).getName().getBytes(Charset.forName("MS932"));
         for (int n = 0; n < v; n++) {
             if (n < data.length)
                 ret.add(data[n]);
@@ -76,25 +76,25 @@ public class PCMFileManager {
         if (!dicFile.containsKey(i) || dicFile.get(i) == null) {
             return 0;
         }
-        return (short) dicFile.get(i).getvolume();
+        return (short) dicFile.get(i).getVolume();
     }
 
     public int GetLengthAddress(int i) {
         if (!dicFile.containsKey(i) || dicFile.get(i) == null) {
             return 0;
         }
-        return dicFile.get(i).getlength();
+        return dicFile.get(i).getLength();
     }
 
     public List<Byte> GetName(int i) {
         List<Byte> ret = new ArrayList<>();
 
-        if (!dicFile.containsKey(i) || dicFile.get(i) == null || StringUtilities.isNullOrEmpty(dicFile.get(i).getname())) {
+        if (!dicFile.containsKey(i) || dicFile.get(i) == null || StringUtilities.isNullOrEmpty(dicFile.get(i).getName())) {
             ret.add((byte) 0);
             return ret;
         }
 
-        byte[] data = dicFile.get(i).getname().getBytes(Charset.forName("MS932"));
+        byte[] data = dicFile.get(i).getName().getBytes(Charset.forName("MS932"));
         for (byte datum : data) {
             ret.add(datum);
         }
@@ -106,7 +106,7 @@ public class PCMFileManager {
     public int GetCount() {
         int i = 0;
         for (PCMFileInfo o : dicFile.values()) {
-            i = Math.max(i, o.getnumber());
+            i = Math.max(i, o.getNumber());
         }
 
         return i;

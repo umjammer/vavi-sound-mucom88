@@ -1,50 +1,50 @@
 package mucom88.driver;
 
 public class FMTimer {
-    // タイマーAのオーバーフロー設定値
-    public int TimerA;
-    // タイマーAのカウンター値
-    protected double TimerAcounter;
-    // タイマーBのオーバーフロー設定値
-    public int TimerB;
-    // タイマーBのカウンター値
-    protected double TimerBcounter;
-    // タイマー制御レジスタ (下位4ビット+7ビット)
-    public int TimerReg;
+    /** タイマーAのオーバーフロー設定値 */
+    public int timerA;
+    /** タイマーAのカウンター値 */
+    protected double timerACounter;
+    /** タイマーBのオーバーフロー設定値 */
+    public int timerB;
+    /** タイマーBのカウンター値 */
+    protected double timerBCounter;
+    /** タイマー制御レジスタ (下位4ビット+7ビット) */
+    public int timerReg;
     public double step;
 
-    // ステータスレジスタ (下位2ビット)
-    int StatReg;
+    /** ステータスレジスタ (下位2ビット) */
+    int statReg;
 
     public int getStatReg() {
-        return StatReg;
+        return statReg;
     }
 
-    public Runnable CsmKeyOn;
+    public Runnable csmKeyOn;
 
     public FMTimer(int renderingFreq, int masterClock) {
     }
 
     public void timer() {
-        if ((TimerReg & 0x01) != 0) {   // TimerA 動作中
-            TimerAcounter += step;
-            if (TimerAcounter >= (1024 - TimerA)) {
-                StatReg |= ((TimerReg >> 2) & 0x01);
-                TimerAcounter -= (1024 - TimerA);
-                //if ((TimerReg & 0x80) != 0) CsmKeyOn?.Invoke();
+        if ((timerReg & 0x01) != 0) { // timerA 動作中
+            timerACounter += step;
+            if (timerACounter >= (1024 - timerA)) {
+                statReg |= ((timerReg >> 2) & 0x01);
+                timerACounter -= (1024 - timerA);
+                //if ((timerReg & 0x80) != 0) csmKeyOn?.Invoke();
             }
         }
 
-        if ((TimerReg & 0x02) != 0) {   // TimerB 動作中
-            TimerBcounter += step;
-            if (TimerBcounter >= TimerB) {
-                StatReg |= ((TimerReg >> 2) & 0x02);
-                TimerBcounter -= TimerB;
+        if ((timerReg & 0x02) != 0) { // timerB 動作中
+            timerBCounter += step;
+            if (timerBCounter >= timerB) {
+                statReg |= ((timerReg >> 2) & 0x02);
+                timerBCounter -= timerB;
             }
         }
     }
 
-    public boolean WriteReg(byte adr, byte data) {
+    public boolean writeReg(byte adr, byte data) {
         return false;
     }
 }

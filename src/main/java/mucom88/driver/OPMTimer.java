@@ -11,24 +11,24 @@ public class OPMTimer extends FMTimer {
     }
 
     @Override
-    public boolean WriteReg(byte adr, byte data) {
+    public boolean writeReg(byte adr, byte data) {
         switch (adr) {
         case 0x10:
-            TimerA &= 0x3;
-            TimerA |= (data << 2);
+            timerA &= 0x3;
+            timerA |= (data << 2);
             return true;
         case 0x11:
-            TimerA &= 0x3fc;
-            TimerA |= (data & 3);
+            timerA &= 0x3fc;
+            timerA |= (data & 3);
             return true;
         case 0x12:
-            // TimerB
-            TimerB = (256 - (int) data) << (10 - 6);
+            // timerB
+            timerB = (256 - (int) data) << (10 - 6);
             return true;
         case 0x14:
             // タイマー制御レジスタ
-            TimerReg = data & 0x8F;
-            StatReg &= 0xFF - ((data >> 4) & 3);
+            timerReg = data & 0x8F;
+            statReg &= 0xFF - ((data >> 4) & 3);
             return true;
         }
         return false;

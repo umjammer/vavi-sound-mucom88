@@ -14,99 +14,99 @@ public class SoundWork {
 
     public List<List<CHDAT>> chData = Arrays.asList(
             Arrays.asList(
-                new CHDAT(), // FM Ch1
-                new CHDAT(), // FM Ch2
-                new CHDAT(), // FM Ch3
-                new CHDAT(), // SSG Ch1
-                new CHDAT(), // SSG Ch2
-                new CHDAT(), // SSG Ch3
-                new CHDAT(), // Drums Ch
-                new CHDAT(), // FM Ch4
-                new CHDAT(), // FM Ch5
-                new CHDAT(), // FM Ch6
-                new CHDAT() // ADPCM Ch
+                    new CHDAT(), // FM Ch1
+                    new CHDAT(), // FM Ch2
+                    new CHDAT(), // FM Ch3
+                    new CHDAT(), // SSG Ch1
+                    new CHDAT(), // SSG Ch2
+                    new CHDAT(), // SSG Ch3
+                    new CHDAT(), // Drums Ch
+                    new CHDAT(), // FM Ch4
+                    new CHDAT(), // FM Ch5
+                    new CHDAT(), // FM Ch6
+                    new CHDAT() // ADPCM Ch
             ),
             Arrays.asList(
-                new CHDAT(), // FM Ch1
-                new CHDAT(), // FM Ch2
-                new CHDAT(), // FM Ch3
-                new CHDAT(), // SSG Ch1
-                new CHDAT(), // SSG Ch2
-                new CHDAT(), // SSG Ch3
-                new CHDAT(), // Drums Ch
-                new CHDAT(), // FM Ch4
-                new CHDAT(), // FM Ch5
-                new CHDAT(), // FM Ch6
-                new CHDAT() // ADPCM Ch
+                    new CHDAT(), // FM Ch1
+                    new CHDAT(), // FM Ch2
+                    new CHDAT(), // FM Ch3
+                    new CHDAT(), // SSG Ch1
+                    new CHDAT(), // SSG Ch2
+                    new CHDAT(), // SSG Ch3
+                    new CHDAT(), // Drums Ch
+                    new CHDAT(), // FM Ch4
+                    new CHDAT(), // FM Ch5
+                    new CHDAT(), // FM Ch6
+                    new CHDAT() // ADPCM Ch
             ),
             Arrays.asList(
-                new CHDAT(), // FM Ch1
-                new CHDAT(), // FM Ch2
-                new CHDAT(), // FM Ch3
-                new CHDAT(), // SSG Ch1
-                new CHDAT(), // SSG Ch2
-                new CHDAT(), // SSG Ch3
-                new CHDAT(), // Drums Ch
-                new CHDAT(), // FM Ch4
-                new CHDAT(), // FM Ch5
-                new CHDAT(), // FM Ch6
-                new CHDAT() // ADPCM Ch
+                    new CHDAT(), // FM Ch1
+                    new CHDAT(), // FM Ch2
+                    new CHDAT(), // FM Ch3
+                    new CHDAT(), // SSG Ch1
+                    new CHDAT(), // SSG Ch2
+                    new CHDAT(), // SSG Ch3
+                    new CHDAT(), // Drums Ch
+                    new CHDAT(), // FM Ch4
+                    new CHDAT(), // FM Ch5
+                    new CHDAT(), // FM Ch6
+                    new CHDAT() // ADPCM Ch
             ),
             Arrays.asList(
-                new CHDAT(), // FM Ch1
-                new CHDAT(), // FM Ch2
-                new CHDAT(), // FM Ch3
-                new CHDAT(), // SSG Ch1
-                new CHDAT(), // SSG Ch2
-                new CHDAT(), // SSG Ch3
-                new CHDAT(), // Drums Ch
-                new CHDAT(), // FM Ch4
-                new CHDAT(), // FM Ch5
-                new CHDAT(), // FM Ch6
-                new CHDAT() // ADPCM Ch
+                    new CHDAT(), // FM Ch1
+                    new CHDAT(), // FM Ch2
+                    new CHDAT(), // FM Ch3
+                    new CHDAT(), // SSG Ch1
+                    new CHDAT(), // SSG Ch2
+                    new CHDAT(), // SSG Ch3
+                    new CHDAT(), // Drums Ch
+                    new CHDAT(), // FM Ch4
+                    new CHDAT(), // FM Ch5
+                    new CHDAT(), // FM Ch6
+                    new CHDAT() // ADPCM Ch
             ),
             Arrays.asList(
-                new CHDAT(), // FM Ch1
-                new CHDAT(), // FM Ch2
-                new CHDAT(), // FM Ch3
-                new CHDAT(), // FM Ch4
-                new CHDAT(), // FM Ch5
-                new CHDAT(), // FM Ch6
-                new CHDAT(), // FM Ch7
-                new CHDAT(), // FM Ch8
-                null,
-                null,
-                null
+                    new CHDAT(), // FM Ch1
+                    new CHDAT(), // FM Ch2
+                    new CHDAT(), // FM Ch3
+                    new CHDAT(), // FM Ch4
+                    new CHDAT(), // FM Ch5
+                    new CHDAT(), // FM Ch6
+                    new CHDAT(), // FM Ch7
+                    new CHDAT(), // FM Ch8
+                    null,
+                    null,
+                    null
             )
     );
 
-    public byte[][] PREGBF = null;
-    public byte[] INITPM = null;
-    public short[][] DETDAT = new short[][] {
+    public byte[][] pregBf = null;
+    public byte[] initPm = null;
+    public short[][] detdat = new short[][] {
             null, null, null, null
     };
-    public byte[][] DRMVOL = new byte[][] {
+    public byte[][] drmvol = new byte[][] {
             null, null, null, null
     };
-    public byte[][] DrmPanEnable = new byte[][] {
+    public byte[][] drmPanEnable = new byte[][] {
             null, null, null, null
     };
-    public byte[][] DrmPanMode = new byte[][] {
+    public byte[][] drmPanMode = new byte[][] {
             null, null, null, null
     };
-    public byte[][] DrmPanCounter = new byte[][] {
+    public byte[][] drmPanCounter = new byte[][] {
             null, null, null, null
     };
-    public byte[][] DrmPanCounterWork = new byte[][] {
+    public byte[][] drmPanCounterWork = new byte[][] {
             null, null, null, null
     };
-    public byte[][] DrmPanValue = new byte[][] {
+    public byte[][] drmPanValue = new byte[][] {
             null, null, null, null
     };
-    public byte[] OP_SEL = null;
+    public byte[] opSel = null;
     public byte[] TYPE1 = null;
     public byte[] TYPE2 = null;
-    //DB    8
+    // DB 8
     public byte DMY = 0;
     public short[][] FNUMB = null;
     public short[][] FNUMBopm = null;
@@ -114,198 +114,217 @@ public class SoundWork {
     public short[][] PCMNMB = null;
     public byte[] SSGDAT = null;
 
-    private int MUSNUM;
+    private int musNum;
 
-    public int getMUSNUM() {
-        return MUSNUM;
-    }
-    public void setMUSNUM(int value) {
-        MUSNUM = value;
+    public int getMusNum() {
+        return musNum;
     }
 
-    private int C2NUM;
-
-    public int getC2NUM() {
-        return C2NUM;
+    public void setMusNum(int value) {
+        musNum = value;
     }
 
-    public void setC2NUM(int value) {
-        C2NUM = value;
+    private int c2Num;
+
+    public int getC2Num() {
+        return c2Num;
     }
+
+    public void setC2Num(int value) {
+        c2Num = value;
+    }
+
     public void incC2NUM() {
-        C2NUM++;
+        c2Num++;
     }
 
-    private int CHNUM;
+    private int chNum;
 
-    public int getCHNUM() {
-        return CHNUM;
-    }
-    public void setCHNUM(int value) {
-        CHNUM = value;
-    }
-    public void incCHNUM() {
-        CHNUM++;
+    public int getChNum() {
+        return chNum;
     }
 
-    private int PVMODE;
-
-    public int getPVMODE() {
-        return PVMODE;
-    }
-    public void setPVMODE(int value) {
-        PVMODE = value;
+    public void setChNum(int value) {
+        chNum = value;
     }
 
-    private int MU_TOP = 5;
-
-    public int getMU_TOP() {
-        return MU_TOP;
+    public void incChNum() {
+        chNum++;
     }
 
-    private byte TIMER_B;
+    private int pvMode;
 
-    public byte getTIMER_B() {
-        return TIMER_B;
-    }
-    public void setTIMER_B(byte value) {
-        TIMER_B = value;
+    public int getPvMode() {
+        return pvMode;
     }
 
-    private int TB_TOP;
-
-    public int getTB_TOP() {
-        return TB_TOP;
-    }
-    public void setTB_TOP(int value) {
-        TB_TOP = value;
-    }
-    public void addTB_TOP(int value) {
-        TB_TOP += value;
+    public void setPvMode(int value) {
+        pvMode = value;
     }
 
-    private int NOTSB2;
+    private int muTop = 5;
 
-    public int getNOTSB2() {
-        return NOTSB2;
-    }
-    public void setNOTSB2(int value) {
-        NOTSB2 = value;
+    public int getMuTop() {
+        return muTop;
     }
 
-    public boolean Ch3SpMode(int chip) {
+    private byte timerB;
+
+    public byte getTimerB() {
+        return timerB;
+    }
+
+    public void setTimerB(byte value) {
+        timerB = value;
+    }
+
+    private int tbTop;
+
+    public int getTbTop() {
+        return tbTop;
+    }
+
+    public void setTbTop(int value) {
+        tbTop = value;
+    }
+
+    public void addTbTop(int value) {
+        tbTop += value;
+    }
+
+    private int noTsb2;
+
+    public int getNoTsb2() {
+        return noTsb2;
+    }
+
+    public void setNoTsb2(int value) {
+        noTsb2 = value;
+    }
+
+    public boolean ch3SpMode(int chip) {
         return (PLSET1_VAL[chip] & 0x40) != 0;
     }
 
     public byte[] PLSET1_VAL = new byte[5];
     public byte[] PLSET2_VAL = new byte[5];
 
-    private int[] PCMLR = new int[6];
+    private int[] pcmLr = new int[6];
 
-    public int[] getPCMLR() {
-        return PCMLR;
+    public int[] getPcmLr() {
+        return pcmLr;
     }
 
-    private int FMPORT;
+    private int fmPort;
 
-    public int getFMPORT() {
-        return FMPORT;
-    }
-    public void setFMPORT(int value) {
-        FMPORT = value;
+    public int getFmPort() {
+        return fmPort;
     }
 
-    private int SSGF1;
-
-    public int getSSGF1() {
-        return SSGF1;
-    }
-    public void setSSGF1(int value) {
-        SSGF1 = value;
+    public void setFmPort(int value) {
+        fmPort = value;
     }
 
-    private int DRMF1;
+    private int ssgF1;
 
-    public int getDRMF1() {
-        return DRMF1;
-    }
-    public void setDRMF1(int value) {
-        DRMF1 = value;
+    public int getSsgF1() {
+        return ssgF1;
     }
 
-    private int PCMFLG;
-
-    public int getPCMFLG() {
-        return PCMFLG;
-    }
-    public void setPCMFLG(int value) {
-        PCMFLG = value;
+    public void setSsgF1(int value) {
+        ssgF1 = value;
     }
 
-    private int READY = 0xff;
+    private int drmF1;
 
-    public int getREADY() {
-        return READY;
-    }
-    public void setREADY(int value) {
-        READY = value;
+    public int getDrmF1() {
+        return drmF1;
     }
 
-    private int RHYTHM;
-
-    public int getRHYTHM() {
-        return RHYTHM;
-    }
-    public void setRHYTHM(int value) {
-        RHYTHM = value;
+    public void setDrmF1(int value) {
+        drmF1 = value;
     }
 
-    private int[] DELT_N = new int[4];
+    private int pcmFlg;
 
-    public int[] getDELT_N() {
-        return DELT_N;
+    public int getPcmFlg() {
+        return pcmFlg;
     }
 
-    private int FNUM;
-
-    public int getFNUM() {
-        return FNUM;
-    }
-    public void setFNUM(int value) {
-        FNUM = value;
+    public void setPcmFlg(int value) {
+        pcmFlg = value;
     }
 
-    private int FMSUB8_VAL;
+    private int ready = 0xff;
 
-    public int getFMSUB8_VAL() {
-        return FMSUB8_VAL;
+    public int getReady() {
+        return ready;
     }
 
-    private byte FPORT_VAL = (byte) 0xa4;
-
-    public byte getFPORT_VAL() {
-        return FPORT_VAL;
-    }
-    public void setFPORT_VAL(byte value) {
-        FPORT_VAL = value;
+    public void setReady(int value) {
+        ready = value;
     }
 
-    private byte PCMNUM;
+    private int rhythm;
 
-    public byte getPCMNUM() {
-        return PCMNUM;
-    }
-    public void setPCMNUM(byte value) {
-        PCMNUM = value;
+    public int getRhythm() {
+        return rhythm;
     }
 
-    private byte P_OUT;
-
-    public byte getP_OUT() {
-        return P_OUT;
+    public void setRhythm(int value) {
+        rhythm = value;
     }
-    public void setP_OUT(byte value) {
-        P_OUT = value;
+
+    private int[] deltN = new int[4];
+
+    public int[] getDeltN() {
+        return deltN;
+    }
+
+    private int fNum;
+
+    public int getFNum() {
+        return fNum;
+    }
+
+    public void setFNum(int value) {
+        fNum = value;
+    }
+
+    private int fmSub8Val;
+
+    public int getFmSub8Val() {
+        return fmSub8Val;
+    }
+
+    private byte fPortVal = (byte) 0xa4;
+
+    public byte getFPortVal() {
+        return fPortVal;
+    }
+
+    public void setFPortVal(byte value) {
+        fPortVal = value;
+    }
+
+    private byte pcmNum;
+
+    public byte getPcmNum() {
+        return pcmNum;
+    }
+
+    public void setPcmNum(byte value) {
+        pcmNum = value;
+    }
+
+    private byte pOut;
+
+    public byte getPOut() {
+        return pOut;
+    }
+
+    public void setPOut(byte value) {
+        pOut = value;
     }
 
     private int[] STTADR = new int[4];
@@ -343,6 +362,7 @@ public class SoundWork {
     public byte getFLGADR() {
         return FLGADR;
     }
+
     public void setFLGADR(byte value) {
         FLGADR = value;
     }
@@ -352,6 +372,7 @@ public class SoundWork {
     public int getNEWFNM() {
         return NEWFNM;
     }
+
     public void setNEWFNM(int value) {
         NEWFNM = value;
     }
@@ -361,6 +382,7 @@ public class SoundWork {
     public short getRANDUM() {
         return RANDUM;
     }
+
     public void setRANDUM(short value) {
         RANDUM = value;
     }
@@ -370,24 +392,28 @@ public class SoundWork {
     public int getKEY_FLAG() {
         return KEY_FLAG;
     }
+
     public void setKEY_FLAG(int value) {
         KEY_FLAG = value;
     }
 
     private int currentChip;
 
-    public int getcurrentChip() {
+    public int getCurrentChip() {
         return currentChip;
     }
 
-    public void setcurrentChip(int value) {
+    public void setCurrentChip(int value) {
         currentChip = value;
     }
 
     private int currentCh;
 
-    public int getcurrentCh() {
+    public int getCurrentCh() {
         return currentCh;
+    }
+    public void setCurrentCh(int value) {
+        currentCh = value;
     }
 
     private int[][] PCMaSTTADR = new int[][] {
@@ -406,8 +432,8 @@ public class SoundWork {
         return PCMaENDADR;
     }
 
-    // **PMS/AMS/LR DATA**
-    public static final byte[] PALDAT = new byte[] {
+    /** PMS/AMS/LR DATA */
+    public byte[] PALDAT = new byte[] {
             (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0,
             (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0,
             (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0,
@@ -417,156 +443,156 @@ public class SoundWork {
             (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0
     };
 
-    // **ﾎﾞﾘｭｰﾑ ﾃﾞｰﾀ   **
+    // ﾎﾞﾘｭｰﾑ ﾃﾞｰﾀ
 
-    public static final byte[] FMVDAT = new byte[] {// ﾎﾞﾘｭｰﾑ ﾃﾞｰﾀ(FM)
+    public static final byte[] FMVDAT = new byte[] { // ﾎﾞﾘｭｰﾑ ﾃﾞｰﾀ(FM)
             0x36, 0x33, 0x30, 0x2D,
-            0x2A, 0x28, 0x25, 0x22,//  0,  1,  2,  3
-            0x20, 0x1D, 0x1A, 0x18,//  4,  5,  6,  7
-            0x15, 0x12, 0x10, 0x0D,//  8,  9, 10, 11
-            0x0a, 0x08, 0x05, 0x02 // 12, 13, 14, 15
+            0x2A, 0x28, 0x25, 0x22, //  0,  1,  2,  3
+            0x20, 0x1D, 0x1A, 0x18, //  4,  5,  6,  7
+            0x15, 0x12, 0x10, 0x0D, //  8,  9, 10, 11
+            0x0a, 0x08, 0x05, 0x02  // 12, 13, 14, 15
     };
 
-    public static final byte[] CRYDAT = new byte[] {// ｷｬﾘｱ / ﾓｼﾞｭﾚｰﾀ ﾉ ﾃﾞｰﾀ
+    public static final byte[] CRYDAT = new byte[] { // ｷｬﾘｱ / ﾓｼﾞｭﾚｰﾀ ﾉ ﾃﾞｰﾀ
             0x08,
-            0x08,// ｶｸ ﾋﾞｯﾄ ｶﾞ ｷｬﾘｱ/ﾓｼﾞｭﾚｰﾀ ｦ ｱﾗﾜｽ
-            0x08,//
-            0x08,// Bit=1 ｶﾞ ｷｬﾘｱ
-            0x0C,//      0 ｶﾞ ﾓｼﾞｭﾚｰﾀ
-            0x0E,//
-            0x0E,// Bit0=OP 1 , Bit1=OP 2 ... etc
+            0x08, // ｶｸ ﾋﾞｯﾄ ｶﾞ ｷｬﾘｱ/ﾓｼﾞｭﾚｰﾀ ｦ ｱﾗﾜｽ
+            0x08, //
+            0x08, // Bit=1 ｶﾞ ｷｬﾘｱ
+            0x0C, //     0 ｶﾞ ﾓｼﾞｭﾚｰﾀ
+            0x0E, //
+            0x0E, // Bit0=OP 1 , Bit1=OP 2 ... etc
             0x0F
     };
 
-    void Init() {
+    void init() {
         for (int chipIndex = 0; chipIndex < 4; chipIndex++) {
-            for (int i = 0; i < chData.get(chipIndex).get(0).PGDAT.size(); i++) {
-                chData.get(chipIndex).get(0).PGDAT.get(i).lengthCounter = 1;
-                chData.get(chipIndex).get(0).PGDAT.get(i).instrumentNumber = 24;
-                chData.get(chipIndex).get(0).PGDAT.get(i).volume = 10;
+            for (int i = 0; i < chData.get(chipIndex).get(0).pgDat.size(); i++) {
+                chData.get(chipIndex).get(0).pgDat.get(i).lengthCounter = 1;
+                chData.get(chipIndex).get(0).pgDat.get(i).instrumentNumber = 24;
+                chData.get(chipIndex).get(0).pgDat.get(i).volume = 10;
             }
 
-            for (int i = 0; i < chData.get(chipIndex).get(1).PGDAT.size(); i++) {
-                chData.get(chipIndex).get(1).PGDAT.get(i).lengthCounter = 1;
-                chData.get(chipIndex).get(1).PGDAT.get(i).instrumentNumber = 24;
-                chData.get(chipIndex).get(1).PGDAT.get(i).volume = 10;
-                chData.get(chipIndex).get(1).PGDAT.get(i).channelNumber = 1;
+            for (int i = 0; i < chData.get(chipIndex).get(1).pgDat.size(); i++) {
+                chData.get(chipIndex).get(1).pgDat.get(i).lengthCounter = 1;
+                chData.get(chipIndex).get(1).pgDat.get(i).instrumentNumber = 24;
+                chData.get(chipIndex).get(1).pgDat.get(i).volume = 10;
+                chData.get(chipIndex).get(1).pgDat.get(i).channelNumber = 1;
             }
 
-            for (int i = 0; i < chData.get(chipIndex).get(2).PGDAT.size(); i++) {
-                chData.get(chipIndex).get(2).PGDAT.get(i).lengthCounter = 1;
-                chData.get(chipIndex).get(2).PGDAT.get(i).instrumentNumber = 24;
-                chData.get(chipIndex).get(2).PGDAT.get(i).volume = 10;
-                chData.get(chipIndex).get(2).PGDAT.get(i).channelNumber = 2;
+            for (int i = 0; i < chData.get(chipIndex).get(2).pgDat.size(); i++) {
+                chData.get(chipIndex).get(2).pgDat.get(i).lengthCounter = 1;
+                chData.get(chipIndex).get(2).pgDat.get(i).instrumentNumber = 24;
+                chData.get(chipIndex).get(2).pgDat.get(i).volume = 10;
+                chData.get(chipIndex).get(2).pgDat.get(i).channelNumber = 2;
             }
 
-            for (int i = 0; i < chData.get(chipIndex).get(3).PGDAT.size(); i++) {
-                chData.get(chipIndex).get(3).PGDAT.get(i).lengthCounter = 1;
-                chData.get(chipIndex).get(3).PGDAT.get(i).instrumentNumber = 0;
-                chData.get(chipIndex).get(3).PGDAT.get(i).volume = 8;
-                chData.get(chipIndex).get(3).PGDAT.get(i).volReg = 8;
-                chData.get(chipIndex).get(3).PGDAT.get(i).channelNumber = 0;
+            for (int i = 0; i < chData.get(chipIndex).get(3).pgDat.size(); i++) {
+                chData.get(chipIndex).get(3).pgDat.get(i).lengthCounter = 1;
+                chData.get(chipIndex).get(3).pgDat.get(i).instrumentNumber = 0;
+                chData.get(chipIndex).get(3).pgDat.get(i).volume = 8;
+                chData.get(chipIndex).get(3).pgDat.get(i).volReg = 8;
+                chData.get(chipIndex).get(3).pgDat.get(i).channelNumber = 0;
             }
 
-            for (int i = 0; i < chData.get(chipIndex).get(4).PGDAT.size(); i++) {
-                chData.get(chipIndex).get(4).PGDAT.get(i).lengthCounter = 1;
-                chData.get(chipIndex).get(4).PGDAT.get(i).instrumentNumber = 0;
-                chData.get(chipIndex).get(4).PGDAT.get(i).volume = 8;
-                chData.get(chipIndex).get(4).PGDAT.get(i).volReg = 9;
-                chData.get(chipIndex).get(4).PGDAT.get(i).channelNumber = 2;
+            for (int i = 0; i < chData.get(chipIndex).get(4).pgDat.size(); i++) {
+                chData.get(chipIndex).get(4).pgDat.get(i).lengthCounter = 1;
+                chData.get(chipIndex).get(4).pgDat.get(i).instrumentNumber = 0;
+                chData.get(chipIndex).get(4).pgDat.get(i).volume = 8;
+                chData.get(chipIndex).get(4).pgDat.get(i).volReg = 9;
+                chData.get(chipIndex).get(4).pgDat.get(i).channelNumber = 2;
             }
 
-            for (int i = 0; i < chData.get(chipIndex).get(5).PGDAT.size(); i++) {
-                chData.get(chipIndex).get(5).PGDAT.get(i).lengthCounter = 1;
-                chData.get(chipIndex).get(5).PGDAT.get(i).instrumentNumber = 0;
-                chData.get(chipIndex).get(5).PGDAT.get(i).volume = 8;
-                chData.get(chipIndex).get(5).PGDAT.get(i).volReg = 10;
-                chData.get(chipIndex).get(5).PGDAT.get(i).channelNumber = 4;
+            for (int i = 0; i < chData.get(chipIndex).get(5).pgDat.size(); i++) {
+                chData.get(chipIndex).get(5).pgDat.get(i).lengthCounter = 1;
+                chData.get(chipIndex).get(5).pgDat.get(i).instrumentNumber = 0;
+                chData.get(chipIndex).get(5).pgDat.get(i).volume = 8;
+                chData.get(chipIndex).get(5).pgDat.get(i).volReg = 10;
+                chData.get(chipIndex).get(5).pgDat.get(i).channelNumber = 4;
             }
 
-            for (int i = 0; i < chData.get(chipIndex).get(6).PGDAT.size(); i++) {
-                chData.get(chipIndex).get(6).PGDAT.get(i).lengthCounter = 1;
-                chData.get(chipIndex).get(6).PGDAT.get(i).volume = 10;
-                chData.get(chipIndex).get(6).PGDAT.get(i).channelNumber = 2;
+            for (int i = 0; i < chData.get(chipIndex).get(6).pgDat.size(); i++) {
+                chData.get(chipIndex).get(6).pgDat.get(i).lengthCounter = 1;
+                chData.get(chipIndex).get(6).pgDat.get(i).volume = 10;
+                chData.get(chipIndex).get(6).pgDat.get(i).channelNumber = 2;
             }
 
-            for (int i = 0; i < chData.get(chipIndex).get(7).PGDAT.size(); i++) {
-                chData.get(chipIndex).get(7).PGDAT.get(i).lengthCounter = 1;
-                chData.get(chipIndex).get(7).PGDAT.get(i).volume = 10;
-                chData.get(chipIndex).get(7).PGDAT.get(i).channelNumber = 2;
+            for (int i = 0; i < chData.get(chipIndex).get(7).pgDat.size(); i++) {
+                chData.get(chipIndex).get(7).pgDat.get(i).lengthCounter = 1;
+                chData.get(chipIndex).get(7).pgDat.get(i).volume = 10;
+                chData.get(chipIndex).get(7).pgDat.get(i).channelNumber = 2;
             }
 
             if (chData.get(chipIndex).get(8) != null) {
-                for (int i = 0; i < chData.get(chipIndex).get(8).PGDAT.size(); i++) {
-                    chData.get(chipIndex).get(8).PGDAT.get(i).lengthCounter = 1;
-                    chData.get(chipIndex).get(8).PGDAT.get(i).volume = 10;
-                    chData.get(chipIndex).get(8).PGDAT.get(i).channelNumber = 2;
+                for (int i = 0; i < chData.get(chipIndex).get(8).pgDat.size(); i++) {
+                    chData.get(chipIndex).get(8).pgDat.get(i).lengthCounter = 1;
+                    chData.get(chipIndex).get(8).pgDat.get(i).volume = 10;
+                    chData.get(chipIndex).get(8).pgDat.get(i).channelNumber = 2;
                 }
             }
 
             if (chData.get(chipIndex).get(9) != null) {
-                for (int i = 0; i < chData.get(chipIndex).get(9).PGDAT.size(); i++) {
-                    chData.get(chipIndex).get(9).PGDAT.get(i).lengthCounter = 1;
-                    chData.get(chipIndex).get(9).PGDAT.get(i).volume = 10;
-                    chData.get(chipIndex).get(9).PGDAT.get(i).channelNumber = 2;
+                for (int i = 0; i < chData.get(chipIndex).get(9).pgDat.size(); i++) {
+                    chData.get(chipIndex).get(9).pgDat.get(i).lengthCounter = 1;
+                    chData.get(chipIndex).get(9).pgDat.get(i).volume = 10;
+                    chData.get(chipIndex).get(9).pgDat.get(i).channelNumber = 2;
                 }
             }
 
             if (chData.get(chipIndex).get(10) != null) {
-                for (int i = 0; i < chData.get(chipIndex).get(10).PGDAT.size(); i++) {
-                    chData.get(chipIndex).get(10).PGDAT.get(i).lengthCounter = 1;
-                    chData.get(chipIndex).get(10).PGDAT.get(i).volume = 10;
-                    chData.get(chipIndex).get(10).PGDAT.get(i).channelNumber = 2;
+                for (int i = 0; i < chData.get(chipIndex).get(10).pgDat.size(); i++) {
+                    chData.get(chipIndex).get(10).pgDat.get(i).lengthCounter = 1;
+                    chData.get(chipIndex).get(10).pgDat.get(i).volume = 10;
+                    chData.get(chipIndex).get(10).pgDat.get(i).channelNumber = 2;
                 }
             }
 
             for (int i = 0; i < chData.get(chipIndex).size(); i++) {
-                chData.get(chipIndex).get(i).FMVolMode = 0;
+                chData.get(chipIndex).get(i).fmVolMode = 0;
                 chData.get(chipIndex).get(i).currentFMVolTable = FMVDAT;
             }
         }
 
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < chData.get(4).get(i).PGDAT.size(); j++) {
-                chData.get(4).get(i).PGDAT.get(j).lengthCounter = 1;
-                chData.get(4).get(i).PGDAT.get(j).instrumentNumber = 24;
-                chData.get(4).get(i).PGDAT.get(j).volume = 10;
-                chData.get(4).get(i).PGDAT.get(j).channelNumber = i;
+            for (int j = 0; j < chData.get(4).get(i).pgDat.size(); j++) {
+                chData.get(4).get(i).pgDat.get(j).lengthCounter = 1;
+                chData.get(4).get(i).pgDat.get(j).instrumentNumber = 24;
+                chData.get(4).get(i).pgDat.get(j).volume = 10;
+                chData.get(4).get(i).pgDat.get(j).channelNumber = i;
             }
 
-            chData.get(4).get(i).FMVolMode = 0;
+            chData.get(4).get(i).fmVolMode = 0;
             chData.get(4).get(i).currentFMVolTable = FMVDAT;
         }
 
 
-        PREGBF = new byte[][] {
+        pregBf = new byte[][] {
                 new byte[9], new byte[9], new byte[9], new byte[9]
         };
-        INITPM = new byte[] {0, 0, 0, 0, 0, 56, 0, 0, 0};
+        initPm = new byte[] {0, 0, 0, 0, 0, 56, 0, 0, 0};
         for (int i = 0; i < 4; i++) {
-            DETDAT[i] = new short[] {
+            detdat[i] = new short[] {
                     0, 0, 0, 0
             };
-            DRMVOL[i] = new byte[] {
+            drmvol[i] = new byte[] {
                     (byte) 0xc0, (byte) 0xc0, (byte) 0xc0, (byte) 0xc0, (byte) 0xc0, (byte) 0xc0
             };
-            DrmPanCounter[i] = new byte[] {
+            drmPanCounter[i] = new byte[] {
                     0, 0, 0, 0, 0, 0
             };
-            DrmPanCounterWork[i] = new byte[] {
+            drmPanCounterWork[i] = new byte[] {
                     0, 0, 0, 0, 0, 0
             };
-            DrmPanEnable[i] = new byte[] {
+            drmPanEnable[i] = new byte[] {
                     0, 0, 0, 0, 0, 0
             };
-            DrmPanMode[i] = new byte[] {
+            drmPanMode[i] = new byte[] {
                     0, 0, 0, 0, 0, 0
             };
-            DrmPanValue[i] = new byte[] {
+            drmPanValue[i] = new byte[] {
                     0, 0, 0, 0, 0, 0
             };
         }
-        OP_SEL = new byte[] {
+        opSel = new byte[] {
                 (byte) 0xa6, (byte) 0xac, (byte) 0xad, (byte) 0xae
         };
         DMY = 8;
@@ -574,38 +600,38 @@ public class SoundWork {
         TYPE2 = new byte[] {(byte) 0x0AA, (byte) 0x0A8, (byte) 0x0AC};
         FNUMB = new short[][] {
                 new short[] {
-                        0x026A, 0x028F, 0x02B6, 0x02DF
-                        , 0x030B, 0x0339, 0x036A, 0x039E
-                        , 0x03D5, 0x0410, 0x044E, 0x048F
+                        0x026A, 0x028F, 0x02B6, 0x02DF,
+                        0x030B, 0x0339, 0x036A, 0x039E,
+                        0x03D5, 0x0410, 0x044E, 0x048F
                 },
                 new short[] {
-                        0x0269, 0x028E, 0x02b4, 0x02De
-                        , 0x0309, 0x0337, 0x0368, 0x039c
-                        , 0x03d3, 0x040e, 0x044b, 0x048d
+                        0x0269, 0x028E, 0x02b4, 0x02De,
+                        0x0309, 0x0337, 0x0368, 0x039c,
+                        0x03d3, 0x040e, 0x044b, 0x048d
                 }
         };
         FNUMBopm = new short[][] {
                 new short[] {
-                        0x0000, 0x0040, 0x0080, 0x00c0
-                        , 0x0100, 0x0140, 0x0180, 0x01c0
-                        , 0x0200, 0x0240, 0x0280, 0x02c0
+                        0x0000, 0x0040, 0x0080, 0x00c0,
+                        0x0100, 0x0140, 0x0180, 0x01c0,
+                        0x0200, 0x0240, 0x0280, 0x02c0
                 },
                 new short[] {
-                        0x0000 - 59 - 64, 0x0040 - 59 - 64, 0x0080 - 59 - 64, 0x00c0 - 59 - 64
-                        , 0x0100 - 59 - 64, 0x0140 - 59 - 64, 0x0180 - 59 - 64, 0x01c0 - 59 - 64
-                        , 0x0200 - 59 - 64, 0x0240 - 59 - 64, 0x0280 - 59 - 64, 0x02c0 - 59 - 64
+                        0x0000 - 59 - 64, 0x0040 - 59 - 64, 0x0080 - 59 - 64, 0x00c0 - 59 - 64,
+                        0x0100 - 59 - 64, 0x0140 - 59 - 64, 0x0180 - 59 - 64, 0x01c0 - 59 - 64,
+                        0x0200 - 59 - 64, 0x0240 - 59 - 64, 0x0280 - 59 - 64, 0x02c0 - 59 - 64
                 }
         };
         SNUMB = new short[][] {
                 new short[] {
-                        0x0EE8, 0x0E12, 0x0D48, 0x0C89
-                        , 0x0BD5, 0x0B2B, 0x0A8A, 0x09F3
-                        , 0x0964, 0x08DD, 0x085E, 0x07E6
+                        0x0EE8, 0x0E12, 0x0D48, 0x0C89,
+                        0x0BD5, 0x0B2B, 0x0A8A, 0x09F3,
+                        0x0964, 0x08DD, 0x085E, 0x07E6
                 },
                 new short[] {
-                        0x0EEe, 0x0E18, 0x0D4d, 0x0C8e
-                        , 0x0BDa, 0x0B30, 0x0A8f, 0x09F7
-                        , 0x0968, 0x08e1, 0x0861, 0x07E9
+                        0x0EEe, 0x0E18, 0x0D4d, 0x0C8e,
+                        0x0BDa, 0x0B30, 0x0A8f, 0x09F7,
+                        0x0968, 0x08e1, 0x0861, 0x07E9
                 }
         };
         PCMNMB = new short[][] {
@@ -614,9 +640,9 @@ public class SoundWork {
                 //  0x7CC6 >> 5 =0x3E6(998)
                 //  998 = 7987200Hz / 8000Hz
                 new short[] {
-                        0x49BA + 200, 0x4E1C + 200, 0x52C1 + 200, 0x57AD + 200
-                        , 0x5CE4 + 200, 0x626A + 200, 0x6844 + 200, 0x6E77 + 200
-                        , 0x7509 + 200, 0x7BFE + 200, (short) (0x835E + 200), (short) (0x8B2D + 200)
+                        0x49BA + 200, 0x4E1C + 200, 0x52C1 + 200, 0x57AD + 200,
+                        0x5CE4 + 200, 0x626A + 200, 0x6844 + 200, 0x6E77 + 200,
+                        0x7509 + 200, 0x7BFE + 200, (short) (0x835E + 200), (short) (0x8B2D + 200)
                 },
                 // OPNB (8000000Hz)
                 // C :8000000/8000*(261.626/440)*32=19027.3454545454(0x4A53)
@@ -636,319 +662,336 @@ public class SoundWork {
                         0x5DA5, 0x6336, 0x691D, 0x6F5D,
                         0x75FC, 0x7D00, (short) 0x846F, (short) 0x8C4F
                 }
-
         };
 
         SSGDAT = new byte[] {
-                (byte) 255, (byte) 255, (byte) 255, (byte) 255, 0, (byte) 255 // E
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 200, 0, 10
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 200, 1, 10
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 190, 0, 10
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 190, 1, 10
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 170, 0, 10
-                , 40, 70, 14, (byte) 190, 0, 15
-                , 120, 030, (byte) 255, (byte) 255, 0, 10
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 225, 8, 15
-                , (byte) 255, (byte) 255, (byte) 255, 1, (byte) 255, (byte) 255
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 200, 8, (byte) 255
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 220, 20, 8
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 255, 0, 10
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 255, 0, 10
-                , 120, 80, (byte) 255, (byte) 255, 0, (byte) 255
-                , (byte) 255, (byte) 255, (byte) 255, (byte) 220, 0, (byte) 255 // 6*16
+                (byte) 255, (byte) 255, (byte) 255, (byte) 255, 0, (byte) 255, // E
+                (byte) 255, (byte) 255, (byte) 255, (byte) 200, 0, 10,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 200, 1, 10,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 190, 0, 10,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 190, 1, 10,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 170, 0, 10,
+                40, 70, 14, (byte) 190, 0, 15,
+                120, 030, (byte) 255, (byte) 255, 0, 10,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 225, 8, 15,
+                (byte) 255, (byte) 255, (byte) 255, 1, (byte) 255, (byte) 255,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 200, 8, (byte) 255,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 220, 20, 8,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 255, 0, 10,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 255, 0, 10,
+                120, 80, (byte) 255, (byte) 255, 0, (byte) 255,
+                (byte) 255, (byte) 255, (byte) 255, (byte) 220, 0, (byte) 255 // 6*16
         };
-
     }
 
     public static class CHDAT {
-        public List<PGDAT> PGDAT = new ArrayList<>();
+        public List<PGDAT> pgDat = new ArrayList<>();
 
         private int keyOnCh;
 
-        public int getkeyOnCh() {
+        public int getKeyOnCh() {
             return keyOnCh;
         }
-        public void setkeyOnCh(int value) {
+
+        public void setKeyOnCh(int value) {
             keyOnCh = value;
         }
 
         private int currentPageNo;
 
-        public int getcurrentPageNo() {
+        public int getCurrentPageNo() {
             return currentPageNo;
         }
-        public void setcurrentPageNo(int value) {
+
+        public void setCurrentPageNo(int value) {
             currentPageNo = value;
         }
 
         public int ch3KeyOn;
 
-        public int getch3KeyOn() {
+        public int getCh3KeyOn() {
             return ch3KeyOn;
         }
 
-        private byte FMVolMode = 0;
+        private byte fmVolMode = 0;
 
-        public byte getFMVolMode() {
-            return FMVolMode;
-        }
-        public void setFMVolMode(byte value) {
-            FMVolMode = value;
+        public byte getFmVolMode() {
+            return fmVolMode;
         }
 
-        private byte[] FMVolUserTable = new byte[20];
+        public void setFmVolMode(byte value) {
+            fmVolMode = value;
+        }
 
-        public byte[] getFMVolUserTable() {
-            return FMVolUserTable;
+        private byte[] fmVolUserTable = new byte[20];
+
+        public byte[] getFmVolUserTable() {
+            return fmVolUserTable;
         }
 
         private byte[] currentFMVolTable;
 
-        public byte[] getcurrentFMVolTable() {
+        public byte[] getCurrentFMVolTable() {
             return currentFMVolTable;
         }
-        public void setcurrentFMVolTable(byte[] value) {
+
+        public void setCurrentFMVolTable(byte[] value) {
             currentFMVolTable = value;
         }
 
         public static class PGDAT {
             public MmlDatum[] mData = null;
 
-            //DB1        ; LENGTH ｶｳﾝﾀｰ      IX+ 0
+            /** DB1 LENGTH ｶｳﾝﾀｰ IX+ 0 */
             public int lengthCounter = 1;
-            //DB24        ; ｵﾝｼｮｸ ﾅﾝﾊﾞｰ1
+            /** DB24 ｵﾝｼｮｸ ﾅﾝﾊﾞｰ1 */
             public int instrumentNumber = 24;
-            //DW0        ; DATA ADDRES WORK2,3
+            /** DW0 DATA ADDRES WORK2,3 */
             public int dataAddressWork = 0;
-            //DW0        ; DATA TOP ADDRES4,5
+            /** DW0 DATA TOP ADDRES4,5 */
             public int dataTopAddress = -1;
-            //DB10        ; VOLUME DATA6
+            /** DB10 volume DATA6 */
             public int volume = 10;
-            //        ; bit 4 = attack flag
-            //                  ; bit 5 = decay flag
-            //                  ; bit 6 = sustain flag
-            //                  ; bit 7 = soft envelope flag
+            /**
+             * bit 4 = attack flag
+             * bit 5 = decay flag
+             * bit 6 = sustain flag
+             * bit 7 = soft envelope flag
+             */
             public int softEnvelopeFlag = 0;
-            //DB0        ; ｱﾙｺﾞﾘｽﾞﾑ No.      7(FM)
+            /** DB0 ｱﾙｺﾞﾘｽﾞﾑ No. 7(FM) */
             public int algo = 0;
             public int feedback = 0;
-            //DB8       ; VOL.REG.No.       7
+            /** DB8 VOL.REG.No. 7 */
             public int volReg = 0;
-            //DB    0        ; ﾁｬﾝﾈﾙ ﾅﾝﾊﾞｰ          8
+            /** DB 0 ﾁｬﾝﾈﾙ ﾅﾝﾊﾞｰ 8 */
             public int channelNumber = 0;
-            //DW0        ; ﾃﾞﾁｭｰﾝ DATA9,10
+            /** DW0 ﾃﾞﾁｭｰﾝ DATA9,10 */
             public int detune = 0;
-            //DB0        ; for TLLFO11
+            /** DB0  for TLLFO11 */
             public int TLlfo = 0;
-            //DB0       ; SOFT ENVE COUNTER11
+            /** DB0 SOFT ENVE COUNTER11 */
             public int softEnvelopeCounter = 0;
-            //DB0        ; for ﾘﾊﾞｰﾌﾞ12
+            /** DB0 for ﾘﾊﾞｰﾌﾞ12 */
             public int reverb = 0;
-            //DS5        ; SOFT ENVE DUMMY13-17
-            //public int[] softEnvelopeDummy = new int[5];
-            //SOFT ENVE12-17    //KUMA:  12:AL 13:AR 14:DR 15:SR 16:SL 17:RR
+            /** DS5 SOFT ENVE DUMMY13-17  */
+//            public int[] softEnvelopeDummy = new int[5];
+            /** SOFT ENVE12-17 KUMA: 12:AL 13:AR 14:DR 15:SR 16:SL 17:RR */
             public int[] softEnvelopeParam = new int[6];
-            // rev vol? 17
+            /** rev vol? 17 */
             public int reverbVol = 0;
-            //DB0        ; qｵﾝﾀｲｽﾞ18
+            /** DB0 qｵﾝﾀｲｽﾞ18 */
             public int quantize = 0;
-            //DB0        ; LFO DELAY19
+            /** DB0 LFO DELAY19 */
             public int lfoDelay = 0;
-            //DB0        ; WORK20
+            /** DB0 WORK20 */
             public int lfoDelayWork = 0;
-            //DB0        ; LFO COUNTER21
+            /** DB0 LFO COUNTER21 */
             public int lfoCounter = 0;
-            //DB0        ; WORK22
+            /** DB0 WORK22 */
             public int lfoCounterWork = 0;
-            //DW0        ; LFO ﾍﾝｶﾘｮｳ 2BYTE23,24
+            /** DW0 LFO ﾍﾝｶﾘｮｳ 2BYTE23,24 */
             public int lfoDelta = 0;
-            //DW0        ; WORK25,26
+            /** DW0 WORK25,26 */
             public int lfoDeltaWork = 0;
-            //DB0        ; LFO PEAK LEVEL27
+            /** DB0 LFO PEAK LEVEL27 */
             public int lfoPeak = 0;
-            //DB0        ; WORK28
+            /** DB0 WORK28 */
             public int lfoPeakWork = 0;
-            //DB0        ; FNUM1 DATA29
+            /** DB0 FNUM1 DATA29 */
             public int fnum = 0;
-            //DB0        ; B/FNUM2 DATA30
+            /** DB0 B/FNUM2 DATA30 */
             public int bfnum2 = 0;
-            //DB00000001B        ; bit7=LFO FLAG31
+            /** DB00000001B bit7=LFO FLAG31 */
             public boolean lfoflg = false;
-            //        ; bit6=KEYOFF FLAG
-            public boolean keyoffflg = false;
-            //                   ; 5=LFO CONTINUE FLAG
+            /** bit6=KEYOFF FLAG */
+            public boolean keyOffFlag = false;
+            /** 5=LFO CONTINUE FLAG */
             public boolean lfoContFlg = false;
-            //            ; 4=TIE FLAG
+            /** 4=TIE FLAG */
             public boolean tieFlg = false;
-            //                      ; 3=MUTE FLAG
+            /** 3=MUTE FLAG */
             public boolean muteFlg = false;
-            //                    ; KUMA:外部から操作されるmuteフラグ
+            /** KUMA:外部から操作されるmuteフラグ */
             public boolean silentFlg = false;
-            //                  ; 2=LFO 1SHOT FLAG
+            /** 2=LFO 1SHOT FLAG */
             public boolean lfo1shotFlg = false;
-            //        ; 0=1LOOPEND FLAG
+            /** 0=1LOOPEND FLAG */
             public boolean loopEndFlg = false;
 
-            //DB 0               ; BEFORE CODE32
+            /** DB 0 BEFORE CODE32 */
             public int beforeCode = 0;
-            //              ; bit   7=HardEnvelope FLAG   33
+            /** bit 7=HardEnvelope FLAG 33 */
             public boolean hardEnveFlg = false;
-            //DB0        ; bit6=TL LFO FLAG
-            public boolean tlLfoflg = false;
-            //          ; 5=REVERVE FLAG
+            /** DB0 bit6=TL LFO FLAG */
+            public boolean tlLfoFlag = false;
+            /** 5=REVERVE FLAG */
             public boolean reverbFlg = false;
-            //                     ; 4=REVERVE MODE
+            /** 4=REVERVE MODE */
             public boolean reverbMode = false;
-            //                   ; 0-3=hardware Envelope value
+            /** 0-3=hardware Envelope value */
             public byte hardEnvelopValue = 0;
-            //DW0        ; ﾘﾀｰﾝｱﾄﾞﾚｽ34,35
+            /** DW0 ﾘﾀｰﾝｱﾄﾞﾚｽ34,35 */
             public int returnAddress = 0;
-            //DB0,0         ; 36,37 (ｱｷ)
+            /** DB0,0 36,37 (ｱｷ) */
             public int reserve = 0;
 
-            //DB ? ;パーン 38
+            /** DB ? ;パーン 38 */
             public byte panEnable = 0;
-            //DB ? ;パーン モード 39
+            /** DB ? ;パーン モード 39 */
             public byte panMode = 0;
-            //DB ? ;パーン カウンター 40
+            /** DB ? ;パーン カウンター 40 */
             public byte panCounterWork = 0;
-            //DB ? ;パーン カウンター 41
+            /** DB ? ;パーン カウンター 41 */
             public byte panCounter = 0;
-            //DB ? ;パーン 値 42
+            /** DB ? ;パーン 値 42 */
             public byte panValue = 3;
 
             private boolean musicEnd;
 
-            public boolean getmusicEnd() {
+            public boolean getMusicEnd() {
                 return musicEnd;
             }
-            public void setmusicEnd(boolean value) {
+
+            public void setMusicEnd(boolean value) {
                 musicEnd = value;
             }
 
-            public byte TLlfoSlot;
+            public byte tlLfoSlot;
 
-            public byte getTLlfoSlot() {
-                return TLlfoSlot;
+            public byte getTlLfoSlot() {
+                return tlLfoSlot;
             }
 
-            private boolean SSGTremoloFlg;
+            private boolean ssgTremoloFlg;
 
-            public boolean getSSGTremoloFlg() {
-                return SSGTremoloFlg;
-            }
-            public void setSSGTremoloFlg(boolean value) {
-                SSGTremoloFlg = false;
+            public boolean getSsgTremoloFlg() {
+                return ssgTremoloFlg;
             }
 
-            private int SSGTremoloVol;
+            public void setSsgTremoloFlg(boolean value) {
+                ssgTremoloFlg = false;
+            }
 
-            public int getSSGTremoloVol() {
-                return SSGTremoloVol;
+            private int ssgTremoloVol;
+
+            public int getSsgTremoloVol() {
+                return ssgTremoloVol;
             }
-            public void setSSGTremoloVol(int value) {
-                SSGTremoloVol = value;
+
+            public void setSsgTremoloVol(int value) {
+                ssgTremoloVol = value;
             }
+
             public void addSSGTremoloVol(int value) {
-                SSGTremoloVol += value;
+                ssgTremoloVol += value;
             }
 
             private int loopCounter;
 
-            public int getloopCounter() {
+            public int getLoopCounter() {
                 return loopCounter;
             }
+
             public void incloopCounter() {
                 loopCounter++;
             }
 
             private int pageNo;
 
-            public int getpageNo() {
+            public int getPageNo() {
                 return pageNo;
             }
-            public void setpageNo(int value) {
+
+            public void setPageNo(int value) {
                 pageNo = value;
             }
 
-            public boolean KeyOnDelayFlag = false;
-            // Keyonslot制御向け
+            public boolean keyOnDelayFlag = false;
+            /** keyOnSlot制御向け */
             public byte keyOnSlot = (byte) 0xf0;
-            public byte[] KD = new byte[4];
-            public byte[] KDWork = new byte[4];
-            // ページが使用するスロット(bit)
+            public byte[] kd = new byte[4];
+            public byte[] kdWork = new byte[4];
+            /** ページが使用するスロット(bit) */
             public byte useSlot = 0x0f;
 
             private byte backupMIXPort = 0x38;
 
-            public byte getbackupMIXPort() {
+            public byte getBackupMIXPort() {
                 return backupMIXPort;
             }
-            public void setbackupMIXPort(byte value) {
+
+            public void setBackupMIXPort(byte value) {
                 backupMIXPort = value;
             }
 
             private byte backupNoiseFrq = 0;
 
-            public byte getbackupNoiseFrq() {
+            public byte getBackupNoiseFrq() {
                 return backupNoiseFrq;
             }
-            public void setbackupNoiseFrq(byte value) {
+
+            public void setBackupNoiseFrq(byte value) {
                 backupNoiseFrq = value;
             }
 
             private byte backupHardEnv = 0;
 
-            public byte getbackupHardEnv() {
+            public byte getBackupHardEnv() {
                 return backupHardEnv;
             }
-            public void setbackupHardEnv(byte value) {
+
+            public void setBackupHardEnv(byte value) {
                 backupHardEnv = value;
             }
 
             private byte backupHardEnvFine = 0;
 
-            public byte getbackupHardEnvFine() {
+            public byte getBackupHardEnvFine() {
                 return backupHardEnvFine;
             }
-            public void setbackupHardEnvFine(byte value) {
+
+            public void setBackupHardEnvFine(byte value) {
                 backupHardEnvFine = value;
             }
 
             private byte backupHardEnvCoarse = 0;
 
-            public byte getbackupHardEnvCoarse() {
+            public byte getBackupHardEnvCoarse() {
                 return backupHardEnvCoarse;
             }
-            public void setbackupHardEnvCoarse(byte value) {
+
+            public void setBackupHardEnvCoarse(byte value) {
                 backupHardEnvCoarse = value;
             }
 
-            private byte[] TLDirectTable = new byte[] {
+            private byte[] tlDirectTable = new byte[] {
                     (byte) 255, (byte) 255, (byte) 255, (byte) 255
             };
 
-            public byte[] getTLDirectTable() {
-                return TLDirectTable;
-            }
-            public void setTLDirectTable(byte[] value) {
-                TLDirectTable = value;
+            public byte[] getTlDirectTable() {
+                return tlDirectTable;
             }
 
-            private int SSGWfNum = 0;
-
-            public int getSSGWfNum() {
-                return SSGWfNum;
-            }
-            public void setSSGWfNum(int value) {
-                SSGWfNum = value;
+            public void setTlDirectTable(byte[] value) {
+                tlDirectTable = value;
             }
 
-            public byte[] v_tl = new byte[] {
+            private int ssgWfNum = 0;
+
+            public int getSsgWfNum() {
+                return ssgWfNum;
+            }
+
+            public void setSsgWfNum(int value) {
+                ssgWfNum = value;
+            }
+
+            public byte[] vTl = new byte[] {
                     0, 0, 0, 0
             };
 
-            // portament処理
+            // portamento処理
 
             // Work
             public boolean portaFlg = false;
@@ -959,7 +1002,7 @@ public class SoundWork {
             public int portaEdNote = 0;
             public int portaTotalClock = 0;
             public double portaBeforeFNum = 0;
-            public boolean enblKeyOff = true;
+            public boolean enableKeyOff = true;
         }
     }
 }

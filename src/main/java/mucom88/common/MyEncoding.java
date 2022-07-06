@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 
+@Deprecated
 public class MyEncoding implements iEncoding {
     private static MyEncoding defaultEncoding;
     private Charset sjis;
@@ -24,7 +25,7 @@ public class MyEncoding implements iEncoding {
         return defaultEncoding;
     }
 
-    public byte[] GetSjisArrayFromString(String utfString) {
+    public byte[] getSjisArrayFromString(String utfString) {
         return utfString.getBytes(sjis);
     }
 
@@ -38,11 +39,11 @@ public class MyEncoding implements iEncoding {
         return new String(sjisArray, index, count, sjis);
     }
 
-    public String GetStringFromUtfArray(byte[] utfArray) {
+    public String getStringFromUtfArray(byte[] utfArray) {
         return new String(utfArray, StandardCharsets.UTF_8);
     }
 
-    public byte[] GetUtfArrayFromString(String utfString) {
+    public byte[] getUtfArrayFromString(String utfString) {
         return utfString.getBytes(StandardCharsets.UTF_8);
     }
 }

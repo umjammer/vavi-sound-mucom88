@@ -1,10 +1,11 @@
 package mucom88.compiler;
 
+import java.util.Arrays;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 
 import dotnet4j.util.compat.Tuple;
 import mucom88.common.MUCInfo;
-import mucom88.common.Message;
 import mucom88.common.MucException;
 import mucom88.common.iEncoding;
 import musicDriverInterface.MmlDatum;
@@ -12,6 +13,9 @@ import vavi.util.Debug;
 
 
 public class Msub {
+
+    static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+
     private Work work;
     private final MUCInfo mucInfo;
     public Muc88 muc88;
@@ -24,14 +28,14 @@ public class Msub {
     // COMMANDs
     public static final byte[] FCOMS = new byte[] {
             0x6c,  // 'l' LIZM
-            0x6f,  // 'o' OCTAVE
+            0x6f,  // 'o' octave
             0x44,  // 'D' DETUNE
-            0x76,  // 'v' VOLUME
+            0x76,  // 'v' volume
             0x40,  // '@' SOUND COLOR
-            0x3e,  // '>' OCTAVE UP
-            0x3c,  // '<' OCTAVE DOWN
-            0x29,  // ')' VOLUME UP
-            0x28,  // '(' VOLUME DOWN
+            0x3e,  // '>' octave UP
+            0x3c,  // '<' octave DOWN
+            0x29,  // ')' volume UP
+            0x28,  // '(' volume DOWN
             0x26,  // '&' TIE
             0x79,  // 'y' REGISTER WRITE
             0x4d,  // 'M' MODURATION(LFO)
@@ -44,18 +48,18 @@ public class Msub {
             0x45,  // 'E' SOFT ENV or Ch3SpMode
             0x50,  // 'P' MIX PORT
             0x77,  // 'w' NOIZE WAVE
-            0x74,  // 't' TEMPO(DIRECT CLOCK)
-            0x43,  // 'C' SET CLOCK
+            0x74,  // 't' TEMPO(DIRECT clock)
+            0x43,  // 'C' SET clock
             0x21,  // '!' COMPILE END
             0x4b,  // 'K' KEY SHIFT
             0x2f,  // '/' REPEAT JUMP
-            0x56,  // 'V' TOTAL VOLUME OFFSET
+            0x56,  // 'V' TOTAL volume OFFSET
             0x5c,  // '\' BEFORE CODE
 //            0x73,  // 's' HARD ENVE SET
             0x6d,  // 'm' HARD ENVE PERIOD
             0x6b,  // 'k' KEY SHIFT 2
             0x73,  // 's' KEY ON REVISE
-            0x25,  // '%' SET LIZM(DIRECT CLOCK)
+            0x25,  // '%' SET LIZM(DIRECT clock)
             0x70,  // 'p' STEREO PAN
             0x48,  // 'H' HARD LFO
             0x54,  // 'T' TEMPO
@@ -89,14 +93,14 @@ public class Msub {
         this.enc = enc;
     }
 
-    public int REDATA(Tuple<Integer, String> lin, /*ref*/ int[] srcCPtr) {
+    public int readData(Tuple<Integer, String> lin, /*ref*/ int[] srcCPtr) {
         mucInfo.setErrSign(false);
 
-        for (int i = 0; i < scores.length; i++) scores[i] = 0;
-        int degit = 5;   // 5ｹﾀ ﾏﾃﾞ
+        Arrays.fill(scores, (byte) 0);
+        int digit = 5;   // 5ｹﾀ ﾏﾃﾞ
 
-        work.HEXFG = 0;
-        work.MINUSF = 0;
+        work.hexFg = 0;
+        work.minUsf = 0;
 
 //READ0: FIRST CHECK
         char ch;
@@ -111,25 +115,25 @@ public class Msub {
             srcCPtr[0]++;
         } while (ch == ' ' || ch == '\t');
 
-        if (ch == '$') { // 0x24
-            work.HEXFG = 1;
+        if (ch == '$') {
+            work.hexFg = 1;
             srcCPtr[0]++;
 //            goto READ7;
-        } else if (ch == '-') { // 0x2d
+        } else if (ch == '-') {
             ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0;
             srcCPtr[0]++;
-            if (ch < '0' || ch > '9') { // 0x30 0x39
+            if (ch < '0' || ch > '9') {
 //                goto READE;//0ｲｼﾞｮｳ ﾉ ｷｬﾗｸﾀﾅﾗ ﾂｷﾞ
-                work.setSECCOM((byte) ch);
+                work.setSecCom((byte) ch);
                 mucInfo.setCarry(true); // NON DATA
                 return 0;
             }
-            work.MINUSF = 1;   // SET MINUS FLAG
+            work.minUsf = 1;   // SET MINUS FLAG
 //            goto READ7;
         } else {
-            if (ch < '0' || ch > '9') { //0x30 0x39
+            if (ch < '0' || ch > '9') {
 //                goto READE;//0ｲｼﾞｮｳ ﾉ ｷｬﾗｸﾀﾅﾗ ﾂｷﾞ
-                work.setSECCOM((byte) ch);
+                work.setSecCom((byte) ch);
                 mucInfo.setCarry(true); // NON DATA
                 return 0;
             }
@@ -142,7 +146,7 @@ public class Msub {
             ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0;
             //z80.A = mem.ld_8(Z80.HL); // SECOND CHECK
             boolean READF = false;
-            if (work.HEXFG != 0) { // goto READC;
+            if (work.hexFg != 0) { // goto READC;
 
                 if (ch >= 'a' && ch <= 'f') {
                     ch -= (char) 32;
@@ -173,7 +177,7 @@ public class Msub {
             ch -= (char) 0x30;// A= 0 - 9
             scores[4] = (byte) ch;
             srcCPtr[0]++; // NEXT TEXT
-            degit--;
+            digit--;
 
             if (lin.getItem2().length() == srcCPtr[0]) {
 //                goto READ1;
@@ -181,7 +185,7 @@ public class Msub {
                 break;
             }
 
-        } while (degit > 0);
+        } while (digit > 0);
 
         if (!READ1) {
             ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0; // THIRD CHECK
@@ -194,7 +198,7 @@ public class Msub {
         }
 //READ1:
         int a = 0;
-        if (work.HEXFG == 1) {
+        if (work.hexFg == 1) {
             for (int i = 1; i < 5; i++) {
                 a *= 16;
                 a += scores[i];
@@ -207,7 +211,7 @@ public class Msub {
                 a += scores[i];
             }
 
-            if (work.MINUSF != 0) { // CHECK MINUS FLAG
+            if (work.minUsf != 0) { // CHECK MINUS FLAG
                 a = -a;
             }
         }
@@ -215,7 +219,7 @@ public class Msub {
         mucInfo.setCarry(false);
         return a; // RET
 //READE:
-//        work.setSECCOM((byte) ch);
+//        work.setSecCom((byte) ch);
 //        mucInfo.setCarry(true); // NON DATA
 //        return 0;
     }
@@ -230,51 +234,45 @@ public class Msub {
                 bHL[i] = (byte) (lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : 0);
                 srcCPtr[0]++;
             }
-            String trgHL = enc.GetStringFromUtfArray(bHL);// Encoding.UTF8.GetString(bHL);
+            String trgHL = enc.getStringFromUtfArray(bHL);// Encoding.UTF8.GetString(bHL);
             if (trgHL.equals(trgDE)) {
                 return true;
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }
 
     public void MWRIT2(MmlDatum dat) {
-        //Console.WriteLine("{0:x2}", dat.dat);
-        mucInfo.getBufDst().set(work.MDATA++, dat);
+        //Debug.printf("%2x", dat.dat);
+        mucInfo.getBufDst().set(work.mData++, dat);
 
-        if (work.MDATA - work.getbufStartPtr() > 0xffff) {
-            throw new MucException(
-                    Message.get("E0200")
-                    , mucInfo.getRow(), mucInfo.getCol());
+        if (work.mData - work.getBufStartPtr() > 0xffff) {
+            throw new MucException(rb.getString("E0200"), mucInfo.getRow(), mucInfo.getCol());
         }
 
-        muc88.DispHex4(work.MDATA, 36);
+        muc88.DispHex4(work.mData, 36);
     }
 
     public void MWRITE(MmlDatum cmdNo, MmlDatum cmdDat) {
-        //Common.WriteLine("{0:x2}", cmdNo);
-        mucInfo.getBufDst().set(work.MDATA++, cmdNo);
-        //Common.WriteLine("{0:x2}", cmdDat);
-        mucInfo.getBufDst().set(work.MDATA++, cmdDat);
+        //Debug.printf("%2x", cmdNo);
+        mucInfo.getBufDst().set(work.mData++, cmdNo);
+        //Debug.printf("%2x", cmdDat);
+        mucInfo.getBufDst().set(work.mData++, cmdDat);
 
-        if (work.MDATA - work.getbufStartPtr() > 0xffff) {
-            throw new MucException(
-                    Message.get("E0200")
-                    , mucInfo.getRow(), mucInfo.getCol());
+        if (work.mData - work.getBufStartPtr() > 0xffff) {
+            throw new MucException(rb.getString("E0200"), mucInfo.getRow(), mucInfo.getCol());
         }
 
-        muc88.DispHex4(work.MDATA, 36);
+        muc88.DispHex4(work.mData, 36);
     }
 
     public int ERRT(Tuple<Integer, String> lin, /*ref*/ int[] ptr, String cmdMsg) {
         ptr[0]++;
-        int n = REDATA(lin, /*ref*/ ptr);
-        if (mucInfo.getCarry())//数値読み取れなかった
-        {
-            throw new MucException(
-                    String.format(Message.get("E0201"), cmdMsg)
-                    , mucInfo.getRow(), mucInfo.getCol());
+        int n = readData(lin, /*ref*/ ptr);
+        if (mucInfo.getCarry()) { // 数値読み取れなかった
+            throw new MucException(String.format(rb.getString("E0201"), cmdMsg), mucInfo.getRow(), mucInfo.getCol());
         } else {
             if (mucInfo.getErrSign()) {
                 //ERRORIF();
@@ -291,11 +289,11 @@ public class Msub {
                 break;
             }
             if (FCOMS[i] == c) {
-                //Common.WriteLine("{0}", c);
+                //Debug.printf("%d", c);
                 return i + 1;
             }
         }
-        //Common.WriteLine("{0}!", c);
+        //Debug.printf("%d!", c);
         return 0;
     }
 
@@ -309,7 +307,7 @@ public class Msub {
         for (int i = 0; i < 7; i++) {
             if (c == TONES[i * 2]) {
                 mucInfo.setCarry(false);
-                return TONEXT((byte) i);
+                return toNext((byte) i);
             }
         }
 
@@ -317,9 +315,9 @@ public class Msub {
         return 0;
     }
 
-    private byte TONEXT(byte n) {
+    private byte toNext(byte n) {
         n = TONES[n * 2 + 1];
-        int o = work.OCTAVE;
+        int o = work.octave;
 
         mucInfo.incAndGetSrcCPtr();
         char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
@@ -327,8 +325,7 @@ public class Msub {
                 : (char) 0;
 
         if (c == '+') {
-            if (n == 11)// KEY='b'?
-            {
+            if (n == 11) { // KEY='b'?
                 n = (byte) 0xff;
                 o++;
                 if (o == 8) {
@@ -347,16 +344,15 @@ public class Msub {
             n--;
         } else {
             mucInfo.decSrcCPtr();
-            ;
         }
 
-        KEYSIFT(/*ref*/ o, /*ref*/ n);
+        siftKey(/*ref*/ o, /*ref*/ n);
         mucInfo.setCarry(false);
         return (byte) (((o & 0xf) << 4) | (n & 0xf));
     }
 
-    public void KEYSIFT(/*ref*/ int oct,/*ref*/ byte n) {
-        int shift = (byte) work.SIFTDAT + (byte) work.SIFTDA2;
+    public void siftKey(/*ref*/ int oct,/*ref*/ byte n) {
+        int shift = (byte) work.siftDat + (byte) work.siftDa2;
         if (shift == 0) return;
 
         //mucInfo.Carry = (oct * 12 + n > 0xff);
@@ -368,10 +364,9 @@ public class Msub {
 
     /**
      * 音長のよみとり
-     * <returns>
+     * @return
      * 0...normal
      * -1...WARNING
-     * </returns>
      */
     public int STLIZM(Tuple<Integer, String> lin,/*ref*/ int[] ptr,/*out*/ byte[] clk) {
         char c = ptr[0] < lin.getItem2().length()
@@ -382,14 +377,13 @@ public class Msub {
 
         if (c == '%') {
             ptr[0]++;
-            n = REDATA(lin, /*ref*/ ptr);
-            if (mucInfo.getCarry())//数値読み取れなかった
-            {
+            n = readData(lin, /*ref*/ ptr);
+            if (mucInfo.getCarry()) { // 数値読み取れなかった
                 ptr[0]--;
-                throw new MucException(Message.get("E0499"), lin.getItem1(), ptr[0]);//ERRORSN
+                throw new MucException(rb.getString("E0499"), lin.getItem1(), ptr[0]);
             }
             if (mucInfo.getErrSign()) {
-                throw new MucException(Message.get("E0500"), lin.getItem1(), ptr[0]);//ERRORIF
+                throw new MucException(rb.getString("E0500"), lin.getItem1(), ptr[0]);
             }
 
             clk[0] = (byte) n;
@@ -400,27 +394,26 @@ public class Msub {
         }
 
         int w = 0;
-        n = REDATA(lin, /*ref*/ ptr);
+        n = readData(lin, /*ref*/ ptr);
         if (n < 0 || n > 255) {
             w = -1;
         }
         n = (byte) n;
 
-        if (mucInfo.getCarry())//数値読み取れなかった
+        if (mucInfo.getCarry()) // 数値読み取れなかった
         {
             ptr[0]--;
-            n = work.COUNT;
+            n = work.count;
         } else {
             if (mucInfo.getErrSign()) {
-                throw new MucException(Message.get("E0501"), lin.getItem1(), ptr[0]);//ERRORSN
+                throw new MucException(rb.getString("E0501"), lin.getItem1(), ptr[0]);
             }
-            if (work.CLOCK < n)//clock以上の細かい音符は指定できないようにしている
-            {
-                throw new MucException(String.format(Message.get("E0502"), n), lin.getItem1(), ptr[0]);//ERRORIF
-                //CLOCK<E ﾃﾞ ERROR
+            if (work.clock < n) { // clock以上の細かい音符は指定できないようにしている
+                throw new MucException(String.format(rb.getString("E0502"), n), lin.getItem1(), ptr[0]);
+                // clock<E ﾃﾞ ERROR
             }
 
-            n = work.CLOCK / n;//clockに変換
+            n = work.clock / n; // clockに変換
         }
 
         int a = n;
@@ -435,7 +428,7 @@ public class Msub {
         } while (true);
 
         if (n > 255) {
-            throw new MucException(String.format(Message.get("E0503"), n), lin.getItem1(), ptr[0]);//ERROROF
+            throw new MucException(String.format(rb.getString("E0503"), n), lin.getItem1(), ptr[0]);
         }
 
         clk[0] = (byte) n;

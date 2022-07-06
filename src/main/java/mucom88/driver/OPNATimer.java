@@ -1,7 +1,7 @@
 package mucom88.driver;
 
 //
-//  OPNA timer エミュレーション
+// OPNA timer エミュレーション
 //
 public class OPNATimer extends FMTimer {
 
@@ -11,25 +11,25 @@ public class OPNATimer extends FMTimer {
     }
 
     @Override
-    public boolean WriteReg(byte adr, byte data) {
+    public boolean writeReg(byte adr, byte data) {
         switch (adr) {
-        // TimerA
+        // timerA
         case 0x24:
-            TimerA &= 0x3;
-            TimerA |= (data << 2);
+            timerA &= 0x3;
+            timerA |= (data << 2);
             return true;
         case 0x25:
-            TimerA &= 0x3fc;
-            TimerA |= (data & 3);
+            timerA &= 0x3fc;
+            timerA |= (data & 3);
             return true;
         case 0x26:
-            // TimerB
-            TimerB = (256 - data) << 4;
+            // timerB
+            timerB = (256 - data) << 4;
             return true;
         case 0x27:
             // タイマー制御レジスタ
-            TimerReg = data & 0x8F;
-            StatReg &= 0xFF - ((data >> 4) & 3);
+            timerReg = data & 0x8F;
+            statReg &= 0xFF - ((data >> 4) & 3);
             return true;
         }
         return false;

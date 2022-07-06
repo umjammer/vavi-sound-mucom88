@@ -1,4 +1,4 @@
-package mucom88.compiler.PCMTool;
+package mucom88.compiler.pcmTool;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,43 +16,43 @@ import vavi.util.Debug;
 public class PCMFileInfo {
     private int number;
 
-    public int getnumber() {
+    public int getNumber() {
         return number;
     }
 
     private String name;
 
-    public String getname() {
+    public String getName() {
         return name;
     }
 
     private String fileName;
 
-    public String getfileName() {
+    public String getFileName() {
         return fileName;
     }
 
     private int volume;
 
-    public int getvolume() {
+    public int getVolume() {
         return volume;
     }
 
     private int length = -1;
 
-    public int getlength() {
+    public int getLength() {
         return length;
     }
 
     private byte[] raw = null;
 
-    public byte[] getraw() {
+    public byte[] getRaw() {
         return raw;
     }
 
     private byte[] encData = null;
 
-    public byte[] getencData() {
+    public byte[] getEncData() {
         return encData;
     }
 
@@ -106,7 +106,7 @@ public class PCMFileInfo {
                 else
                     throw new MucException(String.format("Fail get pcm data from file[%s].", fileName));
             } else {
-                Debug.printf(Level.WARNING, String.format("file[%s] not found", fileName));
+                Debug.printf(Level.WARNING, "file[%s] not found", fileName);
             }
         } else {
             boolean[] isRaw = new boolean[1];
@@ -302,7 +302,7 @@ public class PCMFileInfo {
 
             return des;
         } catch (Exception e) {
-            Debug.printf(Level.SEVERE, "Unknown error.");
+            Debug.printf(Level.SEVERE, "Unknown error: " + e);
             return null;
         }
     }

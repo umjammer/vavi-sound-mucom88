@@ -1,9 +1,12 @@
 package mucom88.player.real;
 
+import java.util.logging.Level;
+
 import mdsound.Log;
 import mdsound.LogLevel;
 import mucom88.player.RSoundChip;
 import mucom88.player.SChipType;
+import vavi.util.Debug;
 
 
 /**
@@ -54,7 +57,7 @@ public class RScciSoundChip extends RSoundChip {
 
     /**
      * マスタークロックの設定
-     * <param name="mClock">設定したい値</param>
+     * <param name="mClock">設定したい値
      * <returns>実際設定された値</returns>
      */
     @Override
@@ -115,6 +118,7 @@ public class RScciSoundChip extends RSoundChip {
                 try {
                     o = Integer.parseInt(seri);
                 } catch (NumberFormatException e) {
+                    Debug.println(Level.WARNING, e);
                     o = -1;
                     ct = null;
                     continue;

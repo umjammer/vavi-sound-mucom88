@@ -8,21 +8,20 @@ import musicDriverInterface.MmlDatum;
 
 public class Work {
     public final Object lockObj = new Object();
-    public final Object SystemInterrupt = new Object();
+    public final Object systemInterrupt = new Object();
     public boolean resetPlaySync = false;
 
     private int _status = 0;
 
-    private MUBHeader header;
-    public MUBHeader getHeader() {
+    private MubHeader header;
+    public MubHeader getHeader() {
         return header;
     }
 
-    public void setHeader(MUBHeader value) {
+    public void setHeader(MubHeader value) {
         header = value;
     }
 
-    int Status;
     public int getStatus() {
         synchronized (lockObj) {
             return _status;
@@ -37,7 +36,7 @@ public class Work {
 
     int mDataAdr;
 
-    public int getmDataAdr() {
+    public int getMDataAdr() {
         return mDataAdr;
     }
 
@@ -48,7 +47,7 @@ public class Work {
      */
     SoundWork.CHDAT cd;
 
-    public SoundWork.CHDAT getcd() {
+    public SoundWork.CHDAT getCd() {
         return cd;
     }
 
@@ -57,79 +56,79 @@ public class Work {
      */
     SoundWork.CHDAT.PGDAT pg;
 
-    public SoundWork.CHDAT.PGDAT getpg() {
+    public SoundWork.CHDAT.PGDAT getPg() {
         return pg;
     }
 
     boolean carry;
 
-    public boolean getcarry() {
+    public boolean getCarry() {
         return carry;
     }
 
     int hl;
 
-    public int gethl() {
+    public int getHl() {
         return hl;
     }
 
-    byte A_Reg;
+    byte aReg;
 
     public byte getA_Reg() {
-        return A_Reg;
+        return aReg;
     }
 
     int weight;
 
-    public int getweight() {
+    public int getWeight() {
         return weight;
     }
 
     Object crntMmlDatum;
 
-    public Object getcrntMmlDatum() {
+    public Object getCrntMmlDatum() {
         return crntMmlDatum;
     }
 
     int maxLoopCount = -1;
 
-    public int getmaxLoopCount() {
+    public int getMaxLoopCount() {
         return maxLoopCount;
     }
 
     int nowLoopCounter = -1;
 
-    public int getnowLoopCounter() {
+    public int getNowLoopCounter() {
         return nowLoopCounter;
     }
 
     int[] rhythmORKeyOff = new int[4];
 
-    public int[] getrhythmORKeyOff() {
+    public int[] getRhythmORKeyOff() {
         return rhythmORKeyOff;
     }
 
     int[] rhythmOR = new int[4];
 
-    public int[] getrhythmOR() {
+    public int[] getRhythmOR() {
         return rhythmOR;
     }
 
     boolean abnormalEnd = false;
 
-    public boolean getabnormalEnd() {
+    public boolean getAbnormalEnd() {
         return abnormalEnd;
     }
 
     int currentTimer;
 
-    public int getcurrentTimer() {
+    public int getCurrentTimer() {
         return currentTimer;
     }
 
     Map<Integer, byte[]> ssgVoiceAtMusData;
 
-    public Map<Integer, byte[]> getssgVoiceAtMusData() {
+    public Map<Integer, byte[]> getSsgVoiceAtMusData() {
         return ssgVoiceAtMusData;
     }
 
@@ -140,8 +139,8 @@ public class Work {
     public OPMTimer timerOPM = null;
 
     public long timeCounter = 0L;
-    public byte[][] fmVoice = new byte[][] {null, null, null, null};
-    public Tuple<String, short[]>[][] pcmTables = new Tuple[][] {null, null, null, null, null, null};
+    public byte[][] fmVoice = new byte[4][];
+    public Tuple<String, short[]>[][] pcmTables = new Tuple[6][];
     public MmlDatum[] mData = null;
     public SoundWork soundWork = null;
     public byte[] fmVoiceAtMusData = null;
@@ -149,11 +148,11 @@ public class Work {
     public boolean SSGExtend = false;
 
     public Work() {
-        Init();
+        init();
     }
 
-    void Init() {
+    void init() {
         soundWork = new SoundWork();
-        soundWork.Init();
+        soundWork.init();
     }
 }

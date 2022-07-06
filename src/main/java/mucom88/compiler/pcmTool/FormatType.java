@@ -1,4 +1,4 @@
-package mucom88.compiler.PCMTool;
+package mucom88.compiler.pcmTool;
 
 public enum FormatType {
     mucom88,

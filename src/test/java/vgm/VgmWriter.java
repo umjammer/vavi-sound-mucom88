@@ -10,8 +10,6 @@ import dotnet4j.io.FileStream;
 import dotnet4j.io.SeekOrigin;
 import dotnet4j.util.compat.Tuple;
 import mdsound.Common;
-import mdsound.Log;
-import mdsound.LogLevel;
 import vavi.util.Debug;
 
 
@@ -19,51 +17,49 @@ public class VgmWriter {
     private FileStream dest = null;
     private long waitCounter = 0;
     public static final byte[] hDat = new byte[] {
-            //00 'Vgm '          Eof offset           Version number
+            // 00 'Vgm '          Eof offset           version number
             0x56, 0x67, 0x6d, 0x20, 0x00, 0x00, 0x00, 0x00, 0x71, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //10                 GD3 offset(no use)   Total # samples
+            // 10                 GD3 offset(no use)   Total # samples
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //20                 Rate(NTSC 60Hz)
+            // 20                 Rate(NTSC 60Hz)
             0x00, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //30                 VGMdataofs(0x100~)
+            // 30                 VGMdataofs(0x100~)
             0x00, 0x00, 0x00, 0x00, (byte) 0xcc, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //40 
+            // 40
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //YM2608 clock(7987200 0x0079_e000)
+            // YM2608 clock(7987200 0x0079_e000)
             0x00, (byte) 0xe0, 0x79, 0x40,
-            //YM2610 clock(8000000 0x007a_1200)
+            // YM2610 clock(8000000 0x007a_1200)
             0x00, 0x00, 0x00, 0x00,
-            //50
+            // 50
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //60
+            // 60
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //70
+            // 70
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //80
+            // 80
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //90
+            // 90
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //A0
+            // A0
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //B0
+            // B0
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //C0
+            // C0
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //D0
+            // D0
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //E0
+            // E0
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //F0
+            // F0
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
+
     private int[] useChips;
 
     public long totalSample;
 
-    public VgmWriter() {
-    }
-
-    public void WriteYM2608(int v, byte port, byte address, byte data) {
+    public void writeYM2608(int v, byte port, byte address, byte data) {
         if (dest == null) return;
         if (useChips[0 + v] == 0) return;
 
@@ -72,7 +68,7 @@ public class VgmWriter {
 
             //waitコマンド出力
             Debug.printf(Level.FINEST
-                    , String.format("wait:{0}", waitCounter)
+                    , String.format("wait:%d", waitCounter)
             );
 
             if (waitCounter <= 882 * 3) {
@@ -97,7 +93,7 @@ public class VgmWriter {
         }
 
         Debug.printf(Level.FINEST
-                , String.format("p:{0} a:{1} d:{2}", port, address, data)
+                , String.format("p:%d a:%d d:%d", port, address, data)
         );
 
         dest.writeByte((byte) ((v == 0 ? 0x56 : 0xa6) + (port & 1)));
@@ -106,7 +102,7 @@ public class VgmWriter {
 
     }
 
-    public void WriteYM2610(int v, byte port, byte address, byte data) {
+    public void writeYM2610(int v, byte port, byte address, byte data) {
         if (dest == null) return;
 
         if (useChips[2 + v] == 0) return;
@@ -116,7 +112,7 @@ public class VgmWriter {
 
             //waitコマンド出力
             Debug.printf(Level.FINEST
-                    , String.format("wait:{0}", waitCounter)
+                    , String.format("wait:%d", waitCounter)
             );
 
             if (waitCounter <= 882 * 3) {
@@ -141,7 +137,7 @@ public class VgmWriter {
         }
 
         Debug.printf(Level.FINEST
-                , String.format("p:{0} a:{1} d:{2}", port, address, data)
+                , String.format("p:%d a:%d d:%d", port, address, data)
         );
 
         dest.writeByte((byte) ((v == 0 ? 0x58 : 0xa8) + (port & 1)));
@@ -150,7 +146,7 @@ public class VgmWriter {
 
     }
 
-    public void WriteYM2151(int v, byte address, byte data) {
+    public void writeYM2151(int v, byte address, byte data) {
         if (dest == null) return;
         if (useChips[4 + v] == 0) return;
 
@@ -159,7 +155,7 @@ public class VgmWriter {
 
             //waitコマンド出力
             Debug.printf(Level.FINEST
-                    , String.format("wait:{0}", waitCounter)
+                    , String.format("wait:%d", waitCounter)
             );
 
             if (waitCounter <= 882 * 3) {
@@ -191,72 +187,71 @@ public class VgmWriter {
 
     }
 
-    public void Close(List<Tuple<String, String>> tags, int opnaMasterClock, int opnbMasterClock, int opmMasterClock) {
+    public void close(List<Tuple<String, String>> tags, int opnaMasterClock, int opnbMasterClock, int opmMasterClock) {
         if (dest == null) return;
 
-        //ヘッダ、フッタの調整
+        // ヘッダ、フッタの調整
 
-        //end of data
+        // end of data
         dest.writeByte((byte) 0x66);
 
-        //Total # samples
+        // Total # samples
         dest.setPosition(0x18);
-        dest.writeByte((byte) totalSample);
-        dest.writeByte((byte) (totalSample >> 8));
-        dest.writeByte((byte) (totalSample >> 16));
-        dest.writeByte((byte) (totalSample >> 24));
+        dest.writeByte((byte) (totalSample & 0xff));
+        dest.writeByte((byte) ((totalSample >> 8) & 0xff));
+        dest.writeByte((byte) ((totalSample >> 16) & 0xff));
+        dest.writeByte((byte) ((totalSample >> 24) & 0xff));
 
         //tag
         if (tags != null) {
             GD3 gd3 = new GD3();
-            for (Tuple < String, String > tag : tags)
-            {
+            for (Tuple<String, String> tag : tags) {
                 switch (tag.getItem1()) {
                 case "title":
-                    gd3.TrackName = tag.getItem2();
-                    gd3.TrackNameJ = tag.getItem2();
+                    gd3.trackName = tag.getItem2();
+                    gd3.trackNameJ = tag.getItem2();
                     break;
                 case "composer":
-                    gd3.Composer = tag.getItem2();
-                    gd3.ComposerJ = tag.getItem2();
+                    gd3.composer = tag.getItem2();
+                    gd3.composerJ = tag.getItem2();
                     break;
                 case "author":
-                    gd3.VGMBy = tag.getItem2();
+                    gd3.vgmBy = tag.getItem2();
                     break;
                 case "comment":
-                    gd3.Notes = tag.getItem2();
+                    gd3.notes = tag.getItem2();
                     break;
                 case "mucom88":
-                    gd3.Version = tag.getItem2();
-                    gd3.Notes = tag.getItem2();
+                    gd3.version = tag.getItem2();
+                    gd3.notes = tag.getItem2();
                     break;
                 case "date":
-                    gd3.Converted = tag.getItem2();
+                    gd3.converted = tag.getItem2();
                     break;
                 }
             }
 
-            byte[] tagary = gd3.make();
+            byte[] tagBytes = gd3.make();
             dest.seek(0, SeekOrigin.End);
             long gd3ofs = dest.getLength() - 0x14;
-            for( byte b : tagary)dest.writeByte(b);
+            for (byte b : tagBytes) dest.writeByte(b);
 
             //Tag offset
-            if (tagary != null && tagary.length > 0) {
+            if (tagBytes.length > 0) {
                 dest.setPosition(0x14);
-                dest.writeByte((byte) gd3ofs);
-                dest.writeByte((byte) (gd3ofs >> 8));
-                dest.writeByte((byte) (gd3ofs >> 16));
-                dest.writeByte((byte) (gd3ofs >> 24));
+                dest.writeByte((byte) (gd3ofs & 0xff));
+                dest.writeByte((byte) ((gd3ofs >> 8) & 0xff));
+                dest.writeByte((byte) ((gd3ofs >> 16) & 0xff));
+                dest.writeByte((byte) ((gd3ofs >> 24) & 0xff));
             }
         }
 
         //EOF offset
         dest.setPosition(0x4);
-        dest.writeByte((byte) (dest.getLength() - 4));
-        dest.writeByte((byte) ((dest.getLength() - 4) >> 8));
-        dest.writeByte((byte) ((dest.getLength() - 4) >> 16));
-        dest.writeByte((byte) ((dest.getLength() - 4) >> 24));
+        dest.writeByte((byte) ((dest.getLength() - 4) & 0xff));
+        dest.writeByte((byte) (((dest.getLength() - 4) >> 8) & 0xff));
+        dest.writeByte((byte) (((dest.getLength() - 4) >> 16) & 0xff));
+        dest.writeByte((byte) (((dest.getLength() - 4) >> 24) & 0xff));
 
         //YM2608 offset
         dest.setPosition(0x48);
@@ -315,8 +310,8 @@ public class VgmWriter {
         dest = null;
     }
 
-    public void Open(String fullPath) {
-        if (dest != null) Close(null, 0, 0, 0);
+    public void open(String fullPath) {
+        if (dest != null) close(null, 0, 0, 0);
         dest = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
 
         List<Byte> des = new ArrayList<>();
@@ -326,38 +321,38 @@ public class VgmWriter {
 
     }
 
-    public void IncrementWaitCOunter() {
+    public void incrementWaitCOunter() {
         waitCounter++;
     }
 
-    public void WriteAdpcm(byte chipId, byte[] AdpcmData) {
-        if (useChips[chipId] == 0 || AdpcmData == null || AdpcmData.length < 1) return;
+    public void writeAdpcm(byte chipId, byte[] adpcmData) {
+        if (useChips[chipId] == 0 || adpcmData == null || adpcmData.length < 1) return;
 
         dest.writeByte((byte) 0x67);
         dest.writeByte((byte) 0x66);
         dest.writeByte((byte) 0x81);
 
-        WritePCMData(chipId, AdpcmData);
+        writePCMData(chipId, adpcmData);
     }
 
-    public void WriteYM2610_SetAdpcmA(byte chipId, byte[] pcmData) {
+    public void writeYM2610SetAdpcmA(byte chipId, byte[] pcmData) {
         dest.writeByte((byte) 0x67);
         dest.writeByte((byte) 0x66);
         dest.writeByte((byte) 0x82);
 
-        WritePCMData(chipId, pcmData);
+        writePCMData(chipId, pcmData);
     }
 
-    public void WriteYM2610_SetAdpcmB(byte chipId, byte[] pcmData) {
+    public void writeYM2610SetAdpcmB(byte chipId, byte[] pcmData) {
 
         dest.writeByte((byte) 0x67);
         dest.writeByte((byte) 0x66);
         dest.writeByte((byte) 0x83);
 
-        WritePCMData(chipId, pcmData);
+        writePCMData(chipId, pcmData);
     }
 
-    private void WritePCMData(byte chipId, byte[] pcmData) {
+    private void writePCMData(byte chipId, byte[] pcmData) {
         int size = pcmData.length;
 
         long sizeOfData = size + 8 + chipId * 0x8000_0000;
@@ -384,36 +379,36 @@ public class VgmWriter {
 
     public void useChipsFromMub(byte[] buf) {
         List<Integer> ret = new ArrayList<>();
-        ret.add(1);//1:OPNA
-        ret.add(0);//0:unuse
+        ret.add(1); // 1: OPNA
+        ret.add(0); // 0: unuse
         ret.add(0);
         ret.add(0);
         ret.add(0);
         useChips = Common.toIntArray(ret);
 
         //dest.writeByte(0x56); dest.writeByte(0x29); dest.writeByte(0x82);
-        //WriteAdpcm(0, new byte[65536]);
+        //writeAdpcm(0, new byte[65536]);
 
-        //標準的なmubファイル
-        if (buf[0] == 0x4d
-                && buf[1] == 0x55
-                && buf[2] == 0x43
-                && buf[3] == 0x38) {
+        // 標準的な mub ファイル
+        if (buf[0] == 0x4d &&
+                buf[1] == 0x55 &&
+                buf[2] == 0x43 &&
+                buf[3] == 0x38) {
             return;
         }
-        //標準的なmubファイル
-        if (buf[0] == 0x4d
-                && buf[1] == 0x55
-                && buf[2] == 0x42
-                && buf[3] == 0x38) {
+        // 標準的な mub ファイル
+        if (buf[0] == 0x4d &&
+                buf[1] == 0x55 &&
+                buf[2] == 0x42 &&
+                buf[3] == 0x38) {
             return;
         }
-        //拡張mubファイル？
-        if (buf[0] != 'm'
-                || buf[1] != 'u'
-                || buf[2] != 'P'
-                || buf[3] != 'b') {
-            //見知らぬファイル
+        // 拡張 mubファイル？
+        if (buf[0] != 'm' ||
+                buf[1] != 'u' ||
+                buf[2] != 'P' ||
+                buf[3] != 'b') {
+            // 見知らぬファイル
             return;
         }
 

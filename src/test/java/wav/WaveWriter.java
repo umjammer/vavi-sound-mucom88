@@ -13,14 +13,14 @@ import mdsound.Common;
 public class WaveWriter {
     private FileStream dest = null;
     private int len = 0;
-    private int sampFreq = 44100;
+    private int sampleFreq = 44100;
 
     public WaveWriter(int samplingFreq/*=44100*/) {
-        sampFreq = samplingFreq;
+        sampleFreq = samplingFreq;
     }
 
-    public void Open(String fullPath) {
-        if (dest != null) Close();
+    public void open(String fullPath) {
+        if (dest != null) close();
         dest = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
 
         List<Byte> des = new ArrayList<>();
@@ -32,11 +32,11 @@ public class WaveWriter {
         des.add((byte) 'F');
         des.add((byte) 'F');
         // サイズ
-        int fsize = len + 36;
-        des.add((byte) ((fsize & 0xff) >> 0));
-        des.add((byte) ((fsize & 0xff00) >> 8));
-        des.add((byte) ((fsize & 0xff0000) >> 16));
-        des.add((byte) ((fsize & 0xff000000) >> 24));
+        int fileSize = len + 36;
+        des.add((byte) ((fileSize & 0xff) >> 0));
+        des.add((byte) ((fileSize & 0xff00) >> 8));
+        des.add((byte) ((fileSize & 0xff0000) >> 16));
+        des.add((byte) ((fileSize & 0xff000000) >> 24));
         // 'WAVE'
         des.add((byte) 'W');
         des.add((byte) 'A');
@@ -59,10 +59,10 @@ public class WaveWriter {
         des.add((byte) 0x02);
         des.add((byte) 0x00);
         //サンプリング周波数(44100Hz)
-        des.add((byte) ((sampFreq & 0xff) >> 0));
-        des.add((byte) ((sampFreq & 0xff00) >> 8));
-        des.add((byte) ((sampFreq & 0xff0000) >> 16));
-        des.add((byte) ((sampFreq & 0xff000000) >> 24));
+        des.add((byte) ((sampleFreq & 0xff) >> 0));
+        des.add((byte) ((sampleFreq & 0xff00) >> 8));
+        des.add((byte) ((sampleFreq & 0xff0000) >> 16));
+        des.add((byte) ((sampleFreq & 0xff000000) >> 24));
         //平均データ割合
         des.add((byte) 0x10);
         des.add((byte) 0xb1);
@@ -90,7 +90,7 @@ public class WaveWriter {
         dest.write(Common.toByteArray(des), 0, des.size());
     }
 
-    public void Close() {
+    public void close() {
         if (dest == null) return;
 
         dest.seek(4, SeekOrigin.Begin);
@@ -110,7 +110,7 @@ public class WaveWriter {
         dest = null;
     }
 
-    public void Write(short[] buffer, int offset, int sampleCount) {
+    public void write(short[] buffer, int offset, int sampleCount) {
         if (dest == null) return;
 
         for (int i = 0; i < sampleCount; i++) {
