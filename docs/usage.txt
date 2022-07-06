@@ -1,65 +1,63 @@
 How to mucom.NET !
 
-[�菇]
-  1.muc�t�@�C�����e�L�X�g�G�f�B�^�ō��
-    �����̓I���W�i����mucom88win�Ɠ����ł��B
-  2.�R���p�C����mub�t�@�C�������
-    �G���[���o����1�ɖ߂��ďC��
-  3.�v���C���[��mub�t�@�C�������t����
-    �x�ɓ���܂��B�C�ɐH��Ȃ����1�ɖ߂��ďC��
-  4.����!! Let's 8801 Programing!
+[手順]
+  1.mucファイルをテキストエディタで作る
+    作り方はオリジナルのmucom88winと同じです。
+  2.コンパイラでmubファイルを作る
+    エラーが出たら1に戻って修正
+  3.プレイヤーでmubファイルを演奏する
+    悦に入ります。気に食わなければ1に戻って修正
+  4.完成!! Let's 8801 Programing!
 
 
 
-[�g����]
-���R���p�C��
-  console.exe file.muc ...
+[使い方]
+＊コンパイラ
+  mucomDotNETConsole.exe file.muc ...
 
-  *console��.muc�t�@�C�����h���b�v����ƃR���p�C�������{���A�G���[���������mub�t�@�C�����쐬���܂��B
-   �����h���b�v���邱�Ƃ��\�ł��B
-  *���F��`�t�@�C���̎w�肪muc�t�@�C�����ɂȂ��ꍇ�〈����Ȃ��ꍇ�́A
-   voice.dat�܂���mucompcm.bin��console.exe������ʒu���������܂��B
+  *mucomDotNETConsoleに.mucファイルをドロップするとコンパイルを実施し、エラーが無ければmubファイルを作成します。
+   複数ドロップすることも可能です。
+  *音色定義ファイルの指定がmucファイル中にない場合や見つからない場合は、
+   voice.datまたはmucompcm.binをmucomDotNETConsole.exeがある位置を検索します。
 
 
-���v���C���[
+＊プレイヤー
   mucomDotNETPlayer.exe [-D=[EMU|GIMIC|SCCI]] file.mub
 
-  *mucomDotNETPlayer��.mub�t�@�C�����h���b�v����Ɖ��t���J�n���܂��B
-  *�I�v�V�����w��
+  *mucomDotNETPlayerに.mubファイルをドロップすると演奏を開始します。
+  *オプション指定
    -D
-     -D�I�v�V�������w�肷�邱�Ƃɂ��Đ��f�o�C�X��ύX�ł��܂��B
+     -Dオプションを指定することにより再生デバイスを変更できます。
      -D=EMU
-       �f�t�H���g�l�ł��B
-       �G�~�����[�V�����ɂ��Đ���Windows�̉����f�o�C�X����s���܂��B
+       デフォルト値です。
+       エミュレーションによる再生をWindowsの音声デバイスから行います。
      -D=GIMIC
-       G.I.M.I.C.��OPNA���W���[���ɂ��Đ����s���܂��B���W���[����������Ȃ��ꍇ��EMU�Ɠ�������ɂȂ�܂�
+       G.I.M.I.C.のOPNAモジュールによる再生を行います。モジュールが見つからない場合はEMUと同じ動作になります
      -D=SCCI
-       SCCI��OPNA���W���[���ɂ��Đ����s���܂��B���W���[����������Ȃ��ꍇ��EMU�Ɠ�������ɂȂ�܂�
+       SCCIのOPNAモジュールによる再生を行います。モジュールが見つからない場合はEMUと同じ動作になります
 
    -LOADADPCM
-     -LOADADPCM�I�v�V�������w�肷���ADPCM�������̃������ɓ]�����邩�ۂ����w��ł��܂��B
+     -LOADADPCMオプションを指定するとADPCMを音源のメモリに転送するか否かを指定できます。
      -LOADADPCM=TRUE
-       �f�t�H���g�l�ł��B
-       ���t�O��ADPCM�̓]������������܂��B
+       デフォルト値です。
+       演奏前にADPCMの転送処理が入ります。
      -LOADADPCM=FALSE
-       ���t�O��ADPCM�̓]���������X�L�b�v���܂��B
+       演奏前のADPCMの転送処理をスキップします。
      -LOADADPCM=ONLY
-       ADPCM�̓]�������̂ݍs���܂��B���t�͍s���܂���B
+       ADPCMの転送処理のみ行います。演奏は行いません。
 
 
-��PCMTool
+＊PCMTool
   PCMTool.exe file.muc
 
-  *PCMTool.exe��.muc�t�@�C�����h���b�v����Ɠ��e����͂�mucomDotNET������adpcm�f�[�^�t�@�C���𐶐����܂��B
-  *�@�\ 
-    mucom88�݊�PCM�f�[�^�t�@�C���̍쐬����
-    mucomDotNET����OPNA/OPNB��ADPCM�f�[�^�t�@�C�����쐬����
-  *����
-    .muc�t�@�C����SJIS��CRLF�`���̃e�L�X�g�t�@�C���ł��邱�ƁB
-    �����ɉ������L�q�ł��邱�ƁB
-  *����
-    .muc�t�@�C�����ɂ���#@PCM�^�O�e������X�g�A�b�v��
-    wav��ǂݍ��݁AADPCM�ϊ���A�t�@�C�����o�͂��܂��B
-    �o�̓t�@�C�����ɂ͊epcm�^�O�����t������܂��B
-
-
+  *PCMTool.exeに.mucファイルをドロップすると内容を解析しmucomDotNET向けのadpcmデータファイルを生成します。
+  *機能 
+    mucom88互換PCMデータファイルの作成する
+    mucomDotNET向けOPNA/OPNBのADPCMデータファイルを作成する
+  *制約
+    .mucファイルはSJISのCRLF形式のテキストファイルであること。
+    書式に沿った記述であること。
+  *動作
+    .mucファイル内にある#@PCMタグ各種をリストアップし
+    wavを読み込み、ADPCM変換後、ファイルを出力します。
+    出力ファイル名には各pcmタグ名が付加されます。

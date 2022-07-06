@@ -1,247 +1,247 @@
 --------------------
 mucomDotNET
- �ȈՃ}�j���A��
+ 簡易マニュアル
 --------------------
 
-��mucom88�Ɣ�r���āA�����R�}���h�ɒǉ����ꂽ�@�\�A�܂��͐V�R�}���h�A�����R�}���h�̂݋L���܂�
+※mucom88と比較して、既存コマンドに追加された機能、または新コマンド、内部コマンドのみ記します
 
-�I�I���ӁI�I
-�Ǝ��@�\���g�p���쐬����mub�t�@�C���́AmucomDotNET�ȊO�ł͉��t�ł��܂���B
-�I�I���ӁI�I
+！！注意！！
+独自機能を使用し作成したmubファイルは、mucomDotNET以外では演奏できません。
+！！注意！！
 
 
---��Ȓǉ��@�\--
+--主な追加機能--
 
-    �E�g�p�\������5��
-      ������OPNA1���ɑ΂��AmucomDotNET�ł͈ȉ���5���������g�p�\�ł��B
+    ・使用可能音源が5つ
+      既存のOPNA1枚に対し、mucomDotNETでは以下の5枚が同時使用可能です。
       OPNA 1
       OPNA 2
       OPNB 1
       OPNB 2
       OPM
     
-      �������AADPCM/-A/-B���g�p�\�ł��B
+      もちろん、ADPCM/-A/-Bも使用可能です。
     
     
-    �E�L��Ȏg�p�\������
-      �p�[�g���Ƃ�64Kbyte�g�p�\�ł��B
-      �����������ɋꂵ�ޕK�v�͂قڂ���܂���B
+    ・広大な使用可能メモリ
+      パートごとに64Kbyte使用可能です。
+      メモリ制限に苦しむ必要はほぼありません。
     
     
-    �E�|���^�����g�����̌�����
+    ・ポルタメント処理の見直し
     
     
-    �EADPCM�̒�`
-      mml����wav�t�@�C�����w�肷�邾���Ŏg�p�\�ł��B
+    ・ADPCMの定義
+      mml中でwavファイルを指定するだけで使用可能です。
     
     
-    �E���ʉ����[�h�ɑΉ��B
-      mml2vgm�Ɠ����悤�Ɏg�p�ł��܂��B
-      ���W�X�^�}�b�v���ɂ߂�������K�v�͂���܂���B
+    ・効果音モードに対応。
+      mml2vgmと同じように使用できます。
+      レジスタマップと睨めっこする必要はありません。
     
 
 
---�^�O--
+--タグ--
 
-�^�O
+タグ
     #Driver
-����
+書式
     #Driver str
-�l�͈̔�
+値の範囲
     str : mucomDotNET
-���e
-    mucomDotNET�̓Ǝ��@�\���g�p���邱�Ƃ��w�肵�܂��B�f�t�H���g�l�ł��B
+内容
+    mucomDotNETの独自機能を使用することを指定します。デフォルト値です。
 
 
-�^�O
+タグ
     #CarrierCorrection
-����
+書式
     #CarrierCorrection str
-�l�͈̔�
+値の範囲
     str : Yes , No
-���e
-�@�@FM�̉��F��`�̃L�����A�̒l�𔽉f���郂�[�h���g�p���邩�ǂ����w�肵�܂��B
-    �f�t�H���g�l�́uNo�v�Łu�g�p���Ȃ��v�ł��B
+内容
+　　FMの音色定義のキャリアの値を反映するモードを使用するかどうか指定します。
+    デフォルト値は「No」で「使用しない」です。
 
-    ���[�h         �f�t�H���g�l        ���l
+    モード         デフォルト値        備考
   ----------------------------------------------------------------------
-    mucomDotNET�@�@�@�\����            �^�O��Yes��ݒ肷�邱�Ƃŋ@�\�L��
-    ����ȊO       �@�\����(�g�p�s��)  y�R�}���h�Ŋ撣��ׂ�
+    mucomDotNET　　機能無効            タグにYesを設定することで機能有効
+    それ以外       機能無効(使用不可)  yコマンドで頑張るべし
 
 
-�^�O
+タグ
     #PCMInvert
-����
+書式
     #PCMInvert str
-�l�͈̔�
+値の範囲
     str : On , Off
-���e
-�@�@PCM�p�[�g�̑��΃I�N�^�[�u�ύX�R�}���h( > , < )�̈Ӗ����t�]���܂��B
-    �f�t�H���g�l�́uOff�v�Łu�g�p���Ȃ��v�ł��B
+内容
+　　PCMパートの相対オクターブ変更コマンド( > , < )の意味を逆転します。
+    デフォルト値は「Off」で「使用しない」です。
 
 
-�^�O
+タグ
     #OPMClockMode
-����
+書式
     #OPMClockMode str
-�l�͈̔�
+値の範囲
     str : normal , X68000
-���e
-�@�@OPM�̃}�X�^�[�N���b�N�ɉ����g�p���邩�w�肵�܂��B
-    mucomDotNET�͂��̃N���b�N�ɑΉ������������g�����g�p���܂��B
-    �f�t�H���g�l�́unormal�v��3579545Hz�ł��B
-    �uX68000�v��4000000Hz�ł��B
+内容
+　　OPMのマスタークロックに何を使用するか指定します。
+    mucomDotNETはこのクロックに対応した音程周波数を使用します。
+    デフォルト値は「normal」で3579545Hzです。
+    「X68000」は4000000Hzです。
 
 
-�^�O
+タグ
     #OPMPanReverse
-����
+書式
     #OPMPanReverse str
-�l�͈̔�
+値の範囲
     str : On , Off
-���e
-�@�@OPM�̃p���l�����E���]���邩�w�肵�܂��B
-    �f�t�H���g�l�́uOff�v�Ŕ��]���܂���B
+内容
+　　OPMのパン値を左右反転するか指定します。
+    デフォルト値は「Off」で反転しません。
 
 
-�^�O
+タグ
     #SSGExtend
-����
+書式
     #SSGExtend str
-�l�͈̔�
+値の範囲
     str : On , Off
-���e
-�@�@OPNA/B��SSG�p�[�g���g�����܂��B�p���Ȃǂ��w��ł���悤�ɂȂ�܂��B(��q)
-    �f�t�H���g�l�́uOff�v�Łu�g�p���Ȃ��v�ł��B
+内容
+　　OPNA/BのSSGパートを拡張します。パンなどを指定できるようになります。(後述)
+    デフォルト値は「Off」で「使用しない」です。
 
 
-�^�O
+タグ
     #OPNA1RhythmMute
     #OPNA2RhythmMute
-����
+書式
     #OPNA1RhythmMute str
     #OPNA2RhythmMute str
-�l�͈̔�
+値の範囲
     str : B|S|C|H|T|R
-���e
-�@�@OPNA1����,2���ڂ̎w�肵�����Y�������~���[�g���܂��B
-    �f�t�H���g�l�͖��w��őS�Ẵ��Y�����̓~���[�g���܂���B
-    �L���͈ȉ��̂悤�Ɋe���Y�����������܂��B
+内容
+　　OPNA1枚目,2枚目の指定したリズム音をミュートします。
+    デフォルト値は未指定で全てのリズム音はミュートしません。
+    記号は以下のように各リズム音を示します。
       B : BD , S : SD , C : Cymbal , H : Hihat , T : Tom , R : Rimshot
-    �~���[�g���������Y���̋L����񋓂��Ă��������B
-�g�p��
+    ミュートしたいリズムの記号を列挙してください。
+使用例
     #OPNA1RhythmMute SB
-    �X�l�A�ƃo�X�h�������~���[�g����܂��B
+    スネアとバスドラムがミュートされます。
 
 
-�^�O
+タグ
     #OPNB1AdpcmAMute
     #OPNB2AdpcmAMute
-����
+書式
     #OPNB1AdpcmAMute str
     #OPNB2AdpcmAMute str
-�l�͈̔�
+値の範囲
     str : 1|2|3|4|5|6
-���e
-�@�@OPNB1����,2���ڂ̎w�肵��adpcmA���~���[�g���܂��B
-    �f�t�H���g�l�͖��w��őS�Ă�adpcmA�̓~���[�g���܂���B
-    �L���͈ȉ��̂悤�Ɋe���Y�����������܂��B
+内容
+　　OPNB1枚目,2枚目の指定したadpcmAをミュートします。
+    デフォルト値は未指定で全てのadpcmAはミュートしません。
+    記号は以下のように各リズム音を示します。
       1 : 1ch , 2 : 2ch , 3 : 3ch , 4 : 4ch , 5 : 5ch , 6 : 6ch
-    �~���[�g������adpcmA��ch�ԍ���񋓂��Ă��������B
-�g�p��
+    ミュートしたいadpcmAのch番号を列挙してください。
+使用例
     #OPNB1AdpcmAMute 25
-    2ch��5ch���~���[�g����܂��B
+    2chと5chがミュートされます。
 
 
-�^�O
+タグ
     #pcm_2nd
     #pcm_3rd_b
     #pcm_4th_b
     #pcm_3rd_a
     #pcm_4th_a
-����
+書式
     #pcm_2nd filename
-    (���̃^�O�����l)
-�l�͈̔�
-    filename : mucom88/mucomDotNET����pcm�t�@�C��
-���e
-    OPNA��2���ڈȍ~�Ŏg�p����PCM�t�@�C�����w�肵�܂��B
-    ���ꂼ�ꏇ�ԂɁA
-    OPNA 2���ڂ�PCM�t�@�C��
-    OPNB 1���ڂ�PCM�t�@�C��(ADPCM-B)
-    OPNB 2���ڂ�PCM�t�@�C��(ADPCM-B)
-    OPNB 1���ڂ�PCM�t�@�C��(ADPCM-A)
-    OPNB 2���ڂ�PCM�t�@�C��(ADPCM-A)
-    �����ł��B
+    (他のタグも同様)
+値の範囲
+    filename : mucom88/mucomDotNET向けpcmファイル
+内容
+    OPNAの2枚目以降で使用するPCMファイルを指定します。
+    それぞれ順番に、
+    OPNA 2枚目のPCMファイル
+    OPNB 1枚目のPCMファイル(ADPCM-B)
+    OPNB 2枚目のPCMファイル(ADPCM-B)
+    OPNB 1枚目のPCMファイル(ADPCM-A)
+    OPNB 2枚目のPCMファイル(ADPCM-A)
+    向けです。
 
 
-�^�O
+タグ
     #@pcm
     #@pcm_2nd
     #@pcm_3rd_b
     #@pcm_4th_b
     #@pcm_3rd_a
     #@pcm_4th_a
-����
+書式
     #@pcm  number , name , filename , volume
-    (���̃^�O�����l)
-�l�͈̔�
-    number   ���F�ԍ�   (1�`)(���F�ԍ����w�肷��(OPNB ADPCM-A�̏ꍇ�͉����𐔒l��(��q)��������))
-                        ($00�`��16�i���\�L�\�j
-                        (o0c�ȂǂŎw�����)
-    name     ���F��     (���F�����w�肷��)
-    filename �t�@�C���� (.wav�t�@�C�����w�肷��)
-    volume   ����       (TBD:100)(�Ƃ肠����100���w�肷��)
-���e
-    OPNA/B�Ŏg�p����PCM��wav�t�@�C���Ŏw�肵�܂��B
-    ���ꂼ�ꏇ�ԂɁA
-    OPNA 1���ڂ�wav�t�@�C��(ADPCM����)
-    OPNA 2���ڂ�wav�t�@�C��(ADPCM����)
-    OPNB 1���ڂ�wav�t�@�C��(ADPCM-B����)
-    OPNB 2���ڂ�wav�t�@�C��(ADPCM-B����)
-    OPNB 1���ڂ�wav�t�@�C��(ADPCM-A����)
-    OPNB 2���ڂ�wav�t�@�C��(ADPCM-A����)
-    ���w�肵�����ƂɂȂ�܂��B
-    ���̃^�O���g�p����ƑΉ�����#pcm...�^�O�͖�������܂��B
-    �R���p�C�����Ɏw�肵��wav�t�@�C����ǂݍ��݁AADPCM�f�[�^�ɕϊ���Amub�t�@�C���ɖ��ߍ��݂܂��B
-    �eADPCM/-A/-B�p�[�g�Ŏg�p�\�ł��B
-    wav�t�@�C����8/16bit,mono�ŁAADPCM-A�̏ꍇ��18.5kHz�ł���K�v������܂��B
+    (他のタグも同様)
+値の範囲
+    number   音色番号   (1〜)(音色番号を指定する(OPNB ADPCM-Aの場合は音程を数値化(後述)したもの))
+                        ($00〜で16進数表記可能）
+                        (o0cなどで指定も可)
+    name     音色名     (音色名を指定する)
+    filename ファイル名 (.wavファイルを指定する)
+    volume   音量       (TBD:100)(とりあえず100を指定する)
+内容
+    OPNA/Bで使用するPCMをwavファイルで指定します。
+    それぞれ順番に、
+    OPNA 1枚目のwavファイル(ADPCM向け)
+    OPNA 2枚目のwavファイル(ADPCM向け)
+    OPNB 1枚目のwavファイル(ADPCM-B向け)
+    OPNB 2枚目のwavファイル(ADPCM-B向け)
+    OPNB 1枚目のwavファイル(ADPCM-A向け)
+    OPNB 2枚目のwavファイル(ADPCM-A向け)
+    を指定したことになります。
+    このタグを使用すると対応する#pcm...タグは無視されます。
+    コンパイル時に指定したwavファイルを読み込み、ADPCMデータに変換後、mubファイルに埋め込みます。
+    各ADPCM/-A/-Bパートで使用可能です。
+    wavファイルは8/16bit,monoで、ADPCM-Aの場合は18.5kHzである必要があります。
 
-    ADPCM-A�̉����ɂ���
-      �d�l��AADPCM-A�͉����͌Œ�ł����AmucomDotNET�ł͂���𗘗p���āA
-      �����w��ŉ��F���؂�ւ��悤�ɂ��Ă��܂��B
-      ���̎��ɕK�v�ɂȂ�̂��ePCM�����蓖�Ă鉹���𐔒l�Ŏw�肷���Ƃł��B
-      o1c �� 1 �ɂȂ�܂��Bo2c �� 17 �ɂȂ�܂��B
-      �ȉ��Ac�`b�܂ł̑����������܂��B
+    ADPCM-Aの音程について
+      仕様上、ADPCM-Aは音程は固定ですが、mucomDotNETではこれを利用して、
+      音程指定で音色が切り替わるようにしています。
+      その時に必要になるのが各PCMを割り当てる音程を数値で指定する作業です。
+      o1c は 1 になります。o2c は 17 になります。
+      以下、c〜bまでの増分を示します。
 
        c  c+ d  d+ e  f  f+ g  g+ a  a+  b
        +0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +10 +11
 
-      ���l�����߂鎮��
+      数値を求める式は
 
         num = ( octave - 1 ) * 16 + note + 1
 
-      �ƂȂ�A�Ⴆ��o2e��
+      となり、例えばo2eは
 
         ( 2 - 1 ) * 16 + 4 + 1 = 21
 
-      ��21���w�肷��΂悢���ƂɂȂ�܂��B�����
+      で21を指定すればよいことになります。よって
 
-      #@pcm_3rd_a 21 , �V�� , cymbal.wav , 100
+      #@pcm_3rd_a 21 , シム , cymbal.wav , 100
       g @1l8v31 o2e
 
-      �ŃV���𔭉����܂�
+      でシムを発音します
 
 
 
---�@�\--
+--機能--
 
-�@�\
-    �}���`�`�b�v�\�L
-���e
-    mucomDotNET�͈ȉ��̗l�Ƀp�[�g�����g������OPNAx2.OPNBx2,OPM�̌v5���𓯎��g�p���邱�Ƃ��ł��܂��B
+機能
+    マルチチップ表記
+内容
+    mucomDotNETは以下の様にパート名が拡張されOPNAx2.OPNBx2,OPMの計5枚を同時使用することができます。
 
-    ����)
+    既存)
      ABCDEFGHIJK   OPNAx1 (ABC:FM1/2/3 DEF:SSG1/2/3 G:Rhythm  HIJ:FM4/5/6 K:ADPCM)
 
     DotNET)
@@ -251,7 +251,7 @@ mucomDotNET
      lmnopqrstuv   OPNBx2 (lmn:FM1/2/3 opq:SSG1/2/3 r:ADPCM-A stu:FM4/5/6 v:ADPCM-B)
      WXYZwxyz      OPM    (WXYZwxyz:FM1/2/3/4/5/6/7/8)     
 
-    �e�X�̃p�[�g���͈ȉ��̒ʂ�ł��B
+    各々のパート割は以下の通りです。
 
 ;          | OPNA 1  OPNA 2  OPNB 1  OPNB 2  OPM     
 ; ---------+-----------------------------------------
@@ -262,730 +262,730 @@ mucomDotNET
 ; ADPCM/-B | K       V       k       v       -       
 
 
-�@�\
-    �}���`�p�[�g�\�L
-���e
-    �s���ɋL�q����p�[�g����񋓂ł���悤�ɂ��Ă��܂��B
-    ��)
+機能
+    マルチパート表記
+内容
+    行頭に記述するパート名を列挙できるようにしています。
+    例)
     AB abc
-    A�p�[�g��B�p�[�g��abc����܂�
+    AパートとBパートでabcが鳴ります
 
 
-�@�\
-    �y�[�W�\�L
-���e
-    �p�[�g���̌�ɐ����ꕶ��(0�`9)���L�q���邱�ƂŃy�[�W���w��ł��܂��B
-    �y�[�W��S���w�肵�Ȃ������ꍇ��0�y�[�W���w�肵�����ƂɂȂ�܂��B
+機能
+    ページ表記
+内容
+    パート名の後に数字一文字(0〜9)を記述することでページを指定できます。
+    ページを全く指定しなかった場合は0ページを指定したことになります。
 
-    ��1)
+    例1)
     A0 abc
-    �܂���
+    または
     A abc
-    �p�[�gA�̃y�[�W0��abc����܂�
+    パートAのページ0でabcが鳴ります
 
-    ��2)
+    例2)
     A014 abc
-    �p�[�gA�̃y�[�W0,1,4��abc����܂�(�D�揇�ʏ����L��F��q)
+    パートAのページ0,1,4でabcが鳴ります(優先順位処理有り：後述)
 
-    ��3)
+    例3)
     A014BC2 abc
-    �p�[�gA�̃y�[�W0,1,4,�p�[�gB�̃y�[�W0,�p�[�gC�̃y�[�W2��abc����܂�(�D�揇�ʏ����L��F��q)
+    パートAのページ0,1,4,パートBのページ0,パートCのページ2でabcが鳴ります(優先順位処理有り：後述)
 
 
-�@�\
-    �y�[�W�@�\
-���e
-    �����p�[�g�����z�I�ɕ�����mml�œ����ɖ炷�@�\�ł��B
-    ���ۂ̉��t�ł̓y�[�W��؂�ւ��Ȃ���D�揇�ʂ̍����y�[�W�̉����Ȃ�܂��B
-    �y�[�W���L�[�I������Ƃ��ɂ��̃y�[�W�֐؂�ւ����s���܂��B
-    �����^�C�~���O�ŃL�[�I������ƗD�揇�ʂ̍����y�[�W�ɐ؂�ւ��܂��B
-    �D�揇�ʂ̓y�[�W�ԍ������������A�����ł��B
-    �y�[�W���؂�ւ��x�Ɏ��̃p�����[�^�������ɑ��M����܂��B
-    �@@ ���F
-      v �{�����[��
-      p �p��
-      S (SSG�̂�)�n�[�h�E�F�A�G���x���[�v
-      m (SSG�̂�)�n�[�h�E�F�A�G���x���[�v�X�s�[�h
-      n (SSG�̂�)�m�C�Y�g�[���؂�ւ�
-      �Q��)�y�[�W�@�\�@���A�R�}���h�ꗗ
-    ���Y��/ADPCM-A�p�[�g�͑��̃p�[�g�Ƃ͏������قȂ�܂��B
-    ���Y��/ADPCM-A�p�[�g�͑S�Ẵy�[�W�̃R�}���h���y�[�W�̃J�����g�Ɋ֌W�Ȃ��L���ł�
-    �܂��A�y�[�W����@�R�}���h�Ŏw��(�I��)���ꂽ���Y�����F/PCM�����d�Ȃ��Ĕ�������܂��B  
-�I�I���ӁI�I
-    �y�[�W�\�L���g�p�������A�o�͂����mub�t�@�C����mucomDotNET�Ǝ��̃t�H�[�}�b�g�ɂȂ�܂��B
-    ���ꂪ���t�ł���̂͌���AmucomDotNET�݂̂ł��B
+機能
+    ページ機能
+内容
+    同じパートを仮想的に複数のmmlで同時に鳴らす機能です。
+    実際の演奏ではページを切り替えながら優先順位の高いページの音がなります。
+    ページがキーオンするときにそのページへ切り替えが行われます。
+    同じタイミングでキーオンすると優先順位の高いページに切り替わります。
+    優先順位はページ番号が小さい程、高いです。
+    ページが切り替わる度に次のパラメータが音源に送信されます。
+    　@ 音色
+      v ボリューム
+      p パン
+      S (SSGのみ)ハードウェアエンベロープ
+      m (SSGのみ)ハードウェアエンベロープスピード
+      n (SSGのみ)ノイズトーン切り替え
+      参照)ページ機能　復帰コマンド一覧
+    リズム/ADPCM-Aパートは他のパートとは処理が異なります。
+    リズム/ADPCM-Aパートは全てのページのコマンドがページのカレントに関係なく有効です
+    また、ページ毎に@コマンドで指定(選択)されたリズム音色/PCM音が重なって発音されます。  
+！！注意！！
+    ページ表記を使用した時、出力されるmubファイルはmucomDotNET独自のフォーマットになります。
+    これが演奏できるのは現状、mucomDotNETのみです。
 
 
-�@�\
-    �}�N���@�\
-���e
-    �����ł�0-255�܂ł����ADotNET�ł͒�`����0-99999�܂Ŏg�p�ł���悤�Ɋg���B
+機能
+    マクロ機能
+内容
+    既存では0-255までだが、DotNETでは定義数を0-99999まで使用できるように拡張。
 
 
-�@�\
-    SSG�g���@�\
-���e
-    SSGExtend�^�O�� On �Ɏw�肷�邱�Ƃɂ��AOPNA/B��SSG�@�\���g������܂��B���A���`�b�v�ł͊g������܂���B
-    �g���@�\�ꗗ
-      -�p��
-      �R�}���h
+機能
+    SSG拡張機能
+内容
+    SSGExtendタグを On に指定することにより、OPNA/BのSSG機能が拡張されます。尚、実チップでは拡張されません。
+    拡張機能一覧
+      -パン
+      コマンド
           p
-      ����
-    �@    pn1,n2
-    �@�l�͈̔�
-    �@�@�@n1 :  1:Right 2:Left 3:Center  4:�E�I�[�g�p�� 5:���I�[�g�p�� 6:�����_���p��
+      書式
+    　    pn1,n2
+    　値の範囲
+    　　　n1 :  1:Right 2:Left 3:Center  4:右オートパン 5:左オートパン 6:ランダムパン
           n2 :
-      ���e
-          FM��p�R�}���h�Ɠ��l�Ɏg�p�\�ł�
+      内容
+          FMのpコマンドと同様に使用可能です
 
-    �@-�g�`�ύX
-      �R�}���h
+    　-波形変更
+      コマンド
           @I
-      ����
+      書式
           @In
-      �l�͈̔�
+      値の範囲
           n  :  7:1/8 6:2/8 5:3/8 4:4/8 3:5/8 2:6/8 1:7/8 duty 0:8/8 Pure square wave
                 8:Triangle Wave  9:Saw Wave
-      ���e
-          SSG�̔g�`���v���Z�b�g����I�����邱�Ƃ��ł��܂��B0-7����`�g�Ńf���[�e�B��̈Ⴂ������܂��B
-          8�͎O�p�g�B9�͂̂�����g�ł��B@W�Ɣr���I�Ɏg�p���܂��B
-    �@-���[�U�[�g�`�I��
-      �R�}���h
+      内容
+          SSGの波形をプリセットから選択することができます。0-7が矩形波でデューティ比の違いがあります。
+          8は三角波。9はのこぎり波です。@Wと排他的に使用します。
+    　-ユーザー波形選択
+      コマンド
           @W
-      ����
+      書式
           @Wn
-      �l�͈̔�
-          n  :  0-255 ���[�U�[��`�ԍ�
-      ���e
-          SSG�̔g�`��\�߃��[�U�[�g�`��`�����g�`�f�[�^�ɕύX���邱�Ƃ��ł��܂��B
-          @I�Ɣr���I�Ɏg�p���܂��B
-    �@���[�U�[�g�`��`
-        �R�}���h
+      値の範囲
+          n  :  0-255 ユーザー定義番号
+      内容
+          SSGの波形を予めユーザー波形定義した波形データに変更することができます。
+          @Iと排他的に使用します。
+    　ユーザー波形定義
+        コマンド
             @W
-        ����
+        書式
             @Wn
             v01,v02,v03,v04,v05,v06,v07,v08,v09,v10,v11,v12,v13,v14,v15,v16
             v17,v18,v19,v20,v21,v22,v23,v24,v25,v26,v27,v28,v29,v30,v31,v32
             v33,v34,v35,v36,v37,v38,v39,v40,v41,v42,v43,v44,v45,v46,v47,v48
             v49,v50,v51,v52,v53,v54,v55,v56,v57,v58,v59,v60,v61,v62,v63,v64
-              n           ��`�ԍ�  (n:0-255)
-              vn          �g�`�f�[�^(vn:$00-$0F) 16 �̒l x 4 �s �� �v 64 �̃f�[�^���K�v�B�����ɉ����Ē�`���Ă�������
+              n           定義番号  (n:0-255)
+              vn          波形データ(vn:$00-$0F) 16 個の値 x 4 行 で 計 64 個のデータが必要。書式に沿って定義してください
 
-    -- �ȉ������� --
-      �t�F�C�Y���Z�b�g(TBD)       :  �L�[�I�����ɔg�`�̊J�n�ʒu�����Z�b�g����@�\
-      �t�ʑ��w��(TBD)             :  �g�`���t�ʑ��ɂ��邱�Ƃ��\
-
-
-
---�R�}���h--
+    -- 以下未実装 --
+      フェイズリセット(TBD)       :  キーオン時に波形の開始位置をリセットする機能
+      逆位相指定(TBD)             :  波形を逆位相にすることが可能
 
 
--���F��`
-�R�}���h
+
+--コマンド--
+
+
+-音色定義
+コマンド
     @M
-����
-  @M(���F�ԍ�)
+書式
+  @M(音色番号)
   FB,AL
   AR,DR,SR,RR,SL,TL,KS,ML,DT,DT2 ; op1
   AR,DR,SR,RR,SL,TL,KS,ML,DT,DT2 ; op2
   AR,DR,SR,RR,SL,TL,KS,ML,DT,DT2 ; op3
   AR,DR,SR,RR,SL,TL,KS,ML,DT,DT2 ; op4
-�l�͈̔�
-    ���F�p�����[�^�ɂ��
-�g�p�\�ȃp�[�g
-    �S��(����OPM)
-���e
-    OPM������DT2���܂񂾉��F��`���ł��܂�
-mub�t�@�C���ł̃t�H�[�}�b�g
+値の範囲
+    音色パラメータによる
+使用可能なパート
+    全て(実質OPM)
+内容
+    OPM向けのDT2を含んだ音色定義ができます
+mubファイルでのフォーマット
       -
 
 
--���W�X�^��������
-�R�}���h
+-レジスタ書き込み
+コマンド
     y
-����
+書式
     yn1,n2,n3,n4
-�l�͈̔�
-    n1 : (0�`4) 0:OPNA.1  1:OPNA.2  2:OPNB.1  3:OPNB.2  4:OPM
-    n2 : (0�`1) �|�[�g
-    n3 : (0�`255) �A�h���X
-    n4 : (0�`255) �f�[�^
-�g�p�\�ȃp�[�g
-    �S��
-���e
-    ����Chip�̃p�[�g�ɑ΂��ăf�[�^�𑗂��悤�ɂ��܂��B
-    �����̃R�}���h�Ɣ�r���ăA�h���X�̐���������܂���B
-mub�t�@�C���ł̃t�H�[�}�b�g
+値の範囲
+    n1 : (0〜4) 0:OPNA.1  1:OPNA.2  2:OPNB.1  3:OPNB.2  4:OPM
+    n2 : (0〜1) ポート
+    n3 : (0〜255) アドレス
+    n4 : (0〜255) データ
+使用可能なパート
+    全て
+内容
+    他のChipのパートに対してデータを送れるようにします。
+    既存のコマンドと比較してアドレスの制限がありません。
+mubファイルでのフォーマット
       0xFF 0xF7 n1 n2 n3 n4
 
 
--�ʃ{�����[���ݒ�
-�R�}���h
+-個別ボリューム設定
+コマンド
     v
-����
+書式
     vn1
-�l�͈̔�
-    n1 : (0�`31)
-�g�p�\�ȃp�[�g
+値の範囲
+    n1 : (0〜31)
+使用可能なパート
     G/R/g/r (RHYTHM/ADPCM-A)
-���e
-    ���Y��������v�R�}���h�͊����ł͈ꊇ�őS�Ẳ��F�̉��ʂ�ݒ肷��K�v������܂����A
-    DotNET�ł̓p�����[�^��������w�肷���@�R�}���h�őI���������F�ɂ������ʂ�K�p�ł��܂��B
-    �����������̕\�L���\�ł��B
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    リズム音源のvコマンドは既存では一括で全ての音色の音量を設定する必要がありますが、
+    DotNETではパラメータを一つだけ指定すると@コマンドで選択した音色にだけ音量を適用できます。
+    もちろん既存の表記も可能です。
+mubファイルでのフォーマット
       0xF1 ( n1 | 0x80 )
 
 
--�{�����[�����[�h�ݒ�X�C�b�`
-�R�}���h
+-ボリュームモード設定スイッチ
+コマンド
     vm
-����
+書式
     vmn
-�l�͈̔�
-    n : ( 0�`3 )
-�g�p�\�ȃp�[�g
+値の範囲
+    n : ( 0〜3 )
+使用可能なパート
     FM
-���e
-    ����vm�R�}���h���g�p����ƁAv�R�}���h�����̒l�ɉ���������ɂȂ�܂��B
+内容
+    このvmコマンドを使用すると、vコマンドがその値に沿った動作になります。
 
-    0 : ����(default)
-      �����̉��ʐݒ胂�[�h�ł��B
-    1 : �{�����[���Ē�`
-    �@���ʎw�莞�Ɏg�p�����{�����[�����Ē�`�������̂��g�p���܂��B
-      1�̌�ɁA�w�肷��TL�l(0�`127)��20�񋓂��Ă��������B
-      (mucom�ł�v0��������ɏ��������ʂ�4����`���邱�Ƃ��o���܂��B)
-      ��)
-       vm 1, 0,1,2,3,4,5,6,7,9,11,13,16,20,25,33,127,127,127,127,127 ;v15����v0 +4 �܂ł̒�`���A���ɗ񋓂��܂�
-       ���̏ꍇ�A
+    0 : 既存(default)
+      既存の音量設定モードです。
+    1 : ボリューム再定義
+    　音量指定時に使用されるボリュームを再定義したものを使用します。
+      1の後に、指定するTL値(0〜127)を20個列挙してください。
+      (mucomではv0よりもさらに小さい音量を4つ分定義することが出来ます。)
+      例)
+       vm 1, 0,1,2,3,4,5,6,7,9,11,13,16,20,25,33,127,127,127,127,127 ;v15からv0 +4 までの定義分、順に列挙します
+       この場合、
          v15cde
-       ��TL��0��cde�����t�A
+       はTLが0でcdeを演奏、
          v0cde
-       ��TL��127��cde�����t���܂��B
-    2 : �ڍ�
-      v�R�}���h�Ŏw�肷�鉹�ʂ�0�`127�ɂȂ�܂��B(0���ŏ��A127���ő剹�ʂł�)
-    3 : �ڍ�(TL�p��)
-      v�R�}���h�Ŏw�肷�鉹�ʂ�0�`127�ɂȂ�܂��B(0���ŏ��A127���ő剹�ʂł�)�A��4�I�y���[�^(�L�����A)���A�l���w�肵�܂��B
-      ��)
+       はTLが127でcdeを演奏します。
+    2 : 詳細
+      vコマンドで指定する音量が0〜127になります。(0が最小、127が最大音量です)
+    3 : 詳細(TLパラ)
+      vコマンドで指定する音量が0〜127になります。(0が最小、127が最大音量です)但し4オペレータ(キャリア)分、値を指定します。
+      例)
        vm3 v127,120,110,100
-       ���̏ꍇ�A�I�y���[�^4����1�֏���127,120,110,100���Z�b�g����܂��B�A���L�����A�݂̂��Ώۂł��B
-       �I�y���[�^4�ȊO�̒l�͏ȗ��\�ł��B
+       この場合、オペレータ4から1へ順に127,120,110,100がセットされます。但しキャリアのみが対象です。
+       オペレータ4以外の値は省略可能です。
 
-    ���A�ǂ̃��[�h�ł����Ă� #CarrierCorrection�^�O���w�肳��Ă���ꍇ�͉��F��`���̒l���t������܂��B
-    ���A���ʃo�����X�ݒ�R�}���h(V)�̒l���t������܂��B
+    尚、どのモードであっても #CarrierCorrectionタグが指定されている場合は音色定義時の値が付加されます。
+    又、音量バランス設定コマンド(V)の値も付加されます。
 
-mub�t�@�C���ł̃t�H�[�}�b�g
-      0xFF 0xFB n (n=1�̂Ƃ���volume�̃f�[�^20byte�ǉ�)
-    �܂��Av�R�}���h��1�ȏ�4�ȉ��̒l���Z�b�g�����Ƃ��͒ʏ�ƈقȂ�ȉ��̃t�H�[�}�b�g�Őݒ肳��܂��B
-      0xFF 0xFB 0xFF TL4 TL3 TL2 TL1 (TL��v�R�}���h�Ŏw�肵��TL�l(0�`127)�B�I�y���[�^4����Z�b�g�����B)
+mubファイルでのフォーマット
+      0xFF 0xFB n (n=1のときはvolumeのデータ20byte追加)
+    また、vコマンドで1つ以上4つ以下の値をセットしたときは通常と異なり以下のフォーマットで設定されます。
+      0xFF 0xFB 0xFF TL4 TL3 TL2 TL1 (TLはvコマンドで指定したTL値(0〜127)。オペレータ4からセットされる。)
 
 
--���Όʃ{�����[���ݒ�X�C�b�`
-�R�}���h
+-相対個別ボリューム設定スイッチ
+コマンド
     vm
-����
+書式
     vmn
-�l�͈̔�
+値の範囲
     n : ( 0 , 1 )
-�g�p�\�ȃp�[�g
+使用可能なパート
     G/R/g/r (RHYTHM/ADPCM-A)
-���e
-    ��q�̃��Y�������̌ʂ̉��F�ɑ΂��đ��΂ŉ��ʂ�ݒ肷��@�\���I���I�t����X�C�b�`�ł��B
-    0��OFF�A1��ON�ł��B
-mub�t�@�C���ł̃t�H�[�}�b�g
-      �Ȃ�
+内容
+    後述のリズム音源の個別の音色に対して相対で音量を設定する機能をオンオフするスイッチです。
+    0でOFF、1でONです。
+mubファイルでのフォーマット
+      なし
 
 
--�ʃ{�����[���ݒ�
-�R�}���h
+-個別ボリューム設定
+コマンド
     ) (
-����
+書式
     )[n] ([n]
-�l�͈̔�
-    n : (0�`31)
-�g�p�\�ȃp�[�g
+値の範囲
+    n : (0〜31)
+使用可能なパート
     G/R/g/r (RHYTHM/ADPCM-A)
-���e
-    ���Y��������)(�R�}���h�͊����ł̓g�[�^���{�����[���ɑ΂��đ��΂ŉ��ʂ�ݒ肵�܂����A
-    DotNET�ł�@�R�}���h�őI���������F�ɂ������ʂ�K�p�ł��܂��B
-    vm�R�}���h��1�̂Ƃ��L���ɂȂ�܂��B
-    0���w�肷��Ί����̓���ɂȂ�܂��B
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    リズム音源の)(コマンドは既存ではトータルボリュームに対して相対で音量を設定しますが、
+    DotNETでは@コマンドで選択した音色にだけ音量を適用できます。
+    vmコマンドが1のとき有効になります。
+    0を指定すれば既存の動作になります。
+mubファイルでのフォーマット
       0xFB ( n1 | 0x80 )
 
 
--�p��(�I�[�g�p���@�\�ǉ�)
-�R�}���h
+-パン(オートパン機能追加)
+コマンド
     p
-����
+書式
     pn1[,n2]
-�l�͈̔�
-    n1 : (4�`6)
-    n2 : (0�`255) �ȗ�����l�R�}���h�̒l���g�p
-�g�p�\�ȃp�[�g
+値の範囲
+    n1 : (4〜6)
+    n2 : (0〜255) 省略時はlコマンドの値を使用
+使用可能なパート
     A/B/C/G/H/I/J/K (FM / RHYTHM / ADPCM)
     L/M/N/R/S/T/U/V (FM / RHYTHM / ADPCM)
     a/b/c/g/h/i/j/k (FM / ADPCM-A / ADPCM-B)
     l/m/n/r/s/t/u/v (FM / ADPCM-A / ADPCM-B)
     W/X/Y/Z/w/x/y/z (FM)
-���e
-    n1��4�������w�肵���ꍇ�́A�����̃p���R�}���h�ɂȂ�܂��B
-    4:�E�I�[�g�p�� 5:���I�[�g�p�� 6:�����_���p��
-    n2�͎��̃p���ɐ؂�ւ��܂ł̃E�G�C�g�l�ɂȂ�܂��B
-    4�܂���5�w�莞�̃p���͈ȉ��̗l�ɍ��E�ɏ��Ԃɉ������J��Ԃ��܂��B
-      4�̂Ƃ�  1(�E)��3(����)��2(��)��3(����)���J��Ԃ�
-      5�̂Ƃ�  2(��)��3(����)��1(�E)��3(����)���J��Ԃ�
-    RHYTHM/ADPCM-A��n1�̓���͈ȉ��̒ʂ�ł��B
-     bit0�`3 RhythmType Rim:5 Tom:4 Hat:3 Cym:2 Sd:1 Bd:0
-     bit4�`7 �p�� 1:�E, 2:��, 3:���� 4:�E�I�[�g 5:���I�[�g 6:�����_��
-    �܂��A��q��pm�R�}���h���g�p���邱�Ƃɂ��ARHYTHM/ADPCM-A�ł�FM��ADPCM�Ɠ����l�Ŏw�肷�邱�Ƃ��ł��܂��B
-mub�t�@�C���ł̃t�H�[�}�b�g
-    n1���S�����̎�
+内容
+    n1に4未満を指定した場合は、既存のパンコマンドになります。
+    4:右オートパン 5:左オートパン 6:ランダムパン
+    n2は次のパンに切り替わるまでのウエイト値になります。
+    4または5指定時のパンは以下の様に左右に順番に往復を繰り返します。
+      4のとき  1(右)→3(中央)→2(左)→3(中央)→繰り返し
+      5のとき  2(左)→3(中央)→1(右)→3(中央)→繰り返し
+    RHYTHM/ADPCM-Aのn1の内訳は以下の通りです。
+     bit0〜3 RhythmType Rim:5 Tom:4 Hat:3 Cym:2 Sd:1 Bd:0
+     bit4〜7 パン 1:右, 2:左, 3:中央 4:右オート 5:左オート 6:ランダム
+    また、後述のpmコマンドを使用することにより、RHYTHM/ADPCM-AでもFMやADPCMと同じ値で指定することができます。
+mubファイルでのフォーマット
+    n1が４未満の時
       0xF8 n1
-    n1���S�ȏ�̎�
+    n1が４以上の時
       0xF8 n1 n2
 
 
--�p���w��ݒ�X�C�b�`
-�R�}���h
+-パン指定設定スイッチ
+コマンド
     pm
-����
+書式
     pmn
-�l�͈̔�
+値の範囲
     n : ( 0 , 1 )
-�g�p�\�ȃp�[�g
+使用可能なパート
     G/R/g/r (RHYTHM/ADPCM-A)
-���e
-    ���Y�������̌ʂ̉��F�ɑ΂��ăp���𑼂̃`�����l���Ɠ����`���Ŏw��ł���@�\���I���I�t����X�C�b�`�ł��B
-    0��OFF�A1��ON�ł��B
-mub�t�@�C���ł̃t�H�[�}�b�g
-      �Ȃ�
-      (�p�����g�p�����Ƃ��ɃR���p�C���������̃R�}���h�l�ɕϊ�����悤�ɂȂ�)
+内容
+    リズム音源の個別の音色に対してパンを他のチャンネルと同じ形式で指定できる機能をオンオフするスイッチです。
+    0でOFF、1でONです。
+mubファイルでのフォーマット
+      なし
+      (パンを使用したときにコンパイラが既存のコマンド値に変換するようになる)
 
 
--�X���b�g�f�B�`���[��
-�R�}���h
+-スロットディチューン
+コマンド
     S
-����
+書式
     Sn1,n2,n3,n4
-�l�͈̔�
-    n : (0�`255 / -32768�`32767)
-�g�p�\�ȃp�[�g
+値の範囲
+    n : (0〜255 / -32768〜32767)
+使用可能なパート
     C/N/c/n (FM)
-���e
-    �w�肷��ƌ��ʉ����[�h�𗘗p�����X���b�g�f�B�`���[�����ʂ𓾂邱�Ƃ��ł��܂��B
-    0�`255�͈̔͊O�̒l���g�p�����DotNET���[�h�Ɏ����ňڍs���܂�����x�ł��������[�h���g�p���Ă���Ƃ����ŃG���[�ɂȂ�܂��B
-    ���̏ꍇ��#Driver�^�O���g�p��mucomDotNET��\�ߎw�肵�Ă��������B
-    �܂��A������DotNET�ł�fnum�̌v�Z���@���قȂ�܂��B
-mub�t�@�C���ł̃t�H�[�}�b�g
-    �������[�h��
+内容
+    指定すると効果音モードを利用したスロットディチューン効果を得ることができます。
+    0〜255の範囲外の値を使用するとDotNETモードに自動で移行しますが一度でも既存モードを使用しているとそこでエラーになります。
+    その場合は#Driverタグを使用しmucomDotNETを予め指定してください。
+    また、既存とDotNETではfnumの計算方法が異なります。
+mubファイルでのフォーマット
+    既存モード時
       0xF7 n1 n2 n3 n4
-    DotNET���[�h��
+    DotNETモード時
       0xF7 n1(lsb) n1(msb) n2(lsb) n2(msb) n3(lsb) n3(msb) n4(lsb) n4(msb)
 
 
--SSG�n�[�h�E�F�A�G���x���[�v
-�R�}���h
+-SSGハードウェアエンベロープ
+コマンド
     S
-����
+書式
     Sn
-�l�͈̔�
-    n : (0�`15)
-�g�p�\�ȃp�[�g
+値の範囲
+    n : (0〜15)
+使用可能なパート
     D/E/F/O/P/Q/d/e/f/o/p/q (SSG)
-���e
-    �w�肷���SSG�̃n�[�h�E�F�A�G���x���[�v
-    ���[�h�ɐ؂�ւ��܂��B
-    0�`15�̓G���x���[�v�̔g�`�̎�ނɂȂ�܂��B
-    �n�[�h�E�F�A�G���x���[�v���g�p����
-    'v'(�{�����[���R�}���h)���g�p����ƒʏ��
-    ���[�h�ɖ߂�܂��B
-    ')'��'('�͖�������܂��B
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    指定するとSSGのハードウェアエンベロープ
+    モードに切り替わります。
+    0〜15はエンベロープの波形の種類になります。
+    ハードウェアエンベロープを使用中に
+    'v'(ボリュームコマンド)を使用すると通常の
+    モードに戻ります。
+    ')'や'('は無視されます。
+mubファイルでのフォーマット
     0xFF 0xF1 n1
 
 
--SSG�n�[�h�E�F�A�G���x���[�v �X�s�[�h
-�R�}���h
+-SSGハードウェアエンベロープ スピード
+コマンド
     m
-����
+書式
     mn
-�l�͈̔�
-    n : (0�`65535)
-�g�p�\�ȃp�[�g
+値の範囲
+    n : (0〜65535)
+使用可能なパート
     D/E/F/O/P/Q/d/e/f/o/p/q (SSG)
-���e
-    SSG�n�[�h�E�F�A�G���x���[�v�̔g�`�̕ω�
-    �X�s�[�h��ݒ肵�܂��B
-    �l���������قǑ����ω����܂��B
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    SSGハードウェアエンベロープの波形の変化
+    スピードを設定します。
+    値が小さいほど早く変化します。
+mubファイルでのフォーマット
     0xFF 0xF2 n(lsb) n(msb)
 
 
--SSG�\�t�g�E�F�A�G���x���[�v �v���Z�b�g��������
-�R�}���h
+-SSGソフトウェアエンベロープ プリセット書き換え
+コマンド
     @=
-����
+書式
     @n=al,ar,dr,sl,sr,rr
-�l�͈̔�
-    n  : (0�`15)
-    al : (0�`255)
-    ar : (0�`255)
-    dr : (0�`255)
-    sl : (0�`255)
-    sr : (0�`255)
-    rr : (0�`255)
-�g�p�\�ȃp�[�g
+値の範囲
+    n  : (0〜15)
+    al : (0〜255)
+    ar : (0〜255)
+    dr : (0〜255)
+    sl : (0〜255)
+    sr : (0〜255)
+    rr : (0〜255)
+使用可能なパート
     D/E/F/O/P/Q/d/e/f/o/p/q (SSG)
-���e
-    SSG�\�t�g�E�F�A�G���x���[�v�̃v���Z�b�g�����������܂��B
-    �A���A������������̂�E�R�}���h�ɂ����镔���݂̂ł��BP,M�R�}���h�ɊY������l�͏��������܂���B
-    ��`��͒ʏ�ʂ�@�R�}���h�Ŏg�p�ł��܂��B
-    ���AmucomDotNET(Player)�́A1�Ȗ��ɋN�����Ȃ����̂Ńv���Z�b�g�͖��񏉊�������܂��B
-    (�܂葼�̋ȃf�[�^���Đ������Ƃ��ɁA�������������e�������p����邱�Ƃ͂���܂���B)
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    SSGソフトウェアエンベロープのプリセットを書き換えます。
+    但し、書き換えられるのはEコマンドにあたる部分のみです。P,Mコマンドに該当する値は書き換えません。
+    定義後は通常通り@コマンドで使用できます。
+    尚、mucomDotNET(Player)は、1曲毎に起動しなおすのでプリセットは毎回初期化されます。
+    (つまり他の曲データを再生したときに、書き換えた内容が引き継がれることはありません。)
+mubファイルでのフォーマット
     0xFC n al ar dr sl sr rr
 
 
--FM TL�p�����[�^LFO
-�R�}���h
+-FM TLパラメータLFO
+コマンド
     MT
-����
+書式
     MTn1,n2
-�l�͈̔�
-    n1 : (0�`15)
-    n2 : (0�`127)
-�g�p�\�ȃp�[�g
+値の範囲
+    n1 : (0〜15)
+    n2 : (0〜127)
+使用可能なパート
     A/B/C/H/I/J/L/M/N/S/T/U (FM)
     a/b/c/h/i/j/l/m/n/s/t/u (FM)
     W/X/Y/Z/w/x/y/z (FM)
-���e
-    lfo��FM��TL(�g�[�^�����x��)�ɓK�p���܂��B
-    tl�͉��ʂ�A�g�`�̕ϒ��ʂ𒲐߂���p�����[�^�[�ł��̂�
-    ������LFO��������΁A�g�������⃏�E�̌��ʂ����҂ł��܂��B
+内容
+    lfoをFMのTL(トータルレベル)に適用します。
+    tlは音量や、波形の変調量を調節するパラメーターですので
+    そこにLFOをかければ、トレモロやワウの効果を期待できます。
 
-    n1: 0���w�肷��ƒʏ��LFO�ɖ߂�܂��B
-    LFO�����������I�y���[�^��bit�Ŏw�肵�܂��B
-    bit0:op1 bit1:op2 bit2:op3 bit3:op4 (bit�̏d�݂͏��� 1,2,4,8)
-    �ł��B�Ⴆ��op1��op3��LFO���w�肵�����ꍇ��
+    n1: 0を指定すると通常のLFOに戻ります。
+    LFOをかけたいオペレータをbitで指定します。
+    bit0:op1 bit1:op2 bit2:op3 bit3:op4 (bitの重みは順に 1,2,4,8)
+    です。例えばop1とop3にLFOを指定したい場合は
      1(bit0) + 4(bit2) = 5
-    ��5���w�肵�܂��B
+    で5を指定します。
 
-    n2: ��ƂȂ�TL�̒l���w�肵�܂��B
-mub�t�@�C���ł̃t�H�[�}�b�g
+    n2: 基準となるTLの値を指定します。
+mubファイルでのフォーマット
     0xF4 0x07 n1 n2
 
 
--�f�t�H���g�����ݒ�
-�R�}���h
+-デフォルト音長設定
+コマンド
     l
-����
+書式
     l%n
-�l�͈̔�
-    n : (0�`C�Őݒ肵���l)
-�g�p�\�ȃp�[�g
+値の範囲
+    n : (0〜Cで設定した値)
+使用可能なパート
     all
-���e
-    �N���b�N�𒼐ڎw�肷��ꍇ�Ɏg�p���܂��B
-    %�R�}���h�Ɠ����@�\�ɂȂ�܂��B
-mub�t�@�C���ł̃t�H�[�}�b�g
-    �����Ɠ���
+内容
+    クロックを直接指定する場合に使用します。
+    %コマンドと同じ機能になります。
+mubファイルでのフォーマット
+    既存と同じ
 
 
--SSG �g������LFO
-�R�}���h
+-SSG トレモロLFO
+コマンド
     MT
-����
+書式
     MTn
-�l�͈̔�
+値の範囲
     n : (0:OFF 1:ON)
-�g�p�\�ȃp�[�g
+使用可能なパート
     D/E/F/O/P/Q/d/e/f/o/p/q (SSG)
-���e
-    MT1�Ƃ��邱�Ƃŉ����̑���ɉ��ʂɑ΂���lfo��K�p���܂��B
-    MT0�Ɛ錾����ƃf�t�H���g�ł��鉹����lfo�ɖ߂�܂��B
-    �G���x���[�v�̕��p���\�ł��B
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    MT1とすることで音程の代わりに音量に対してlfoを適用します。
+    MT0と宣言するとデフォルトである音程のlfoに戻ります。
+    エンベロープの併用が可能です。
+mubファイルでのフォーマット
     0xF4 0x07 n
 
 
--FM �L�[�I���f�B���C
-�R�}���h
+-FM キーオンディレイ
+コマンド
     KD
-����
+書式
     KDn1,n2,n3,n4
-�l�͈̔�
-    n1 : (0�`C�Őݒ肵���l)
-    n2 : (0�`C�Őݒ肵���l)
-    n3 : (0�`C�Őݒ肵���l)
-    n4 : (0�`C�Őݒ肵���l)
-�g�p�\�ȃp�[�g
+値の範囲
+    n1 : (0〜Cで設定した値)
+    n2 : (0〜Cで設定した値)
+    n3 : (0〜Cで設定した値)
+    n4 : (0〜Cで設定した値)
+使用可能なパート
     A/B/C/H/I/J/L/M/N/S/T/U (FM)
     a/b/c/h/i/j/l/m/n/s/t/u (FM)
     W/X/Y/Z/w/x/y/z (FM)
-���e
-    FM�����̃L�[�I�����X���b�g���ɂ��炷�ꍇ�Ɏg�p���܂��B
-    n1�`n4�͂��ꂼ��X���b�g1�`4�ɑΉ����Ă��܂��B
-    �l�̒P�ʂ̓N���b�N���ŁA�w�肵���N���b�N����������ăL�[�I�����܂��B
-    (�������邩�ǂ����̓A���S���Y���ɍ��E���܂��B)
-    �S�Ă̒l��0�Ɏw�肷�邱�ƂŃf�B���C������(�ʏ��)��Ԃɖ߂�܂��B
-    ����
-    ���F�ɂ���Ă̓L�[�I�����Ƀm�C�Y����邱�Ƃ�����܂��B
-    (�����[�X���[�g���߂⑁�߂̃L�[�I�t�ɂ���ĉ���ł��܂��B)
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    FM音源のキーオンをスロット毎にずらす場合に使用します。
+    n1〜n4はそれぞれスロット1〜4に対応しています。
+    値の単位はクロック数で、指定したクロック分だけずれてキーオンします。
+    (発音するかどうかはアルゴリズムに左右します。)
+    全ての値を0に指定することでディレイ無しの(通常の)状態に戻ります。
+    注意
+    音色によってはキーオン時にノイズが乗ることがあります。
+    (リリースレート高めや早めのキーオフによって回避できます。)
+mubファイルでのフォーマット
     0xFF 0xF6 n1 n2 n3 n4
 
 
--MIDI���|���^�����g
-�R�}���h
+-MIDI風ポルタメント
+コマンド
     PO
     POS
     POR
     POL
     _
     __
-����
+書式
     POn1,n2,n3
     POSn1
     PORn2
     POLn3
     _
     __
-�l�͈̔�
-    n1 : �X�C�b�`(0:OFF,1:ON)
-    n2 : ����������(-128�`127)
-    n3 : �J�ڎ���(0�`C�Őݒ肵���l)
-�g�p�\�ȃp�[�g
+値の範囲
+    n1 : スイッチ(0:OFF,1:ON)
+    n2 : 初期音程差(-128〜127)
+    n3 : 遷移時間(0〜Cで設定した値)
+使用可能なパート
     A/B/C/H/I/J/L/M/N/S/T/U (FM)
     a/b/c/h/i/j/l/m/n/s/t/u (FM)
     W/X/Y/Z/w/x/y/z (FM)
     D/E/F/O/P/Q/d/e/f/o/p/q (SSG)
-���e
-    �g�p����ƁA�m�[�g��������MIDI���̃|���^�����g���삪�s���܂��B
-    ����́A�O��̉������J�n�����A�m�[�g�Ɏw�肵�������𓞒B�����Ƃ��ăx���h���s������ɂȂ�܂��B
-    �w�肵�����Ԃɓ��B�����ɒB������͂��̂܂܂��̉������������܂��B
+内容
+    使用すると、ノート発音時にMIDI風のポルタメント動作が行われます。
+    これは、前回の音程を開始音程、ノートに指定した音程を到達音程としてベンドを行う動作になります。
+    指定した時間に到達音程に達した後はそのままその音程を持続します。
 
-    n1��1��ݒ肷��Ƃ��̃��[�h���L���ɂȂ�A�����ɂȂ�܂Ń|���^�����g���삪���{����܂��B
-    n1��0��ݒ肷��Ƃ��̃��[�h�������ɂȂ�A�ʏ�̓���ɖ߂�܂��B
-    ���[�h���L���ɂȂ��ď��߂Ă̔����́An2�Ɏw�肵���l���m�[�g�ɉ��Z�����l�������J�n�����Ƃ��Ďg�p����܂��B
-    ���̔�������͑O��̓��B�������J�n�����ƂȂ�܂��B
-    n3�̓x���h�ɂ����鎞�Ԃ��N���b�N���Ŏw�肵�܂��B
+    n1に1を設定するとこのモードが有効になり、無効になるまでポルタメント動作が実施されます。
+    n1に0を設定するとこのモードが無効になり、通常の動作に戻ります。
+    モードが有効になって初めての発音は、n2に指定した値をノートに加算した値が発音開始音程として使用されます。
+    次の発音からは前回の到達音程が開始音程となります。
+    n3はベンドにかかる時間をクロック数で指定します。
     
-    POS�R�}���h�̓X�C�b�`�����ύX�������ꍇ�Ɏg�p���܂��B
-    POR�R�}���h���g�p����ƊJ�n�������w�肵���l(���Βl)�Ƀ��Z�b�g���܂��B
-    POL�R�}���h�̓x���h�ɂ����鎞�Ԃ��N���b�N�������ύX�������ꍇ�Ɏg�p���܂��B
-    _�R�}���h�́A�|���^�����g���삪�L���ȏꍇ�́A���̃m�[�g��������𖳌��ɂ��܂��B
-    �|���^�����g���삪�����ȏꍇ�́A���̃m�[�g���������L���ɂ��܂��B
-    __�R�}���h�́A�|���^�����g���삪�L���ȏꍇ�́A���̃m�[�g��������𖳌��ɂ��܂��B
-    �|���^�����g���삪�����ȏꍇ�́A���̃m�[�g���������L���ɂ��܂��B�A���J�n�����͏������������g�p����܂��B
+    POSコマンドはスイッチだけ変更したい場合に使用します。
+    PORコマンドを使用すると開始音程を指定した値(相対値)にリセットします。
+    POLコマンドはベンドにかかる時間をクロック数だけ変更したい場合に使用します。
+    _コマンドは、ポルタメント動作が有効な場合は、次のノートだけ動作を無効にします。
+    ポルタメント動作が無効な場合は、次のノートだけ動作を有効にします。
+    __コマンドは、ポルタメント動作が有効な場合は、次のノートだけ動作を無効にします。
+    ポルタメント動作が無効な場合は、次のノートだけ動作を有効にします。但し開始音程は初期音程差が使用されます。
 
-mub�t�@�C���ł̃t�H�[�}�b�g
-    �ʏ�̃|���^�����g�ƃ^�C�A�m�[�g��񋓂������̂ɂȂ�܂��B
-    ����ăh���C�o���̃R�}���h�͂���܂���B
+mubファイルでのフォーマット
+    通常のポルタメントとタイ、ノートを列挙したものになります。
+    よってドライバ側のコマンドはありません。
 
 
--�|���^�����g
-�R�}���h
+-ポルタメント
+コマンド
     { }
-����
+書式
     {n1n2n3}
-�l�͈̔�
-    n1 : ����1 c�`b�܂�(�����w��\)
-    n2 : ���΃I�N�^�[�u�`�F���W < ���� >
-    n3 : ����2 c�`b�܂�(�����w��s��)
-�f�t�H���g�l
+値の範囲
+    n1 : 音程1 c〜bまで(音長指定可能)
+    n2 : 相対オクターブチェンジ < 又は >
+    n3 : 音程2 c〜bまで(音長指定不可)
+デフォルト値
     -
-�g�p�\�ȃp�[�g
-    ���Y������ADPCM-A �ȊO�̃p�[�g
-    (ADPCM�p�[�g���\)
-���e
-    �w�肵������1���特��2�܂ŉ��������炩�ɕω������܂��B
-mub�t�@�C���ł̃t�H�[�}�b�g
+使用可能なパート
+    リズム又はADPCM-A 以外のパート
+    (ADPCMパートも可能)
+内容
+    指定した音程1から音程2まで音程を滑らかに変化させます。
+mubファイルでのフォーマット
     -
 
 
--���ʉ����[�h�X�C�b�`
-�R�}���h
+-効果音モードスイッチ
+コマンド
     EXON
     EXOF
-����
+書式
     EXON
     EXOF
-�l�͈̔�
+値の範囲
     -
-�f�t�H���g�l
-    ���ʉ����[�h����
-�g�p�\�ȃp�[�g
+デフォルト値
+    効果音モード無効
+使用可能なパート
     C/N/c/n (FM)
-���e
-    ���ʉ����[�h�Ɉڍs���邩�A�ۂ����w�肵�܂��B
-    EXON�Ō��ʉ����[�h�ɂȂ�܂��B
-    EXOF�Œʏ�ɖ߂�܂��B
-    ���ʉ����[�h�Ɉڍs����ƁAC/N/c/n�p�[�g�̃y�[�W�̓��삪��p�ɐ؂�ւ��܂��B
-    �r���I�ȓ���ɂȂ�܂��̂ŁA�y�[�W�{���̓���͌��ʉ����[�h���͎g�p�ł��܂���B
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    効果音モードに移行するか、否かを指定します。
+    EXONで効果音モードになります。
+    EXOFで通常に戻ります。
+    効果音モードに移行すると、C/N/c/nパートのページの動作が専用に切り替わります。
+    排他的な動作になりますので、ページ本来の動作は効果音モード中は使用できません。
+mubファイルでのフォーマット
     EXON : 0xFF 0xF8 0x00 0x01
     EXOF : 0xFF 0xF8 0x00 0x00
 
 
--���ʉ����[�h�̃X���b�g���蓖��(�g�p����X���b�g��񋓂���)
-�R�}���h
+-効果音モードのスロット割り当て(使用するスロットを列挙する)
+コマンド
     EX
-����
+書式
     EXn
-�l�͈̔�
-    �g�p����X���b�g�̔ԍ�(1�`4)��񋓂���
-�f�t�H���g�l
+値の範囲
+    使用するスロットの番号(1〜4)を列挙する
+デフォルト値
     EX1234
-�g�p�\�ȃp�[�g
+使用可能なパート
     C/N/c/n (FM)
-���e
-    �w�肵���p�[�g�Ŏg�p����X���b�g�ԍ����w�肵�܂��B
-    �Ⴆ�΃X���b�g1��2���w�肵�����ꍇ��
+内容
+    指定したパートで使用するスロット番号を指定します。
+    例えばスロット1と2を指定したい場合は
      EX12
-    �Ǝw�肵�܂��B
-    ���F�w��R�}���h�͂��̐ݒ���Q�Ƃ��A�L���ȃX���b�g�̉��F���ڒl�̂ݕύX����悤�ɂȂ�܂��B
-    ���A���ꂾ���w�肵�Ă��A���ʉ����[�h�Ɏ����ňڍs���邱�Ƃ͂���܂���B
-    EXON�R�}���h���g�p���Ă��������B
-    �܂��A���ʉ����[�h���ɉ��F��ύX�����ꍇ�A�L���ȃX���b�g�̂ݕύX�������s���܂��B
-    ���l�ɉ��ʕύX�����A�L���ȃX���b�g�̂ݕύX�������s���܂��B
-    ���F�ύX���AFB/ALG�͖���X�V����܂����A�y�[�W���ɂ��̒l��ێ����Ă��܂��̂ł��̒l�ɈႢ������Ƒz��O�̉��ʕύX���s���܂��B
-    ����ē���FB/ALG�̉��F���g�p���邱�Ƃ������߂��܂��B
-mub�t�@�C���ł̃t�H�[�}�b�g
+    と指定します。
+    音色指定コマンドはこの設定を参照し、有効なスロットの音色項目値のみ変更するようになります。
+    尚、これだけ指定しても、効果音モードに自動で移行することはありません。
+    EXONコマンドを使用してください。
+    また、効果音モード時に音色を変更した場合、有効なスロットのみ変更処理が行われます。
+    同様に音量変更時も、有効なスロットのみ変更処理が行われます。
+    音色変更時、FB/ALGは毎回更新されますが、ページ毎にその値を保持していますのでその値に違いがあると想定外の音量変更が行われます。
+    よって同じFB/ALGの音色を使用することをお勧めします。
+mubファイルでのフォーマット
     0xFF 0xF8 0x01 n
-    (n : bit3,2,1,0 �����ꂼ��X���b�g4,3,2,1�̗L��:1�A����:0������)
+    (n : bit3,2,1,0 がそれぞれスロット4,3,2,1の有効:1、無効:0を示す)
 
 
--�\�t�g�G���x���[�v
-�R�}���h
+-ソフトエンベロープ
+コマンド
     E
-����
+書式
     En1,n2,n3,n4,n5,n6
-�l�͈̔�
-    �e�p�����[�^�Ƃ�0�`255�܂�
-�f�t�H���g�l
-    �Ȃ�
-�g�p�\�ȃp�[�g
+値の範囲
+    各パラメータとも0〜255まで
+デフォルト値
+    なし
+使用可能なパート
     K/V/k/v (ADPCM/-B)
-���e
-    SSG�̋@�\��ADPCM�p�[�g�ł��g�p�ł���悤�ɂ������̂ł��B
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    SSGの機能をADPCMパートでも使用できるようにしたものです。
+mubファイルでのフォーマット
     0xFF 0xFA n1 n2 n3 n4 n5 n6
 
 
--�p�[�g�ʃ��v���C�X
-�R�}���h
+-パート別リプレイス
+コマンド
     [|
     |
     |]
-����
+書式
     [|
     |
     |]
-�l�͈̔�
+値の範囲
     -
-�f�t�H���g�l
-    �Ȃ�
-�g�p�\�ȃp�[�g
+デフォルト値
+    なし
+使用可能なパート
     All
-���e
-    [|��|]�Ŋ������͈͂��p�[�g�ʎw�肵���͈͂ŉ��t���܂��B  
-    �������͈͓���|�Ŏ��̃p�[�g�����t������e�ɂȂ�܂��B  
-    �l�X�g�s�\�ł��B  
-    [|��������ƁA�p�[�g�̋L�q�����Q�Ƃ��A����(�R���p�C�����悤�Ƃ��Ă��錻�݂̃p�[�g)�����Ԗڂ̈ʒu�ɂ����邩���ׂ܂��B  
-    ���̂��Ǝ����̈ʒu�ɂ������悾����L���Ƃ��Ă��Ƃ�|]�܂œǂݎ̂Ă܂��B  
-    |���w�肷�邽�тɎ��̃p�[�g�̋��ɐ؂�ւ��܂��B  
-mub�t�@�C���ł̃t�H�[�}�b�g
+内容
+    [|と|]で括った範囲をパート別指定した範囲で演奏します。  
+    括った範囲内の|で次のパートが演奏する内容になります。  
+    ネスト不可能です。  
+    [|を見つけると、パートの記述欄を参照し、自分(コンパイルしようとしている現在のパート)が何番目の位置にあたるか調べます。  
+    そのあと自分の位置にあたる区域だけを有効としてあとは|]まで読み捨てます。  
+    |を指定するたびに次のパートの区域に切り替わります。  
+mubファイルでのフォーマット
     -
 
 
 
 
---�����R�}���h--
+--内部コマンド--
 
 
--�p�[�g�A�y�[�W�f�[�^�̃A�h���X�w��
-�R�}���h
-    - (�����R�}���h�ׁ̈A����)
-����
+-パート、ページデータのアドレス指定
+コマンド
+    - (内部コマンドの為、無し)
+書式
     -
-mub�t�@�C���ł̃t�H�[�}�b�g
-    0xFF 0xF7 nn pd pc pb pa [ gd gc gb ga ] ..(nn�̒l���Agdgcgbga���J��Ԃ�)
-�l�͈̔�
-    nn : (0�`9)
-    papbpcpd : �p�[�g�̃f�[�^�ւ̃I�t�Z�b�g(4�o�C�g LE)
-    gagbgcgd : �y�[�W�̃f�[�^�ւ̃I�t�Z�b�g(4�o�C�g LE)
-�g�p�\�ȃp�[�g
+mubファイルでのフォーマット
+    0xFF 0xF7 nn pd pc pb pa [ gd gc gb ga ] ..(nnの値分、gdgcgbgaを繰り返す)
+値の範囲
+    nn : (0〜9)
+    papbpcpd : パートのデータへのオフセット(4バイト LE)
+    gagbgcgd : ページのデータへのオフセット(4バイト LE)
+使用可能なパート
     all
-���e
-    �p�[�g�̃f�[�^�ւ̃A�h���X���w�肵�܂��B
-    �y�[�W���g�p����ꍇ�͂��̃A�h���X���񋓂��܂��B
-    ���̃R�}���h�̓p�[�g�f�[�^�̐擪��1�x�����g�p���܂��B
-    �A�h���X��u��������K�v���Ȃ��ꍇ��A�y�[�W���g�p���Ȃ��ꍇ�͂��̃R�}���h�͂���܂���B
+内容
+    パートのデータへのアドレスを指定します。
+    ページを使用する場合はそのアドレスも列挙します。
+    このコマンドはパートデータの先頭に1度だけ使用します。
+    アドレスを置き換える必要がない場合や、ページを使用しない場合はこのコマンドはありません。
 
 
 
 
---����--
+--資料--
 
---�y�[�W�@�\�@���A�R�}���h�ꗗ--
+--ページ機能　復帰コマンド一覧--
 FM & SSG & ADPCM/-B
-�R�}���h  ���A  ���̃y�[�W�Ƌ��L  ���l
- C        �Z    ���Ȃ�            ���������v��܂�
- t        -     �S�Ăŋ��L����    
- T        -     �S�Ăŋ��L����    
- @        �Z    ���Ȃ�            ���������v��܂�
- o        �Z    ���Ȃ�            ���������v��܂�
- v        �Z    ���Ȃ�            ���������v��܂�
- q        �Z    ���Ȃ�            ���������v��܂�
- p        �Z    ���Ȃ�            ���������v��܂�
- l        �Z    ���Ȃ�            ���������v��܂�
- cdefgabr �Z    ���Ȃ�            
- %        �Z    ���Ȃ�            ���������v��܂�
- D        �Z    ���Ȃ�            ���������v��܂�
- >        �Z    ���Ȃ�            o�̏��������v��܂�
- <        �Z    ���Ȃ�            o�̏��������v��܂�
- )        �Z    ���Ȃ�            v�̏��������v��܂�
- (        �Z    ���Ȃ�            v�̏��������v��܂�
- &        �~    ���Ȃ�
- ^        �~    ���Ȃ�
- {...}    �~    ���Ȃ�
- [...]n   �Z    ���Ȃ�
- /        �Z    ���Ȃ�
- L        �Z    ���Ȃ�
- K        �Z    ���Ȃ�
- V        �Z    ���Ȃ�
- \=       �Z    ���Ȃ�
- \        �Z    ���Ȃ�
- k        �Z    ���Ȃ�
- s        �Z    ���Ȃ�
- H        -     �S�Ăŋ��L����    
- R        �Z    ���Ȃ�
- RF       �Z    ���Ȃ�
- Rm       �Z    ���Ȃ�
- M        �Z    ���Ȃ�
- MF       �Z    ���Ȃ�
- MW       �Z    ���Ȃ�
- MC       �Z    ���Ȃ�
- ML       �Z    ���Ȃ�
- MD       �Z    ���Ȃ�
- S        ��    ���Ȃ�            �J�����g���ɑ��M�������e���K�p�����
- E        �Z    ���Ȃ�
- P        �Z    ���Ȃ�
- w        �Z    ���Ȃ�
- s        �Z    ���Ȃ�
- m        �Z    ���Ȃ�
- y        ��    ���Ȃ�            �J�����g���ɑ��M�������e���K�p�����
- yDM      ��    ���Ȃ�            �J�����g���ɑ��M�������e���K�p�����
- yTL      ��    ���Ȃ�            �J�����g���ɑ��M�������e���K�p�����
- yKA      ��    ���Ȃ�            �J�����g���ɑ��M�������e���K�p�����
- yDR      ��    ���Ȃ�            �J�����g���ɑ��M�������e���K�p�����
- ySR      ��    ���Ȃ�            �J�����g���ɑ��M�������e���K�p�����
- ySL      ��    ���Ȃ�            �J�����g���ɑ��M�������e���K�p�����
- ySE      ��    ���Ȃ�            �J�����g���ɑ��M�������e���K�p�����
- vm       -     �S�Ăŋ��L����     
- *        �Z    ���Ȃ�
- ;        �Z    ���Ȃ�
- :        �Z    ���Ȃ�
- !        �Z    ���Ȃ�
- J        �Z    ���Ȃ�
- |        �Z    ���Ȃ�
+コマンド  復帰  他のページと共有  備考
+ C        〇    しない            初期化が要ります
+ t        -     全てで共有する    
+ T        -     全てで共有する    
+ @        〇    しない            初期化が要ります
+ o        〇    しない            初期化が要ります
+ v        〇    しない            初期化が要ります
+ q        〇    しない            初期化が要ります
+ p        〇    しない            初期化が要ります
+ l        〇    しない            初期化が要ります
+ cdefgabr 〇    しない            
+ %        〇    しない            初期化が要ります
+ D        〇    しない            初期化が要ります
+ >        〇    しない            oの初期化が要ります
+ <        〇    しない            oの初期化が要ります
+ )        〇    しない            vの初期化が要ります
+ (        〇    しない            vの初期化が要ります
+ &        ×    しない
+ ^        ×    しない
+ {...}    ×    しない
+ [...]n   〇    しない
+ /        〇    しない
+ L        〇    しない
+ K        〇    しない
+ V        〇    しない
+ \=       〇    しない
+ \        〇    しない
+ k        〇    しない
+ s        〇    しない
+ H        -     全てで共有する    
+ R        〇    しない
+ RF       〇    しない
+ Rm       〇    しない
+ M        〇    しない
+ MF       〇    しない
+ MW       〇    しない
+ MC       〇    しない
+ ML       〇    しない
+ MD       〇    しない
+ S        △    しない            カレント時に送信した内容が適用される
+ E        〇    しない
+ P        〇    しない
+ w        〇    しない
+ s        〇    しない
+ m        〇    しない
+ y        △    しない            カレント時に送信した内容が適用される
+ yDM      △    しない            カレント時に送信した内容が適用される
+ yTL      △    しない            カレント時に送信した内容が適用される
+ yKA      △    しない            カレント時に送信した内容が適用される
+ yDR      △    しない            カレント時に送信した内容が適用される
+ ySR      △    しない            カレント時に送信した内容が適用される
+ ySL      △    しない            カレント時に送信した内容が適用される
+ ySE      △    しない            カレント時に送信した内容が適用される
+ vm       -     全てで共有する     
+ *        〇    しない
+ ;        〇    しない
+ :        〇    しない
+ !        〇    しない
+ J        〇    しない
+ |        〇    しない
