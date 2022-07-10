@@ -14,12 +14,13 @@ import mucom88.common.AutoExtendList;
 import mucom88.common.Common;
 import mucom88.common.MUCInfo;
 import mucom88.common.MucException;
-import mucom88.common.iEncoding;
 import musicDriverInterface.CompilerInfo;
 import musicDriverInterface.LinePos;
 import musicDriverInterface.MmlDatum;
 import musicDriverInterface.MMLType;
 import vavi.util.Debug;
+
+import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 
 
 public class Muc88 {
@@ -31,7 +32,7 @@ public class Muc88 {
 
     // private static readonly int MAXCH = 11;
     private final MUCInfo mucInfo;
-    private final Supplier<FCOMPNextRtn>[] COMTBL = Arrays.<Supplier<FCOMPNextRtn>>asList(
+    private final Supplier<NextAction>[] COMTBL = Arrays.<Supplier<NextAction>>asList(
             this::SETLIZ,
             this::SETOCT,
             this::SETDT,
@@ -82,16 +83,14 @@ public class Muc88 {
             this::SETPinPOR
     ).toArray(Supplier[]::new);
     // private readonly int errLin = 0;
-    private iEncoding enc;
     private Work work;
 
-    public Muc88(Work work, MUCInfo mucInfo, iEncoding enc) {
+    public Muc88(Work work, MUCInfo mucInfo) {
         this.work = work;
-        this.enc = enc;
         this.mucInfo = mucInfo;
     }
 
-    private FCOMPNextRtn SETHE() {
+    private NextAction SETHE() {
         if (CHCHK() != ChannelType.SSG) {
             throw new MucException(rb.getString("E0521"), mucInfo.getRow(), mucInfo.getCol());
         }
@@ -106,10 +105,10 @@ public class Muc88 {
         msub.MWRITE(new MmlDatum(0xff), new MmlDatum(0xf1));
         msub.MWRIT2(new MmlDatum(n));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETHEP() {
+    private NextAction SETHEP() {
         if (CHCHK() != ChannelType.SSG) {
             throw new MucException(rb.getString("E0520"), mucInfo.getRow(), mucInfo.getCol());
         }
@@ -124,10 +123,10 @@ public class Muc88 {
         msub.MWRITE(new MmlDatum(0xff), new MmlDatum(0xf2));
         msub.MWRITE(new MmlDatum(n), new MmlDatum(n >> 8));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETSEorSETHE() {
+    private NextAction SETSEorSETHE() {
         if (CHCHK() != ChannelType.SSG) return SETSE(); // SSG以外ならスロットディチューンコマンドとして動作
 
         return SETHE(); // SSGなら
@@ -135,7 +134,7 @@ public class Muc88 {
 
     // *ﾏｸﾛｾｯﾄ*
 
-    public FCOMPNextRtn SETMAC() {
+    public NextAction SETMAC() {
         mucInfo.getAndIncSrcCPtr();
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
         int n = msub.readData(mucInfo.getLin(), /*ref*/ ptr);
@@ -161,10 +160,10 @@ public class Muc88 {
         mucInfo.decSrcCPtr();
         mucInfo.setLin(mucInfo.getBasSrc().get(mucInfo.getSrcLinPtr()));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn ENDMAC() {
+    private NextAction ENDMAC() {
         work.adrStc -= 2;
         if (work.adrStc < 0) {
             throw new MucException(rb.getString("E0401"), mucInfo.getRow(), mucInfo.getCol());
@@ -179,7 +178,7 @@ public class Muc88 {
         mucInfo.decSrcCPtr();
         mucInfo.setLin(mucInfo.getBasSrc().get(mucInfo.getSrcLinPtr()));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     private void skipSpaceAndTab() {
@@ -197,12 +196,12 @@ public class Muc88 {
                 : (char) 0;
     }
 
-    private FCOMPNextRtn SETPTM() {
+    private NextAction SETPTM() {
         LinePos lp = new LinePos(mucInfo.document, mucInfo.getFnSrc(), mucInfo.getRow(),
                 mucInfo.getCol(), mucInfo.getSrcCPtr(), "", "", 0, 0, -1);
 
         mucInfo.getAndIncSrcCPtr();
-        byte beforeNote = msub.STTONE(); // KUMA:オクターブ情報などを含めた音符情報に変換
+        byte beforeNote = msub.STTONE(); // KUMA: オクターブ情報などを含めた音符情報に変換
         if (mucInfo.getCarry()) {
             throw new MucException(rb.getString("E0403"), mucInfo.getRow(), mucInfo.getCol());
         }
@@ -266,7 +265,7 @@ public class Muc88 {
 
         work.latestNote = 1; // KUMA:チェック用(音符)
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     private void PortamentMainEx(byte beforeNote, byte afterNote, int clk, int q) {
@@ -471,7 +470,7 @@ public class Muc88 {
     }
 
 
-    private FCOMPNextRtn SETPTM2() {
+    private NextAction SETPTM2() {
         msub.MWRIT2(new MmlDatum(0xf4)); // PTMDAT;
         msub.MWRIT2(new MmlDatum(0x00));
         msub.MWRIT2(new MmlDatum(0x01));
@@ -484,9 +483,7 @@ public class Muc88 {
 
         byte note = msub.STTONE(); // KUMA:オクターブ情報などを含めた音符情報に変換
         if (mucInfo.getCarry()) {
-            throw new MucException(
-                    rb.getString("E0403")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0403"), mucInfo.getRow(), mucInfo.getCol());
         }
 
         mucInfo.getAndIncSrcCPtr();
@@ -577,12 +574,12 @@ public class Muc88 {
         }
 
         mucInfo.getAndIncSrcCPtr();
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // *ﾘﾊﾞｰﾌﾞ*
 
-    private FCOMPNextRtn SETRV() {
+    private NextAction SETRV() {
         ChannelType tp = CHCHK();
         if (tp != ChannelType.FM && tp != ChannelType.SSG) {
             throw new MucException(
@@ -612,10 +609,10 @@ public class Muc88 {
         mucInfo.setSrcCPtr(ptr[0]);
         msub.MWRIT2(new MmlDatum(n));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETTMP() {
+    private NextAction SETTMP() {
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
         int n = msub.ERRT(mucInfo.getLin(), /*ref*/ ptr, rb.getString("E0410")); // T
         mucInfo.setSrcCPtr(ptr[0]);
@@ -654,7 +651,7 @@ public class Muc88 {
 
     // FLAGDATA SET
 
-    private FCOMPNextRtn SETFLG() {
+    private NextAction SETFLG() {
         mucInfo.getAndIncSrcCPtr();
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
         int n = msub.readData(mucInfo.getLin(), /*ref*/ ptr);
@@ -664,30 +661,30 @@ public class Muc88 {
         }
         msub.MWRITE(new MmlDatum(0xf9), new MmlDatum(n));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // ｼｮｳｾﾂﾏｰｸ
 
-    private FCOMPNextRtn SETSYO() {
+    private NextAction SETSYO() {
         mucInfo.getAndIncSrcCPtr();
 
         if (work.getPartReplaceSw()) {
-            return SetPartReplaceEnd();
+            return setPartReplaceEnd();
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // ﾁｭｳﾔｸ
-    private FCOMPNextRtn SETMEM() {
+    private NextAction SETMEM() {
         mucInfo.setSrcCPtr(mucInfo.getLin().getItem2().length());
-        return FCOMPNextRtn.fcomp1; // KUMA:NextLine
+        return NextAction.fcomp1; // KUMA:NextLine
     }
 
 
     // SET TAG & JUMP TO TAG
-    private FCOMPNextRtn SETTAG() {
+    private NextAction SETTAG() {
 
         work.jClock = work.tCnt[work.chipIndex][work.chipCh][work.pageNow];
         work.setJChCom(new ArrayList<>());
@@ -704,13 +701,13 @@ public class Muc88 {
 
         mucInfo.getAndIncSrcCPtr();
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
 
     // *HARD LFO*
 
-    private FCOMPNextRtn SETHLF() {
+    private NextAction SETHLF() {
         ChannelType tp = CHCHK();
         if (tp != ChannelType.FM) {
             throw new MucException(
@@ -744,12 +741,12 @@ public class Muc88 {
         msub.MWRIT2(new MmlDatum(n));
         args.add(n);
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // *STEREO PAN*
 
-    private FCOMPNextRtn SETLR() {
+    private NextAction SETLR() {
         ChannelType tp = CHCHK();
         if (tp == ChannelType.SSG && !mucInfo.getSSGExtend()) {
             writeWarning(rb.getString("W0407"), mucInfo.getRow(), mucInfo.getCol());
@@ -769,7 +766,7 @@ public class Muc88 {
                 v = msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0414"));
                 work.setRhythmPanMode(v != 0);
                 mucInfo.setSrcCPtr(ptr[0]);
-                return FCOMPNextRtn.fcomp1;
+                return NextAction.fcomp1;
             }
         }
 
@@ -846,14 +843,14 @@ public class Muc88 {
                     throw new MucException(String.format(rb.getString("E0526"), 255, v), mucInfo.getRow(), mucInfo.getCol());
                 }
                 if (tp == ChannelType.SSG && !mucInfo.getSSGExtend())
-                    return FCOMPNextRtn.fcomp1; // KUMA:互換の為。。。(SSGパートではnoise周波数設定コマンドとして動作)
+                    return NextAction.fcomp1; // KUMA:互換の為。。。(SSGパートではnoise周波数設定コマンドとして動作)
 
                 msub.MWRIT2(new MmlDatum(n2)); // ２こめ
             }
 
             // 
 
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         } else {
             int n2 = -1;
             if (c == ',') // 0x2c
@@ -897,19 +894,19 @@ public class Muc88 {
                 }
             }
 
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
     }
 
 
     // DIRECT count
-    private FCOMPNextRtn SETDCO() {
+    private NextAction SETDCO() {
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
         int n = msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0415"));
         mucInfo.setSrcCPtr(ptr[0]);
         work.count = (byte) n;
 
-        return FCOMPNextRtn.fcomp12;
+        return NextAction.fcomp12;
     }
 
     // SET HARD ENVE TYPE/FLAG
@@ -938,7 +935,7 @@ public class Muc88 {
     //}
 
     // BEFORE CODE
-    private FCOMPNextRtn SETBEF() {
+    private NextAction SETBEF() {
         int[] ptr = new int[1];
         int n;
 
@@ -953,7 +950,7 @@ public class Muc88 {
             msub.MWRIT2(new MmlDatum(work.getBeforeTone()[work.getBfDat() & 0xff] & 0xff));
             msub.MWRITE(new MmlDatum(0xfb), new MmlDatum(work.getVdDat() & 0xff));
 
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         ptr[0] = mucInfo.getSrcCPtr();
@@ -978,7 +975,7 @@ public class Muc88 {
                 : (char) 0;
         if (c != ',') // 0x2c
         {
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         ptr[0] = mucInfo.getSrcCPtr();
@@ -986,13 +983,13 @@ public class Muc88 {
         mucInfo.setSrcCPtr(ptr[0]);
 
         work.setVdDat((byte) n);
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
 
     // *TOTAL volume*
 
-    private FCOMPNextRtn TOTALV() {
+    private NextAction TOTALV() {
         int[] ptr = new int[1];
         ptr[0] = mucInfo.getSrcCPtr();
         int n = (byte) msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0418"));
@@ -1000,12 +997,12 @@ public class Muc88 {
 
         work.tvOfs = (byte) n;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // **REPEAT JUMP**
 
-    private FCOMPNextRtn SETRJP() {
+    private NextAction SETRJP() {
         mucInfo.getAndIncSrcCPtr();
 
         msub.MWRIT2(new MmlDatum(0xfe));
@@ -1031,10 +1028,10 @@ public class Muc88 {
         mucInfo.getBufLoopStack().set(HL, (byte) work.tCnt[work.chipIndex][work.chipCh][work.pageNow]);
         mucInfo.getBufLoopStack().set(HL + 1, (byte) (work.tCnt[work.chipIndex][work.chipCh][work.pageNow] >> 8));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    public FCOMPNextRtn SETKONorSETHE() {
+    public NextAction SETKONorSETHE() {
         if (mucInfo.getDriverType() != MUCInfo.DriverType.E) {
             return SETKON();
         } else {
@@ -1043,33 +1040,33 @@ public class Muc88 {
     }
 
     // *    KEY ON REVISE * added
-    public FCOMPNextRtn SETKON() {
+    public NextAction SETKON() {
         int[] ptr = new int[1];
         ptr[0] = mucInfo.getSrcCPtr();
         int n = (byte) msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0420"));
         mucInfo.setSrcCPtr(ptr[0]);
         work.setKeyOnR((byte) n);
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
 
     // *KEY SHIFT(k)*
 
-    private FCOMPNextRtn SETKST() {
+    private NextAction SETKST() {
         int[] ptr = new int[1];
         ptr[0] = mucInfo.getSrcCPtr();
         int n = (byte) msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0421"));
         mucInfo.setSrcCPtr(ptr[0]);
         work.siftDat = (byte) n;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
 
     // *KEY SHIFT(K)*
 
-    public FCOMPNextRtn SETKS2() {
+    public NextAction SETKS2() {
         char ch = mucInfo.getLin().getItem2().length() > (mucInfo.getSrcCPtr() + 1) ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr() + 1) : (char) 0;
         if (ch == 'D') {
             return SETKeyOnDelay();
@@ -1081,10 +1078,10 @@ public class Muc88 {
         mucInfo.setSrcCPtr(ptr[0]);
         work.siftDa2 = (byte) n;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETKeyOnDelay() {
+    private NextAction SETKeyOnDelay() {
         if (CHCHK() != ChannelType.FM) {
             throw new MucException(rb.getString("E0518"), mucInfo.getRow(), mucInfo.getCol());
         }
@@ -1107,23 +1104,23 @@ public class Muc88 {
         msub.MWRITE(new MmlDatum(n[0]), new MmlDatum(n[1]));
         msub.MWRITE(new MmlDatum(n[2]), new MmlDatum(n[3]));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
 
     // *!*
-    private FCOMPNextRtn COMOVR() {
+    private NextAction COMOVR() {
         work.setCompEndCmdFlag(true);
-        return FCOMPNextRtn.comovr;
+        return NextAction.comovr;
     }
 
-    private FCOMPNextRtn STRET() {
-        return FCOMPNextRtn.comovr;
+    private NextAction STRET() {
+        return NextAction.comovr;
     }
 
     // **TEMPO(TIMER_B) SET**
 
-    private FCOMPNextRtn TIMERB() {
+    private NextAction TIMERB() {
         int[] ptr = new int[1];
         ptr[0] = mucInfo.getSrcCPtr();
         int n = (byte) msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0423"));
@@ -1132,7 +1129,7 @@ public class Muc88 {
         return TIMEB2((byte) n);
     }
 
-    private FCOMPNextRtn TIMEB2(byte n) {
+    private NextAction TIMEB2(byte n) {
         if (!mucInfo.isExtendFormat()) {
             mucInfo.getBufDst().set(work.datTbl - 1, new MmlDatum(n & 0xff)); // TIMER_B ﾆ ｱﾜｾﾙ
         }
@@ -1143,7 +1140,7 @@ public class Muc88 {
 
         if (work.chipCh >= 3 && work.chipCh < 6) {
             writeWarning(rb.getString("W0412"), mucInfo.getRow(), mucInfo.getCol());
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
         if ((n & 0xff) >= 253 && (n & 0xff) <= 255) {
             writeWarning(rb.getString("W0413"), mucInfo.getRow(), mucInfo.getCol());
@@ -1154,38 +1151,38 @@ public class Muc88 {
             msub.MWRIT2(new MmlDatum(n & 0xff));
         } else {
             msub.MWRITE(new MmlDatum(0xff), new MmlDatum(0xf7));
-            msub.MWRITE(new MmlDatum(0x00), new MmlDatum(0x00)); // chip:0  port:0
+            msub.MWRITE(new MmlDatum(0x00), new MmlDatum(0x00)); // chips:0  port:0
             if (work.chipIndex != 4)
                 msub.MWRITE(new MmlDatum(0x26), new MmlDatum(n & 0xff)); // adr:0x26  dat:n
             else
                 msub.MWRITE(new MmlDatum(0x12), new MmlDatum(n & 0xff)); // adr:0x12  dat:n
         }
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn TIMEB2ex(byte n) {
+    private NextAction TIMEB2ex(byte n) {
         //if (Work.chipIndex == 0) {
         //    if (Work.chipCh < 3 || Work.chipCh >= 6) {
         //        msub.MWRITE(new MmlDatum(0xfa), new MmlDatum(0x26));
         //        msub.MWRIT2(new MmlDatum(n));
 
-        //        return FCOMPNextRtn.fcomp1;
+        //        return NextAction.fcomp1;
         //    }
         //}
 
         msub.MWRITE(new MmlDatum(0xff), new MmlDatum(0xf7));
-        msub.MWRITE(new MmlDatum(work.chipIndex), new MmlDatum(0x00)); // chip:0  port:0
+        msub.MWRITE(new MmlDatum(work.chipIndex), new MmlDatum(0x00)); // chips:0  port:0
         if (work.chipIndex != 4)
             msub.MWRITE(new MmlDatum(0x26), new MmlDatum(n & 0xff)); // adr:0x26  dat:n
         else
             msub.MWRITE(new MmlDatum(0x12), new MmlDatum(n & 0xff)); // adr:0x12  dat:n
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // **NOIZE WAVE**
 
-    private FCOMPNextRtn SETWAV() {
+    private NextAction SETWAV() {
 
         ChannelType tp = CHCHK();
         if (tp != ChannelType.SSG) {
@@ -1201,10 +1198,10 @@ public class Muc88 {
 
         msub.MWRITE(new MmlDatum(0xf8), new MmlDatum(n)); // COM OF 'w'
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETSEVorSETC3SP() {
+    private NextAction SETSEVorSETC3SP() {
         char ch = mucInfo.getLin().getItem2().length() > (mucInfo.getSrcCPtr() + 1) ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr() + 1) : (char) 0;
         if (ch == 'X') {
             return SETCh3SpecialMode();
@@ -1213,7 +1210,7 @@ public class Muc88 {
         return SETSEV();
     }
 
-    private FCOMPNextRtn SETMIXorSETPOR() {
+    private NextAction SETMIXorSETPOR() {
         char ch = mucInfo.getLin().getItem2().length() > (mucInfo.getSrcCPtr() + 1) ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr() + 1) : (char) 0;
         if (ch == 'O') {
             return SETPOR();
@@ -1224,7 +1221,7 @@ public class Muc88 {
 
     // **MIX PORT**
 
-    private FCOMPNextRtn SETMIX() {
+    private NextAction SETMIX() {
 
         ChannelType tp = CHCHK();
         if (tp != ChannelType.SSG) {
@@ -1253,10 +1250,10 @@ public class Muc88 {
         }
 
         msub.MWRITE(new MmlDatum(0xf7), new MmlDatum(n)); // COM OF 'P'
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETCh3SpecialMode() {
+    private NextAction SETCh3SpecialMode() {
         mucInfo.getAndIncSrcCPtr();
         char ch = mucInfo.getLin().getItem2().length() > (mucInfo.getSrcCPtr() + 1) ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr() + 1) : (char) 0;
         if (ch == 'O') {
@@ -1297,10 +1294,10 @@ public class Muc88 {
         msub.MWRITE(new MmlDatum(0xff), new MmlDatum(0xf8));
         msub.MWRITE(new MmlDatum(0x01), new MmlDatum(sw));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETCh3SpecialMode_SW() {
+    private NextAction SETCh3SpecialMode_SW() {
         mucInfo.getAndIncSrcCPtr();
         char ch = mucInfo.getLin().getItem2().length() > (mucInfo.getSrcCPtr() + 1) ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr() + 1) : (char) 0;
         int sw = -1;
@@ -1321,10 +1318,10 @@ public class Muc88 {
         msub.MWRITE(new MmlDatum(0xff), new MmlDatum(0xf8));
         msub.MWRITE(new MmlDatum(0x00), new MmlDatum(sw));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETPOR() {
+    private NextAction SETPOR() {
         mucInfo.getAndIncSrcCPtr();
         char ch = mucInfo.getLin().getItem2().length() > (mucInfo.getSrcCPtr() + 1) ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr() + 1) : (char) 0;
         if (ch == 'S') {
@@ -1376,10 +1373,10 @@ public class Muc88 {
         n = Math.max(n, 0);
         work.porTime = n;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETPOR_SW() {
+    private NextAction SETPOR_SW() {
         mucInfo.getAndIncSrcCPtr();
 
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
@@ -1387,10 +1384,10 @@ public class Muc88 {
         mucInfo.setSrcCPtr(ptr[0]);
         work.porSW = n;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETPOR_RST() {
+    private NextAction SETPOR_RST() {
         mucInfo.getAndIncSrcCPtr();
 
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
@@ -1399,10 +1396,10 @@ public class Muc88 {
         work.porDelta = n;
         work.porOldNote = -1;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETPOR_TIM() {
+    private NextAction SETPOR_TIM() {
         mucInfo.getAndIncSrcCPtr();
 
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
@@ -1411,10 +1408,10 @@ public class Muc88 {
         n = Math.max(n, 0);
         work.porTime = n;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETPinPOR() {
+    private NextAction SETPinPOR() {
         mucInfo.getAndIncSrcCPtr();
         work.porPin = 1;
         char ch = mucInfo.getLin().getItem2().length() > mucInfo.getSrcCPtr() ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr()) : (char) 0;
@@ -1423,12 +1420,12 @@ public class Muc88 {
             work.porPin = 2;
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // **SOFT ENVELOPE**
 
-    private FCOMPNextRtn SETSEV() {
+    private NextAction SETSEV() {
 
         int[] ptr = new int[1];
         int n;
@@ -1462,7 +1459,7 @@ public class Muc88 {
 
     // **Q**
 
-    private FCOMPNextRtn SETQLG() {
+    private NextAction SETQLG() {
         int[] ptr = new int[1];
         ptr[0] = mucInfo.getSrcCPtr();
         int n = msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0431"));
@@ -1471,11 +1468,11 @@ public class Muc88 {
 
         msub.MWRITE(new MmlDatum(0xf3), new MmlDatum(n)); // COM OF 'q'
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     /** JUMP ADDRESS SET */
-    private FCOMPNextRtn SETJMP() {
+    private NextAction SETJMP() {
         mucInfo.getAndIncSrcCPtr();
 
         int hl = work.mData;
@@ -1494,12 +1491,12 @@ public class Muc88 {
 
         work.lCnt[work.chipIndex][c][work.pageNow] = work.tCnt[work.chipIndex][c][work.pageNow] + 1; // +1('L'ﾌﾗｸﾞﾉ ｶﾜﾘ)
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // **SE DETUNE ﾉ ｾｯﾃｲ**
 
-    private FCOMPNextRtn SETSE() {
+    private NextAction SETSE() {
 
         if (work.chipCh != 2) {
             // 3 Ch ｲｶﾞｲﾅﾗ ERROR
@@ -1558,10 +1555,10 @@ public class Muc88 {
             // mucInfo.needNormalMucom = true;
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETSE1(int b, String errCodeFmt, String errCodeVal) {
+    private NextAction SETSE1(int b, String errCodeFmt, String errCodeVal) {
         do {
             char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length() ?
                     mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
@@ -1588,10 +1585,10 @@ public class Muc88 {
             b--;
         } while (b != 0);
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETLPE() {
+    private NextAction SETLPE() {
         int[] ptr = new int[1];
 
         ptr[0] = mucInfo.getSrcCPtr();
@@ -1653,18 +1650,18 @@ public class Muc88 {
         backupAdr += ofs;
         work.tCnt[work.chipIndex][work.chipCh][work.pageNow] = backupAdr;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     /** LOOP START */
-    private FCOMPNextRtn SETLPS() {
+    private NextAction SETLPS() {
 
         mucInfo.getAndIncSrcCPtr();
 
         char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length() ?
                 mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr()) : (char) 0;
         if (c == '|') { // 0x2c
-            return SetPartReplaceStart();
+            return setPartReplaceStart();
         }
 
         msub.MWRIT2(new MmlDatum(0xf5)); // com of loopstart
@@ -1691,12 +1688,12 @@ public class Muc88 {
             throw new MucException(rb.getString("E0438"), mucInfo.getRow(), mucInfo.getCol());
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // **REST**
 
-    private FCOMPNextRtn SETRST() {
+    private NextAction SETRST() {
 
         if (mucInfo.getDriverType() == MUCInfo.DriverType.DotNet) {
             return SETRST_DotNET();
@@ -1822,10 +1819,10 @@ public class Muc88 {
 
         work.latestNote = 2; // KUMA:チェック用(休符)
 
-        return FCOMPNextRtn.fcomp12;
+        return NextAction.fcomp12;
     }
 
-    private FCOMPNextRtn SETRST_DotNET() {
+    private NextAction SETRST_DotNET() {
         int[] ptr = new int[1];
         int kotae;
 
@@ -1942,10 +1939,10 @@ public class Muc88 {
 
         work.latestNote = 2; // KUMA:チェック用(休符)
 
-        return FCOMPNextRtn.fcomp12;
+        return NextAction.fcomp12;
     }
 
-    private FCOMPNextRtn SETMOD() {
+    private NextAction SETMOD() {
         int ix = 0;
 
         mucInfo.getAndIncSrcCPtr();
@@ -2036,17 +2033,17 @@ public class Muc88 {
                 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
                 : (char) 0;
         if (c != ',') { // 0x2c
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         ptr[0] = mucInfo.getSrcCPtr();
         msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0442"));
         mucInfo.setSrcCPtr(ptr[0]);
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETMO2() {
+    private NextAction SETMO2() {
         int iy;
         int[] ptr = new int[1];
         int n;
@@ -2071,7 +2068,7 @@ public class Muc88 {
             n++; // SECOND COM
             work.lfoData[0] = (byte) (n & 0xff);
             msub.MWRIT2(new MmlDatum(n)); // 'MF0' or 'MF1'
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         // MO4:
@@ -2107,7 +2104,7 @@ public class Muc88 {
             work.lfoData[iy + 2] = 0;
             msub.MWRITE(new MmlDatum(n), new MmlDatum(n >> 8));
 
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
         // M07:
         iy += 3;
@@ -2145,7 +2142,7 @@ public class Muc88 {
 
         msub.MWRITE(new MmlDatum(7), new MmlDatum(n));
         if (n == 0 || tp == ChannelType.SSG) {
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         // M083:
@@ -2162,14 +2159,14 @@ public class Muc88 {
 
         msub.MWRIT2(new MmlDatum(n));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     // **PARAMETER SET**
 
     // IN: A<= COM No.
 
-    public FCOMPNextRtn MODP2(int iy, byte a, String typ) {
+    public NextAction MODP2(int iy, byte a, String typ) {
         work.lfoData[0] = a;
         msub.MWRIT2(new MmlDatum(a & 0xff));
 
@@ -2186,10 +2183,10 @@ public class Muc88 {
         work.lfoData[iy] = (byte) (n & 0xff);
         msub.MWRIT2(new MmlDatum(n));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETREG() {
+    private NextAction SETREG() {
         ChannelType tp = CHCHK();
         if (tp == ChannelType.SSG) {
             writeWarning(rb.getString("W0406"), mucInfo.getRow(), mucInfo.getCol());
@@ -2219,7 +2216,7 @@ public class Muc88 {
         return SETR1(n);
     }
 
-    private FCOMPNextRtn SETR1(int n) {
+    private NextAction SETR1(int n) {
         msub.MWRITE(new MmlDatum(0xfa), new MmlDatum(n)); // COM OF 'y'
 
         char c = mucInfo.getLin().getItem2().length() > mucInfo.getSrcCPtr() ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr()) : (char) 0;
@@ -2242,10 +2239,10 @@ public class Muc88 {
 
         msub.MWRIT2(new MmlDatum(n)); // SET DATA ONLY
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETR1ex(int n) {
+    private NextAction SETR1ex(int n) {
         int n1 = n, n2, n3, n4;
 
         // n2
@@ -2269,7 +2266,7 @@ public class Muc88 {
         if (c != ',') { // 0x2c
             msub.MWRITE(new MmlDatum(0xfa), new MmlDatum(n1));
             msub.MWRIT2(new MmlDatum(n2));
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
         mucInfo.getAndIncSrcCPtr();
         ptr[0] = mucInfo.getSrcCPtr();
@@ -2303,10 +2300,10 @@ public class Muc88 {
         msub.MWRITE(new MmlDatum(n1), new MmlDatum(n2));
         msub.MWRITE(new MmlDatum(n3), new MmlDatum(n4));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETR2() {
+    private NextAction SETR2() {
         // --yXX(ﾓｼﾞﾚﾂ),OpNo.,DATA--
 
         int i = 0;
@@ -2395,9 +2392,9 @@ public class Muc88 {
             , "SE\0"
     };
 
-    private FCOMPNextRtn SETTIE() {
+    private NextAction SETTIE() {
         SETTI1();
-        return FCOMPNextRtn.fcomp12;
+        return NextAction.fcomp12;
     }
 
     public void SETTI1() {
@@ -2406,7 +2403,7 @@ public class Muc88 {
         msub.MWRIT2(new MmlDatum(0xfd));
     }
 
-    public FCOMPNextRtn SETTI2() {
+    public NextAction SETTI2() {
 
         if (work.latestNote != 1) {
             throw new MucException(rb.getString("E0528"), mucInfo.getRow(), mucInfo.getCol());
@@ -2419,21 +2416,21 @@ public class Muc88 {
     }
 
 
-    private FCOMPNextRtn SETVUP() {
+    private NextAction SETVUP() {
         if (work.volumeUDFlag != 0) {
             return SVD2();
         }
         return SVU2();
     }
 
-    public FCOMPNextRtn SETVDW() {
+    public NextAction SETVDW() {
         if (work.volumeUDFlag != 0) {
             return SVU2();
         }
         return SVD2();
     }
 
-    public FCOMPNextRtn SVU2() {
+    public NextAction SVU2() {
 
         mucInfo.getAndIncSrcCPtr();
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
@@ -2452,7 +2449,7 @@ public class Muc88 {
         return SetRelativeVolume((byte) n);
     }
 
-    public FCOMPNextRtn SVD2() {
+    public NextAction SVD2() {
 
         mucInfo.getAndIncSrcCPtr();
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
@@ -2471,7 +2468,7 @@ public class Muc88 {
         return SetRelativeVolume((byte) n);
     }
 
-    private FCOMPNextRtn SetRelativeVolume(byte n) {
+    private NextAction SetRelativeVolume(byte n) {
         work.volume += n;
 
         if (mucInfo.getDriverType() == MUCInfo.DriverType.DotNet) {
@@ -2484,32 +2481,32 @@ public class Muc88 {
                 }
 
                 msub.MWRITE(new MmlDatum(0xfb), new MmlDatum(m & 0xff));
-                return FCOMPNextRtn.fcomp1;
+                return NextAction.fcomp1;
             }
         }
 
         msub.MWRITE(new MmlDatum(0xfb), new MmlDatum(n & 0xff));
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
 
-    private FCOMPNextRtn SETODW() {
+    private NextAction SETODW() {
         SOD1();
         if (mucInfo.getCarry()) {
             throw new MucException(rb.getString("E0469"), mucInfo.getRow(), mucInfo.getCol());
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETOUP() {
+    private NextAction SETOUP() {
 
         SOU1();
         if (mucInfo.getCarry()) {
             throw new MucException(rb.getString("E0471"), mucInfo.getRow(), mucInfo.getCol());
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     public void SOU1() {
@@ -2552,7 +2549,7 @@ public class Muc88 {
     }
 
 
-    private FCOMPNextRtn SETVOL() {
+    private NextAction SETVOL() {
         ChannelType tp;
         char c;
 
@@ -2581,7 +2578,7 @@ public class Muc88 {
                         mucInfo.setSrcCPtr(ptr[0]);
                         work.setRhythmRelMode(false);
                         if (n != 0) work.setRhythmRelMode(true);
-                        return FCOMPNextRtn.fcomp1;
+                        return NextAction.fcomp1;
                     }
 
                     tp = CHCHK();
@@ -2617,7 +2614,7 @@ public class Muc88 {
                             }
                         }
 
-                        return FCOMPNextRtn.fcomp1;
+                        return NextAction.fcomp1;
                     }
                 }
             }
@@ -2691,7 +2688,7 @@ public class Muc88 {
                     msub.MWRITE(new MmlDatum((d[1] & 0xff) + work.tvOfs), new MmlDatum((d[2] & 0xff) + work.tvOfs));
                     msub.MWRIT2(new MmlDatum((d[3] & 0xff) + work.tvOfs));
                 }
-                return FCOMPNextRtn.fcomp1;
+                return NextAction.fcomp1;
             }
 
             return SETVOL_Rhythm(n);
@@ -2710,12 +2707,12 @@ public class Muc88 {
                 msub.MWRIT2(new MmlDatum((d[3] & 0xff) + work.tvOfs));
             }
 
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
 
         }
     }
 
-    private FCOMPNextRtn SETVOL_Rhythm(int n) {
+    private NextAction SETVOL_Rhythm(int n) {
         List<Object> args = new ArrayList<>();
         args.add(n);
         LinePos lp = new LinePos(
@@ -2752,7 +2749,7 @@ public class Muc88 {
                         m2.args.set(0, m.dat & 0x7f); // KUMA:引数もクリップしたものに入れ替える
                         mucInfo.getBufDst().set(work.mData - 2, m2);
 
-                        return FCOMPNextRtn.fcomp1;
+                        return NextAction.fcomp1;
                     }
                 }
 
@@ -2768,10 +2765,10 @@ public class Muc88 {
             msub.MWRIT2(new MmlDatum(n));
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETVOL_ADPCM() {
+    private NextAction SETVOL_ADPCM() {
 
         // -PCMVOL-
         mucInfo.getAndIncSrcCPtr();
@@ -2806,7 +2803,7 @@ public class Muc88 {
                     0, work.chipIndex % 2, work.chipCh * 10 + work.pageNow);
 
             msub.MWRITE(new MmlDatum(MMLType.Volume, args, lp, 0xf1), new MmlDatum(n));
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         msub.MWRITE(new MmlDatum(0xff), new MmlDatum(0xf0));
@@ -2834,10 +2831,10 @@ public class Muc88 {
         mucInfo.setVM(n);
         msub.MWRIT2(new MmlDatum(n)); // SET DATA ONLY
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETDT() {
+    private NextAction SETDT() {
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
         int n = msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0480"));
         if (mucInfo.getErrSign())
@@ -2873,10 +2870,10 @@ public class Muc88 {
         }
         msub.MWRIT2(new MmlDatum(c));
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETLIZ() {
+    private NextAction SETLIZ() {
         char c = mucInfo.getLin().getItem2().length() > mucInfo.getSrcCPtr() + 1 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr() + 1) : (char) 0;
         if (c == '%') { // 0x2c
             mucInfo.getAndIncSrcCPtr();
@@ -2911,10 +2908,10 @@ public class Muc88 {
 
         work.count += bf;
 
-        return FCOMPNextRtn.fcomp12;
+        return NextAction.fcomp12;
     }
 
-    private FCOMPNextRtn SETOCT() {
+    private NextAction SETOCT() {
 
         mucInfo.getAndIncSrcCPtr();
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
@@ -2937,10 +2934,10 @@ public class Muc88 {
         work.octave = n;
         work.octInt = n;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SETCOL() {
+    private NextAction SETCOL() {
 
         // 音色名による指定か
         mucInfo.getAndIncSrcCPtr();
@@ -2950,7 +2947,7 @@ public class Muc88 {
         char w = '\0';
         if (c == '\"') {
             SETVN(); // 文字列による指定
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
         if (c == 'I' || c == 'W') {
             w = c;
@@ -3012,13 +3009,13 @@ public class Muc88 {
             }
 
             STCL2(n); // FM
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         return STCL72(n); // RHY&PCM
     }
 
-    private FCOMPNextRtn SETSSGPreset(int n) {
+    private NextAction SETSSGPreset(int n) {
         msub.MWRITE(new MmlDatum(0xfc), new MmlDatum(n)); // @= command
 
         int[] ptr = new int[1];
@@ -3046,7 +3043,7 @@ public class Muc88 {
         mucInfo.getAndIncSrcCPtr();
         int voiBPtr = 0x20 + 26; // 0x6020 + 26;
         int num = 1;
-        var sjis = enc.getSjisArrayFromString(mucInfo.getLin().getItem2());
+        var sjis = mucInfo.getLin().getItem2().getBytes(Common.fileEncoding);
 
         do {
             int srcPtr = mucInfo.getSrcCPtr();
@@ -3117,7 +3114,7 @@ public class Muc88 {
         throw new MucException(rb.getString("E0492"), mucInfo.getRow(), mucInfo.getCol());
     }
 
-    public FCOMPNextRtn STCL5(int num, char wav) {
+    public NextAction STCL5(int num, char wav) {
 
         List<Object> args = new ArrayList<>();
         args.add(0); // dummy
@@ -3143,17 +3140,17 @@ public class Muc88 {
                 //if (!mucInfo.useSSGWavNum.Contains((byte)num))
                 //    mucInfo.useSSGWavNum.Add((byte)num);
             }
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         msub.MWRITE(new MmlDatum(MMLType.Instrument, args, lp, 0xf0), new MmlDatum(num));
 
         if (work.getPsgMd() != 0) {
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         if (mucInfo.getSSGExtend() && wav != '\0') {
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         int HL = num * 16;
@@ -3161,7 +3158,7 @@ public class Muc88 {
         msub.MWRIT2(new MmlDatum(SSGLIB[HL] & 0xff));
         HL += 8;
         if (SSGLIB[HL] == 1) {
-            return FCOMPNextRtn.fcomp1;
+            return NextAction.fcomp1;
         }
 
         int DE = work.mData;
@@ -3173,10 +3170,10 @@ public class Muc88 {
         }
         work.mData = DE;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    public FCOMPNextRtn STCL72(int num) {
+    public NextAction STCL72(int num) {
         ChannelType tp = CHCHK();
 
         List<Object> args = new ArrayList<>();
@@ -3201,7 +3198,7 @@ public class Muc88 {
         if (tp == ChannelType.ADPCM) work.pcmFlag = 1;
         if (work.chipIndex > 1 && tp == ChannelType.RHYTHM) work.pcmFlag = 1;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     public static final byte[] SSGLIB = new byte[] {
@@ -3318,7 +3315,7 @@ public class Muc88 {
         FM, SSG, RHYTHM, ADPCM
     }
 
-    private FCOMPNextRtn SETCLK() {
+    private NextAction SETCLK() {
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
         int n = msub.ERRT(mucInfo.getLin(), /*ref*/ptr, rb.getString("E0493"));
         if (mucInfo.getErrSign())
@@ -3348,14 +3345,14 @@ public class Muc88 {
         }
 
         work.clock = n;
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     int getErrorLine() {
         return mucInfo.getRow(); // errLin;
     }
 
-    int COMPIL() {
+    int compile() {
         work.chipIndex = 0;
         work.chipCh = 0;
         //work.MAXCH = 11;
@@ -3365,12 +3362,12 @@ public class Muc88 {
         work.setJpLine(-1);
         work.setJpCol(-1);
 
-        mucInfo.setExtendFormat(CheckExtendFormat());
+        mucInfo.setExtendFormat(checkExtendFormat());
 
         work.currentChipName = "YM2608";
         work.currentPartType = "FM";
 
-        INIT();
+        init();
         if (work.linCfg != 0) {
             return COMPI3();
         }
@@ -3391,9 +3388,9 @@ public class Muc88 {
 
     public int COMPI3() {
         work.datTbl = work.muTop + 1;
-        work.mData = work.muTop + 0x2f; // 11ch * 4byte + 3byte    (DATTBLの大きさ?)
+        work.mData = work.muTop + 0x2f; // 11ch * 4byte + 3byte (DATTBLの大きさ?)
 
-        // KUMA:ページ機能を使う場合は0番地からデータを配置する
+        // KUMA: ページ機能を使う場合は 0 番地からデータを配置する
         if (mucInfo.isExtendFormat()) work.mData = 0;
 
         work.backupMData = work.mData;
@@ -3637,7 +3634,7 @@ public class Muc88 {
         return -1;
     }
 
-    public boolean CheckExtendFormat() {
+    public boolean checkExtendFormat() {
         if (mucInfo.getSSGExtend()) return true;
 
         int srcLinPtr = -1;
@@ -3883,7 +3880,7 @@ public class Muc88 {
         mucInfo.setSrcCPtr(0);
         mucInfo.setSrcLinPtr(-1);
 
-        INIT();
+        init();
 
         if (work.repCount != 0) {
             throw new MucException(rb.getString("E0498"), mucInfo.getRow(), mucInfo.getCol());
@@ -3901,7 +3898,7 @@ public class Muc88 {
     /**
      * パートごとに呼ばれる初期化処理
      */
-    public void INIT() {
+    public void init() {
         work.lfoData[0] = 1;
         work.octave = 5;
         work.count = 24;
@@ -3994,7 +3991,7 @@ public class Muc88 {
                 // KUMA:見つからなかった
             } else {
                 vAdr = work.fmlib + 1;
-                bufVoi = mdsound.Common.toByteArray(mucInfo.getMmlVoiceDataWork());
+                bufVoi = toByteArray(mucInfo.getMmlVoiceDataWork());
             }
 
             // mucomDotNET 独自
@@ -4081,7 +4078,7 @@ public class Muc88 {
     public void DispHex4(int n, int pos) {
         String h = "000" + Integer.toHexString(n); // pr end adr
         h = h.substring(h.length() - 4, h.length() - 4 + 4);
-        byte[] data = enc.getSjisArrayFromString(h);
+        byte[] data = h.getBytes(Common.fileEncoding);
         for (int i = 0; i < data.length; i++) mucInfo.getBufTitle().set(pos + i, data[i] & 0xff);
     }
 
@@ -4106,7 +4103,7 @@ public class Muc88 {
         } while (c != ' ' && c != '\t'); // ONE SPACE?
 
         mucInfo.setErrSign(false);
-        FCOMPNextRtn ret = FCOMPNextRtn.fcomp1;
+        NextAction ret = NextAction.fcomp1;
 
         do {
             switch (ret) {
@@ -4124,33 +4121,33 @@ public class Muc88 {
 //                break;
             }
 
-            if (ret == FCOMPNextRtn.occuredERROR) {
+            if (ret == NextAction.occuredERROR) {
                 mucInfo.setErrSign(true);
                 return EnmFMCOMPrtn.error;
             }
-            if (ret == FCOMPNextRtn.comovr) {
+            if (ret == NextAction.comovr) {
                 return EnmFMCOMPrtn.nextPart;
             }
 
-        } while (ret != FCOMPNextRtn.NextLine);
+        } while (ret != NextAction.NextLine);
 
         return EnmFMCOMPrtn.normal;
     }
 
-    public FCOMPNextRtn FCOMP1() {
+    public NextAction FCOMP1() {
         work.befRst = 0;
         work.tieFg = 0;
-        return FCOMPNextRtn.fcomp12;
+        return NextAction.fcomp12;
     }
 
-    public FCOMPNextRtn FCOMP12() {
+    public NextAction FCOMP12() {
         char c;
         do {
             c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
                     ? mucInfo.getLin().getItem2().charAt(mucInfo.getAndIncSrcCPtr())
                     : (char) 0;
             if (c == 0) // DATA END?
-                return FCOMPNextRtn.NextLine; // ﾂｷﾞ ﾉ ｷﾞｮｳﾍ
+                return NextAction.NextLine; // ﾂｷﾞ ﾉ ｷﾞｮｳﾍ
         } while (c == ' ' || c == '\t'); // CHECK SPACE
 
         mucInfo.decSrcCPtr();
@@ -4180,15 +4177,14 @@ public class Muc88 {
         }
 
         if (work.getCom() != 0) {
-            return FCOMPNextRtn.comprc;
+            return NextAction.comprc;
         }
 
         // 音符の解析
         byte note = msub.STTONE();
         if (mucInfo.getCarry()) {
-            return FCOMPNextRtn.occuredERROR;
+            return NextAction.occuredERROR;
         }
-
 
         // ポルタメント制御
         if ((work.porSW != 0 && work.porPin == 0) || (work.porSW == 0 && work.porPin != 0)) {
@@ -4212,10 +4208,10 @@ public class Muc88 {
             FC162(note);
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn analyzePor(byte note) {
+    private NextAction analyzePor(byte note) {
         mucInfo.getAndIncSrcCPtr();
 
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
@@ -4276,7 +4272,7 @@ public class Muc88 {
         work.porOldNote = note;
         work.porPin = 0;
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     private void FC162(int note) {
@@ -4329,7 +4325,7 @@ public class Muc88 {
     }
 
 
-    private FCOMPNextRtn FCOMP13(int note) {
+    private NextAction FCOMP13(int note) {
         work.mData -= 3;
 
         int ptr[] = new int[] {mucInfo.getSrcCPtr()};
@@ -4352,7 +4348,7 @@ public class Muc88 {
         clk[0] = (byte) n;
         FCOMP17(note, clk[0]);
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
     public byte FCOMP1X(byte clk) {
@@ -4446,10 +4442,11 @@ public class Muc88 {
         work.getBeforeTone()[0] = (byte) (note & 0xff);
     }
 
-    public FCOMPNextRtn COMPRC() {
-        Supplier<FCOMPNextRtn> act = COMTBL[work.getCom() - 1];
+    public NextAction COMPRC() {
+        Supplier<NextAction> act = COMTBL[work.getCom() - 1];
         if (act == null) {
-            return FCOMPNextRtn.occuredERROR;
+Debug.println(Level.FINE, "no NextAction: " + (work.getCom() - 1));
+            return NextAction.occuredERROR;
         }
 
         Debug.printf(Level.FINEST, act.toString());
@@ -4457,8 +4454,7 @@ public class Muc88 {
         return act.get();
     }
 
-
-    private FCOMPNextRtn SetPartReplaceStart() {
+    private NextAction setPartReplaceStart() {
         mucInfo.getAndIncSrcCPtr();
         work.setPartReplaceSw(true);
 
@@ -4470,7 +4466,7 @@ public class Muc88 {
             if (c == 0) {
                 mucInfo.getAndIncSrcCPtr();
                 work.setPartReplaceSw(false);
-                return FCOMPNextRtn.fcomp1;
+                return NextAction.fcomp1;
             }
             if (c == '|') { // 0x2c
                 c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length() ?
@@ -4478,16 +4474,16 @@ public class Muc88 {
                 if (c == ']') {
                     mucInfo.getAndIncSrcCPtr();
                     work.setPartReplaceSw(false);
-                    return FCOMPNextRtn.fcomp1;
+                    return NextAction.fcomp1;
                 }
                 p--;
             }
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    private FCOMPNextRtn SetPartReplaceEnd() {
+    private NextAction setPartReplaceEnd() {
         // もし|の場合は最後の|]または行端までスキップ
         // ただし行端の場合はパートリプレイス処理続行
         while (true) {
@@ -4515,10 +4511,10 @@ public class Muc88 {
             }
         }
 
-        return FCOMPNextRtn.fcomp1;
+        return NextAction.fcomp1;
     }
 
-    enum FCOMPNextRtn {
+    enum NextAction {
         Unknown,
         NextLine,
         comprc,

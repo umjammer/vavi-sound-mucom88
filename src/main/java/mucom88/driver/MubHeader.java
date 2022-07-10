@@ -8,10 +8,10 @@ import dotnet4j.util.compat.StringUtilities;
 import dotnet4j.util.compat.Tuple;
 import mucom88.common.Common;
 import mucom88.common.MubException;
-import mucom88.common.MyEncoding;
-import mucom88.common.iEncoding;
 import musicDriverInterface.MmlDatum;
 import vavi.util.Debug;
+
+import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 
 
 public class MubHeader {
@@ -33,7 +33,6 @@ public class MubHeader {
     public int pad1 = 0;
     public byte[] extFmVoice = new byte[32];
     private MmlDatum[] srcBuf;
-    private iEncoding enc= MyEncoding.Default();
     public MupbInfo mupb;
     private int mupbDataPtr;
     public boolean carrierCorrection;
@@ -247,7 +246,7 @@ e.printStackTrace();
             }
 //Debug.println(srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.size());
 
-            return getTagsByteArray(mdsound.Common.toByteArray(lb));
+            return getTagsByteArray(toByteArray(lb));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -264,7 +263,7 @@ e.printStackTrace();
                 lb.add((byte) (srcBuf[pcmDataPtr[id] + i].dat & 0xff));
             }
 
-            return mdsound.Common.toByteArray(lb);
+            return toByteArray(lb);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -272,7 +271,7 @@ e.printStackTrace();
     }
 
     private List<Tuple<String, String>> getTagsByteArray(byte[] buf) {
-        var text = Arrays.stream(enc.getStringFromSjisArray(buf).split("\n"))
+        var text = Arrays.stream(new String(buf, Common.fileEncoding).split("\r\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
 
         List<Tuple<String, String>> tags = new ArrayList<>();
@@ -284,7 +283,7 @@ e.printStackTrace();
                 if (p >= 0) {
                     tag = v.substring(1, 1 + p).trim().toLowerCase();
                     ele = v.substring(p + 1).trim();
-                    Tuple<String, String> item = new Tuple<String, String>(tag, ele);
+                    Tuple<String, String> item = new Tuple<>(tag, ele);
                     tags.add(item);
                 }
             } catch (Exception e) {

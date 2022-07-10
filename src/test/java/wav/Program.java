@@ -8,11 +8,10 @@ import dotnet4j.io.File;
 import dotnet4j.io.Path;
 import dotnet4j.util.compat.StringUtilities;
 import dotnet4j.util.compat.Tuple;
-import mdsound.LogLevel;
 import mdsound.MDSound;
-import mdsound.Ym2151;
-import mdsound.Ym2608;
-import mdsound.Ym2610;
+import mdsound.instrument.Ym2151Inst;
+import mdsound.instrument.Ym2608Inst;
+import mdsound.instrument.Ym2610Inst;
 import mucom88.common.MucomChipAction;
 import mucom88.driver.Driver;
 import mucom88.driver.MubHeader;
@@ -69,48 +68,33 @@ class Program {
             List<MDSound.Chip> chips = new ArrayList<>();
             MDSound.Chip chip;
 
-            Ym2608 ym2608 = new Ym2608();
+            Ym2608Inst ym2608 = new Ym2608Inst();
             for (int i = 0; i < 2; i++) {
                 chip = new MDSound.Chip();
-                chip.type = MDSound.InstrumentType.YM2608;
                 chip.id = (byte) i;
                 chip.instrument = ym2608;
-                chip.update = ym2608::update;
-                chip.start = ym2608::start;
-                chip.stop = ym2608::stop;
-                chip.reset = ym2608::reset;
                 chip.samplingRate = SamplingRate;
                 chip.clock = opnaMasterClock;
                 chip.volume = 0;
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
-            Ym2610 ym2610 = new Ym2610();
+            Ym2610Inst ym2610 = new Ym2610Inst();
             for (int i = 0; i < 2; i++) {
                 chip = new MDSound.Chip();
-                chip.type = MDSound.InstrumentType.YM2610;
                 chip.id = (byte) i;
                 chip.instrument = ym2610;
-                chip.update = ym2610::update;
-                chip.start = ym2610::start;
-                chip.stop = ym2610::stop;
-                chip.reset = ym2610::reset;
                 chip.samplingRate = SamplingRate;
                 chip.clock = opnbMasterClock;
                 chip.volume = 0;
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
-            Ym2151 ym2151 = new Ym2151();
+            Ym2151Inst ym2151 = new Ym2151Inst();
             for (int i = 0; i < 1; i++) {
                 chip = new MDSound.Chip();
-                chip.type = MDSound.InstrumentType.YM2151;
                 chip.id = (byte) i;
                 chip.instrument = ym2151;
-                chip.update = ym2151::update;
-                chip.start = ym2151::start;
-                chip.stop = ym2151::stop;
-                chip.reset = ym2151::reset;
                 chip.samplingRate = SamplingRate;
                 chip.clock = opmMasterClock;
                 chip.volume = 0;
@@ -180,10 +164,6 @@ class Program {
         return 0;
     }
 
-    static void WriteLine(LogLevel level, String msg) {
-        System.err.printf("[%-7s] %s", level, msg);
-    }
-
     private static int analyzeOption(String[] args) {
         int i = 0;
         loop = 2;
@@ -225,8 +205,8 @@ class Program {
             }
         }
         if (dat.address == -1) return;
-        //Debug.printf(Level.FINEST, String.format("FM P%d Out:Adr[%02x] val[%02x]", (int)dat.address, (int)dat.data,dat.port));
-        mds.writeYM2608((byte) 0, (byte) dat.port, (byte) dat.address, (byte) dat.data);
+        //Debug.printf(Level.FINEST, String.format("FM P%d Out:adr[%02x] val[%02x]", (int)dat.address, (int)dat.data,dat.port));
+        mds.writeYm2608((byte) 0, (byte) dat.port, (byte) dat.address, (byte) dat.data);
     }
 
     private static void OPNAWaitSend(long elapsed, int size) {
@@ -290,9 +270,9 @@ class Program {
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d Adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
+        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
 
-        mds.writeYM2608((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
+        mds.writeYm2608((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
     }
 
     private static void writeOPNB(int chipId, ChipDatum dat) {
@@ -304,18 +284,18 @@ class Program {
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, String.format("Out ChipB:%d Port:%d Adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
+        Debug.printf(Level.FINEST, String.format("Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
 
-        mds.writeYM2610((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
+        mds.writeYm2610((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
     }
 
     private static void writeOPNBAdpcmA(int chipId, byte[] pcmData) {
-        mds.writeYM2610SetAdpcmA((byte) chipId, pcmData);
+        mds.writeYm2610SetAdpcmA((byte) chipId, pcmData);
 
     }
 
     private static void writeOPNBAdpcmB(int chipId, byte[] pcmData) {
-        mds.writeYM2610SetAdpcmB((byte) chipId, pcmData);
+        mds.writeYm2610SetAdpcmB((byte) chipId, pcmData);
 
     }
 
@@ -328,9 +308,9 @@ class Program {
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, String.format("Out OPMChip:%d Port:%d Adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
+        Debug.printf(Level.FINEST, String.format("Out OPMChip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
 
-        mds.writeYM2151((byte) chipId, (byte) dat.address, (byte) dat.data);
+        mds.writeYm2151((byte) chipId, (byte) dat.address, (byte) dat.data);
     }
 }
 

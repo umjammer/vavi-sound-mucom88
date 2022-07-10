@@ -213,7 +213,7 @@ class Program {
         }
         if (dat.address == -1) return;
 
-        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d Adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
+        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
 
         writer.writeYM2608((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
     }
@@ -227,7 +227,7 @@ class Program {
         }
         if (dat.address == -1) return;
 
-        Debug.printf(Level.FINEST, String.format("Out ChipB:%d Port:%d Adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
+        Debug.printf(Level.FINEST, String.format("Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
 
         writer.writeYM2610((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
     }
@@ -249,7 +249,7 @@ class Program {
         }
         if (dat.address == -1) return;
 
-        Debug.printf(Level.FINEST, String.format("Out OPM Chip:%d Port:%d Adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
+        Debug.printf(Level.FINEST, String.format("Out OPM Chip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
 
         writer.writeYM2151((byte) chipId, (byte) dat.address, (byte) dat.data);
     }

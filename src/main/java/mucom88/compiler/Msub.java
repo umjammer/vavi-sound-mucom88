@@ -7,7 +7,6 @@ import java.util.logging.Level;
 import dotnet4j.util.compat.Tuple;
 import mucom88.common.MUCInfo;
 import mucom88.common.MucException;
-import mucom88.common.iEncoding;
 import musicDriverInterface.MmlDatum;
 import vavi.util.Debug;
 
@@ -19,7 +18,6 @@ public class Msub {
     private Work work;
     private final MUCInfo mucInfo;
     public Muc88 muc88;
-    private iEncoding enc;
 
     public byte[] scores = {
             0, 0, 0, 0, 0, 0
@@ -87,17 +85,16 @@ public class Msub {
             0x62, 11 // 'b'
     };
 
-    public Msub(Work work, mucom88.common.MUCInfo mucInfo, iEncoding enc) {
+    public Msub(Work work, mucom88.common.MUCInfo mucInfo) {
         this.work = work;
         this.mucInfo = mucInfo;
-        this.enc = enc;
     }
 
     public int readData(Tuple<Integer, String> lin, /*ref*/ int[] srcCPtr) {
         mucInfo.setErrSign(false);
 
         Arrays.fill(scores, (byte) 0);
-        int digit = 5;   // 5ｹﾀ ﾏﾃﾞ
+        int digit = 5; // 5ｹﾀ ﾏﾃﾞ
 
         work.hexFg = 0;
         work.minUsf = 0;
@@ -125,6 +122,7 @@ public class Msub {
             if (ch < '0' || ch > '9') {
 //                goto READE;//0ｲｼﾞｮｳ ﾉ ｷｬﾗｸﾀﾅﾗ ﾂｷﾞ
                 work.setSecCom((byte) ch);
+Debug.println(Level.FINE, "not valid number: " + ch);
                 mucInfo.setCarry(true); // NON DATA
                 return 0;
             }
@@ -133,6 +131,7 @@ public class Msub {
         } else {
             if (ch < '0' || ch > '9') {
 //                goto READE;//0ｲｼﾞｮｳ ﾉ ｷｬﾗｸﾀﾅﾗ ﾂｷﾞ
+Debug.println(Level.FINE, "not valid number: " + ch);
                 work.setSecCom((byte) ch);
                 mucInfo.setCarry(true); // NON DATA
                 return 0;
@@ -141,11 +140,11 @@ public class Msub {
         }
 //READ7:
         srcCPtr[0]--;
-        boolean READ1 = false;
+READ1: {
         do {
             ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0;
+READF: {
             //z80.A = mem.ld_8(Z80.HL); // SECOND CHECK
-            boolean READF = false;
             if (work.hexFg != 0) { // goto READC;
 
                 if (ch >= 'a' && ch <= 'f') {
@@ -154,56 +153,49 @@ public class Msub {
                 //READG:
                 if (ch >= 'A' && ch <= 'F') {
                     ch -= (char) 7;
-//                        goto READF;
-                    READF = true;
+                    break READF;
                 }
             }
 //READC:
-            if (!READF) {
-                if (ch < '0' || ch > '9') {
-//                    goto READ1;//9ｲｶﾅﾗ ﾂｷﾞ
-                    READ1 = true;
-                    break;
-                }
+            if (ch < '0' || ch > '9') {
+//                goto READ1;//9ｲｶﾅﾗ ﾂｷﾞ
+                break READ1;
             }
-//READF:
-
+/*READF:*/}
             scores[0] = scores[1];
             scores[1] = scores[2];
             scores[2] = scores[3];
             scores[3] = scores[4];
             scores[4] = scores[5];
 
-            ch -= (char) 0x30;// A= 0 - 9
+            ch -= (char) 0x30; // A= 0 - 9
             scores[4] = (byte) ch;
             srcCPtr[0]++; // NEXT TEXT
             digit--;
 
             if (lin.getItem2().length() == srcCPtr[0]) {
-//                goto READ1;
-                READ1 = true;
-                break;
+//                        goto READ1;
+                break READ1;
             }
 
         } while (digit > 0);
 
-        if (!READ1) {
-            ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0; // THIRD CHECK
-            if (ch >= '0' && ch <= '9') { // goto READ1; // 9ｲｶﾅﾗ ﾂｷﾞ
+        ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0; // THIRD CHECK
+        if (ch >= '0' && ch <= '9') { // goto READ1; // 9ｲｶﾅﾗ ﾂｷﾞ
 //READ8:
-                mucInfo.setCarry(false);
-                mucInfo.setErrSign(true); // ERROR SIGN
-                return 0; // RET; 7ｹﾀｲｼﾞｮｳ ﾊ ｴﾗｰ
-            }
+            mucInfo.setCarry(false);
+            mucInfo.setErrSign(true); // ERROR SIGN
+Debug.println(Level.FINE, "over 7 digits");
+            return 0; // RET; 7ｹﾀｲｼﾞｮｳ ﾊ ｴﾗｰ
         }
-//READ1:
+/*READ1:*/}
         int a = 0;
         if (work.hexFg == 1) {
             for (int i = 1; i < 5; i++) {
                 a *= 16;
                 a += scores[i];
             }
-//            goto READA;
+//                    goto READA;
         } else {
 //READD:
             for (int i = 0; i < 5; i++) {
@@ -234,7 +226,7 @@ public class Msub {
                 bHL[i] = (byte) (lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : 0);
                 srcCPtr[0]++;
             }
-            String trgHL = enc.getStringFromUtfArray(bHL);// Encoding.UTF8.GetString(bHL);
+            String trgHL = new String(bHL);
             if (trgHL.equals(trgDE)) {
                 return true;
             }
@@ -297,6 +289,10 @@ public class Msub {
         return 0;
     }
 
+    /**
+     * @after error: {@link MUCInfo#getCarry()} true
+     * @return 0: error
+     */
     public byte STTONE() {
         char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
                 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
@@ -311,6 +307,7 @@ public class Msub {
             }
         }
 
+Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES));
         mucInfo.setCarry(true);
         return 0;
     }

@@ -15,8 +15,6 @@ import dotnet4j.util.compat.Tuple;
 import dotnet4j.util.compat.Tuple3;
 import mucom88.common.MUCInfo;
 import mucom88.common.MucException;
-import mucom88.common.iEncoding;
-import mucom88.common.MyEncoding;
 import mucom88.common.Common;
 import mucom88.compiler.pcmTool.AdpcmMaker;
 import musicDriverInterface.CompilerInfo;
@@ -55,7 +53,6 @@ public class Compiler implements ICompiler {
 
     private Point skipPoint = Common.EmptyPoint;
 
-    private iEncoding enc = MyEncoding.Default();
     private boolean isIDE = false;
 
     public enum MUCOMFileType {
@@ -67,8 +64,8 @@ public class Compiler implements ICompiler {
     public void init() {
         // mucInfo = new MUCInfo();
         work = new Work();
-        muc88 = new Muc88(work, mucInfo, enc);
-        msub = new Msub(work, mucInfo, enc);
+        muc88 = new Muc88(work, mucInfo);
+        msub = new Msub(work, mucInfo);
         expand = new Expand(work, mucInfo);
         smon = new SMon(mucInfo);
         muc88.msub = msub;
@@ -126,11 +123,12 @@ public class Compiler implements ICompiler {
             //work.compilerInfo.jumpCol = -1;
 
             // MUCOM88 初期化
-            int ret = muc88.COMPIL(); // vector 0xeea8
+            int ret = muc88.compile(); // vector 0xeea8
 
             // コンパイルエラー発生時は 0 以外が返る
             if (ret != 0) {
                 int errLine = muc88.getErrorLine();
+Debug.println(Level.FINE, "errLine: " + errLine);
                 work.compilerInfo.errorList.add(
                         new Tuple3<>(
                                 mucInfo.getRow(),
@@ -146,6 +144,7 @@ public class Compiler implements ICompiler {
                 return dat.toArray(MmlDatum[]::new);
             }
         } catch (MucException me) {
+me.printStackTrace();
             if (work.compilerInfo == null) work.compilerInfo = new CompilerInfo();
             work.compilerInfo.errorList.add(new Tuple3<>(-1, -1, me.getMessage()));
             Debug.printf(Level.SEVERE, me.getMessage());
@@ -380,7 +379,7 @@ e.printStackTrace();
      * item2が値。トリム済み。
      */
     private List<Tuple<String, String>> getTagsFromMUC(byte[] buf) {
-        var text = Arrays.stream(enc.getStringFromSjisArray(buf).split("\n"))
+        var text = Arrays.stream(new String(buf, Common.fileEncoding).split("\r\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
         if (tags != null) tags.clear();
         else tags = new ArrayList<>();
@@ -406,7 +405,7 @@ e.printStackTrace();
 
     private int storeBasicSource(byte[] buf) {
         int line = 0;
-        var text = enc.getStringFromSjisArray(buf).split("\n");
+        var text = new String(buf, Common.fileEncoding).split("\r\n");
 
         basSrc.clear();
         for (String txt : text) {
@@ -512,9 +511,9 @@ e.printStackTrace();
             work.compilerInfo.jumpChannel = work.getJChCom();
 
             if (work.pcmFlag == 0) pcmFlag = 2;
-            msg = enc.getStringFromSjisArray(textLineBuf, 31, 4);
+            msg = new String(textLineBuf, 31, 4, Common.fileEncoding);
             int start = Integer.parseInt(msg, 16);
-            msg = enc.getStringFromSjisArray(textLineBuf, 41, 4);
+            msg = new String(textLineBuf, 41, 4, Common.fileEncoding);
             int length = mucInfo.getBufDst().size();
             if (isExtendFormat) length = bufferLength;
             mubSize = length;
@@ -698,7 +697,7 @@ e.printStackTrace();
                 if (tag.getItem1() != null && tag.getItem1().length() > 0 && tag.getItem1().charAt(0) == '*') continue;
                 if (StringUtilities.isNullOrEmpty(tag.getItem1()) && !StringUtilities.isNullOrEmpty(tag.getItem2()) && tag.getItem2().trim().charAt(0) == '*')
                     continue;
-                byte[] b = enc.getSjisArrayFromString(String.format("#%s %s\n", tag.getItem1(), tag.getItem2()));
+                byte[] b = String.format("#%s %s\n", tag.getItem1(), tag.getItem2()).getBytes(Common.fileEncoding);
                 footSize += b.length;
                 for (byte bd : b) dat.add(new MmlDatum(bd & 0xff));
             }
@@ -1028,7 +1027,7 @@ e.printStackTrace();
             int tagSize = 0;
             for (Tuple<String, String> tag : tags) {
                 if (tag.getItem1() != null && tag.getItem1().length() > 0 && tag.getItem1().charAt(0) == '*') continue;
-                byte[] b = enc.getSjisArrayFromString(String.format("#%s %s\n", tag.getItem1(), tag.getItem2()));
+                byte[] b = String.format("#%s %s\n", tag.getItem1(), tag.getItem2()).getBytes(Common.fileEncoding);
                 tagSize += b.length;
                 for (byte bd : b) dat.add(new MmlDatum(bd & 0xff));
             }

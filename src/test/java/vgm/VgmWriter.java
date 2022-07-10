@@ -9,7 +9,8 @@ import dotnet4j.io.FileMode;
 import dotnet4j.io.FileStream;
 import dotnet4j.io.SeekOrigin;
 import dotnet4j.util.compat.Tuple;
-import mdsound.Common;
+
+import static dotnet4j.util.compat.CollectionUtilities.toIntArray;
 import vavi.util.Debug;
 
 
@@ -384,7 +385,7 @@ public class VgmWriter {
         ret.add(0);
         ret.add(0);
         ret.add(0);
-        useChips = Common.toIntArray(ret);
+        useChips = toIntArray(ret);
 
         //dest.writeByte(0x56); dest.writeByte(0x29); dest.writeByte(0x82);
         //writeAdpcm(0, new byte[65536]);
@@ -508,6 +509,6 @@ public class VgmWriter {
             }
         }
 
-        useChips = Common.toIntArray(ret);
+        useChips = toIntArray(ret);
     }
 }

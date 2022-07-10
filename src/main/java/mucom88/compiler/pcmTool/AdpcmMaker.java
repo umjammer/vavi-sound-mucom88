@@ -7,7 +7,8 @@ import java.util.function.Function;
 
 import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
-import mdsound.Common;
+
+import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 
 
 public class AdpcmMaker {
@@ -106,7 +107,7 @@ public class AdpcmMaker {
         List<Byte> raw = fileManager.GetRawData();
         if (raw != null) dst.addAll(raw);
 
-        return Common.toByteArray(dst);
+        return toByteArray(dst);
     }
 
     private List<Byte> MakeHeader(Config config, PCMFileManager fileManager, List<Byte> dst) {

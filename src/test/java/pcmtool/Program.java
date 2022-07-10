@@ -16,8 +16,6 @@ import dotnet4j.io.IOException;
 import dotnet4j.io.Path;
 import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
-import mdsound.Log;
-import mdsound.LogLevel;
 import mucom88.compiler.pcmTool.AdpcmMaker;
 import vavi.util.Debug;
 
@@ -25,17 +23,10 @@ import vavi.util.Debug;
 class Program {
     private static String srcFile;
 
-    static void Main(String[] args) {
-        Log.writeLine = Program::WriteLine;
-//#if DEBUG
-        //Log.writeLine += WriteLineF;
-//            Log.level = LogLevel.FINEST;// TRACE;
-//#else
-        Log.level = LogLevel.INFO;
-//#endif
-        int fnIndex = AnalyzeOption(args);
+    public static void main(String[] args) {
+        int fnIndex = analyzeOption(args);
 
-        if (args == null || args.length != fnIndex + 1) {
+        if (args.length != fnIndex + 1) {
             Debug.printf(Level.SEVERE, "引数(.mucファイル)１個欲しいよぉ");
             return;
         }
@@ -47,11 +38,7 @@ class Program {
         make(args[fnIndex]);
     }
 
-    static void WriteLine(LogLevel level, String msg) {
-        System.err.printf("[%-7s] %s", level, msg);
-    }
-
-    private static int AnalyzeOption(String[] args) {
+    private static int analyzeOption(String[] args) {
         int i = 0;
         if (args.length == 0) return i;
 
@@ -65,25 +52,18 @@ class Program {
     }
 
     private static void make(String fn) {
-//#if NETCOREAPP
-//            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-//#endif
         try {
             srcFile = fn;
 
             //sjis crlf
-//#if NETCOREAPP
-//                String[] src = File.readAllText(fn, System.Text.Encoding.GetEncoding(932)).Split("\n", StringSplitOptions.None);
-//#else
-            String[] src = File.readAllText(fn, Charset.forName("MS932")).split("\n");
-//#endif
+            String[] src = File.readAllText(fn, Charset.forName("MS932")).split("\r\n");
 
             List<String>[] ret = divider(src);
             byte[][] pcmdata = new byte[6][];
             for (int i = 0; i < 6; i++) {
                 pcmdata[i] = null;
                 if (ret[i].size() > 0) {
-                    pcmdata[i] = GetPackedPCM(i, ret[i], Program::appendFileReaderCallback);
+                    pcmdata[i] = getPackedPCM(i, ret[i], Program::appendFileReaderCallback);
                 }
             }
 
@@ -143,17 +123,14 @@ class Program {
         return ret;
     }
 
-    private static byte[] GetPackedPCM(int i, List<String> list, Function<String, Stream> appendFileReaderCallback) {
+    private static byte[] getPackedPCM(int i, List<String> list, Function<String, Stream> appendFileReaderCallback) {
         AdpcmMaker adpcmMaker = new AdpcmMaker(i, list, appendFileReaderCallback);
         return adpcmMaker.make();
     }
 
     private static Stream appendFileReaderCallback(String arg) {
 
-        String fn = Path.combine(
-                Path.getDirectoryName(srcFile)
-                , arg
-        );
+        String fn = Path.combine(Path.getDirectoryName(srcFile), arg);
 
         if (!File.exists(fn)) return null;
 

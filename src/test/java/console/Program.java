@@ -16,12 +16,9 @@ import dotnet4j.io.FileStream;
 import dotnet4j.io.IOException;
 import dotnet4j.io.MemoryStream;
 import dotnet4j.io.Stream;
-import mdsound.Log;
-import mdsound.LogLevel;
 import mucom88.common.MubException;
 import mucom88.common.MucException;
 import mucom88.compiler.Compiler;
-import musicDriverInterface.ICompiler;
 import musicDriverInterface.MmlDatum;
 import vavi.util.Debug;
 import vavi.util.serdes.Serdes;
@@ -56,14 +53,6 @@ class Program {
         }
     }
 
-    static void writeLine(LogLevel level, String msg) {
-        System.err.printf("[%-7s] %s", level, msg);
-    }
-
-    static void writeLine(String msg) {
-        System.err.printf(msg);
-    }
-
     static String getCompledFilename(Path p) {
         return p.getFileName().toString().replaceFirst("\\.muc$", ".mub");
     }
@@ -79,8 +68,8 @@ class Program {
             Compiler compiler = new Compiler();
             compiler.init();
 
-            //compiler.SetCompileSwitch("IDE");
-            //compiler.SetCompileSwitch("SkipPoint=R19:C30");
+            //compiler.setCompileSwitch("IDE");
+            //compiler.setCompileSwitch("SkipPoint=R19:C30");
 
             if (!isXml) {
                 String destFileName;
@@ -159,10 +148,6 @@ Debug.println(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
         int i = 0;
         while (i < args.length && args[i].length() > 0 && args[i].charAt(0) == '-') {
             String op = args[i].substring(1).toUpperCase();
-
-            if (op.equals("OFFLOG=WARNING")) {
-                Log.off = LogLevel.WARNING.ordinal();
-            }
 
             if (op.equals("XML")) {
                 isXml = true;

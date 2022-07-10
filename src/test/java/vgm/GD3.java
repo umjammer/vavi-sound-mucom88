@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dotnet4j.util.compat.StringUtilities;
-import mdsound.Common;
+
+import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 
 
 public class GD3 {
@@ -111,6 +112,6 @@ public class GD3 {
         dat.set(10, (byte) (dat.size() >> 16));
         dat.set(11, (byte) (dat.size() >> 24));
 
-        return Common.toByteArray(dat);
+        return toByteArray(dat);
     }
 }

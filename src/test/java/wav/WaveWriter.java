@@ -7,7 +7,8 @@ import dotnet4j.io.FileAccess;
 import dotnet4j.io.FileMode;
 import dotnet4j.io.FileStream;
 import dotnet4j.io.SeekOrigin;
-import mdsound.Common;
+
+import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 
 
 public class WaveWriter {
@@ -87,7 +88,7 @@ public class WaveWriter {
         des.add((byte) ((len & 0xff000000) >> 24));
 
         //出力
-        dest.write(Common.toByteArray(des), 0, des.size());
+        dest.write(toByteArray(des), 0, des.size());
     }
 
     public void close() {

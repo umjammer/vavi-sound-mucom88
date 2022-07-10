@@ -2,8 +2,6 @@ package mucom88.player.real;
 
 import java.util.logging.Level;
 
-import mdsound.Log;
-import mdsound.LogLevel;
 import mucom88.player.RSoundChip;
 import mucom88.player.SChipType;
 import vavi.util.Debug;

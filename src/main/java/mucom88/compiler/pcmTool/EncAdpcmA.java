@@ -3,7 +3,7 @@ package mucom88.compiler.pcmTool;
 import java.util.ArrayList;
 import java.util.List;
 
-import mdsound.Common;
+import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 
 
 // https://wiki.neogeodev.org/index.php?title=ADPCM_codecs
@@ -220,7 +220,7 @@ public class EncAdpcmA {
             }
         }
 
-        return Common.toByteArray(outBuffer);
+        return toByteArray(outBuffer);
     }
 }
 

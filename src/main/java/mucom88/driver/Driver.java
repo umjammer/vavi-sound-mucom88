@@ -24,8 +24,6 @@ import dotnet4j.util.compat.TriConsumer;
 import dotnet4j.util.compat.Tuple;
 import mucom88.common.Common;
 import mucom88.common.MubException;
-import mucom88.common.MyEncoding;
-import mucom88.common.iEncoding;
 import musicDriverInterface.ChipAction;
 import musicDriverInterface.ChipDatum;
 import musicDriverInterface.GD3Tag;
@@ -34,6 +32,8 @@ import musicDriverInterface.Tag;
 import musicDriverInterface.IDriver;
 import vavi.util.Debug;
 import vavi.util.serdes.Serdes;
+
+import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 
 
 public class Driver implements IDriver {
@@ -76,8 +76,6 @@ public class Driver implements IDriver {
         MusicSTART, MusicSTOP, FaDeOut, EFfeCt, RETurnWork
     }
 
-    private iEncoding enc = MyEncoding.Default();
-
     public void init(List<ChipAction> chipsConsumer, MmlDatum[] srcBuf, Function<String, Stream> appendFileReaderCallback, Object... additionalOption) {
         List<Consumer<ChipDatum>> lstChipWrite = new ArrayList<>();
         List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm = new ArrayList<>();
@@ -97,6 +95,7 @@ public class Driver implements IDriver {
             List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm,
             List<BiConsumer<Long, Integer>> opnaWaitSend,
             boolean notSoundBoard2, boolean isLoadADPCM, boolean loadADPCMOnly, Function<String, Stream> appendFileReaderCallback/* =null*/) {
+
         if (!Path.getExtension(fileName).equalsIgnoreCase(".xml")) {
             byte[] srcBuf = File.readAllBytes(fileName);
             if (srcBuf.length < 1) return;
@@ -206,22 +205,22 @@ public class Driver implements IDriver {
                 if (pcm[2] != null) {
                     buf.clear();
                     for (int i = pcmStartPos[2]; i < pcm[2].length; i++) buf.add(pcm[2][i]);
-                    writeOPNBPAdpcmB(mdsound.Common.toByteArray(buf));
+                    writeOPNBPAdpcmB(toByteArray(buf));
                 }
                 if (pcm[3] != null) {
                     buf.clear();
                     for (int i = pcmStartPos[3]; i < pcm[3].length; i++) buf.add(pcm[3][i]);
-                    writeOPNBPAdpcmB(mdsound.Common.toByteArray(buf));
+                    writeOPNBPAdpcmB(toByteArray(buf));
                 }
                 if (pcm[4] != null) {
                     buf.clear();
                     for (int i = pcmStartPos[4]; i < pcm[4].length; i++) buf.add(pcm[4][i]);
-                    writeOPNBPAdpcmA(mdsound.Common.toByteArray(buf));
+                    writeOPNBPAdpcmA(toByteArray(buf));
                 }
                 if (pcm[5] != null) {
                     buf.clear();
                     for (int i = pcmStartPos[5]; i < pcm[5].length; i++) buf.add(pcm[5][i]);
-                    writeOPNBPAdpcmA(mdsound.Common.toByteArray(buf));
+                    writeOPNBPAdpcmA(toByteArray(buf));
                 }
             }
         }
@@ -265,7 +264,7 @@ public class Driver implements IDriver {
             tblPtr += length != 0 ? 0x100 : 0;
             work.pcmTables[v][i] = new Tuple<>(work.pcmTables[v][i].getItem1(), new short[] {stAdr, edAdr, 0, work.pcmTables[v][i].getItem2()[3]});
         }
-        pcm[v] = mdsound.Common.toByteArray(dest);
+        pcm[v] = toByteArray(dest);
     }
 
     private boolean isDotNETFromTAG() {
@@ -357,7 +356,7 @@ public class Driver implements IDriver {
             for (int i = 0; i < cnt; i++) {
                 List<Byte> b = new ArrayList<>();
                 while (pcm[id][p] != 0x0) b.add(pcm[id][p++]);
-                String item1 = enc.getStringFromSjisArray(mdsound.Common.toByteArray(b));
+                String item1 = new String(toByteArray(b), Common.fileEncoding);
                 p++;
                 p++;
                 short[] item2 = new short[4];
@@ -385,7 +384,7 @@ public class Driver implements IDriver {
                     item2[3] = (short) (pcm[id][infTable + 26] | (pcm[id][infTable + 27] * 0x100));
                     System.arraycopy(pcm[id], i * 32, pcmName, 0, 16);
                     pcmName[16] = 0;
-                    String item1 = enc.getStringFromSjisArray(pcmName);
+                    String item1 = new String(pcmName, Common.fileEncoding);
 
                     Tuple<String, short[]> pd = new Tuple<>(item1, item2);
                     pcmTable.add(pd);
@@ -690,7 +689,7 @@ public class Driver implements IDriver {
             lb.add(srcBuf[tagData + i]);
         }
 
-        List<Tuple<String, String>> tags = getTagsByteArray(mdsound.Common.toByteArray(lb));
+        List<Tuple<String, String>> tags = getTagsByteArray(toByteArray(lb));
         GD3Tag gt = new GD3Tag();
 
         for (Tuple<String, String> tag : tags) {
@@ -726,7 +725,7 @@ public class Driver implements IDriver {
     }
 
     private List<Tuple<String, String>> getTagsByteArray(byte[] buf) {
-        var text = Arrays.stream(enc.getStringFromSjisArray(buf).split("\n"))
+        var text = Arrays.stream(new String(buf, Common.fileEncoding).split("\r\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
 
         List<Tuple<String, String>> tags = new ArrayList<>();

@@ -1,6 +1,7 @@
 package mucom88.common;
 
 import java.awt.Point;
+import java.nio.charset.Charset;
 
 import musicDriverInterface.MmlDatum;
 
@@ -115,5 +116,7 @@ public class Common {
             return -1;
         }
     }
+
+    public static Charset fileEncoding = Charset.forName(System.getProperty("mucom88.encoding", "ms932"));
 }
 

@@ -34,14 +34,19 @@ class Test001 {
         }
     }
 
-    /** .muc files */
+    /** .muc files from sample dir */
     static Stream<Arguments> sources() throws IOException {
         return Files.list(Path.of("src/test/resources/samples/")).filter(p -> p.toString().endsWith(".muc")).map(p -> arguments(p));
     }
 
+    /** .muc files from test dir */
+    static Stream<Arguments> sources1() throws IOException {
+        return Files.list(Path.of("src/test/resources/test/")).filter(p -> p.toString().endsWith(".muc")).map(p -> arguments(p));
+    }
+
     /** compile .muc at "resource/samples" to .mub into "tmp/out" */
     @ParameterizedTest
-    @MethodSource("sources")
+    @MethodSource("sources1")
     void test1(Path p) throws Exception {
         Path out = outDir.resolve(Program.getCompledFilename(p));
         Program.main(new String[] {
@@ -55,16 +60,20 @@ class Test001 {
         }
     }
 
-    /** .mub files */
+    /** .mub files at out dir */
     static Stream<Arguments> sources2() throws IOException {
         return Files.list(outDir).filter(p -> p.toString().endsWith(".mub")).map(p -> arguments(p));
     }
 
+    /** .mub files at test resources */
+    static Stream<Arguments> sources22() throws IOException {
+        return Files.list(Path.of("src/test/resources/test/")).filter(p -> p.toString().endsWith(".mub")).map(p -> arguments(p));
+    }
+
     /** play .mub at "tmp/out" */
     @ParameterizedTest
-    @MethodSource("sources2")
+    @MethodSource("sources22")
     void test2(Path p) throws Exception {
-        Path out = outDir.resolve(Program.getCompledFilename(p));
         mucom88.player.Program.main(new String[] {p.toString()});
     }
 }

@@ -15,6 +15,8 @@ import musicDriverInterface.MmlDatum;
 import musicDriverInterface.MMLType;
 import vavi.util.Debug;
 
+import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
+
 
 public class Music2 {
 
@@ -470,7 +472,7 @@ public class Music2 {
         for (int i = 0; i < voiCnt * 25; i++) {
             buf.add((byte) (work.mData[otoDat + i].dat & 0xff));
         }
-        return mdsound.Common.toByteArray(buf);
+        return toByteArray(buf);
     }
 
     private void FMINIT(int chipIndex, int ch) {
@@ -947,7 +949,7 @@ public class Music2 {
     public void FMSUB() {
         //Work.carry = false;
         work.pg.lengthCounter--;
-        work.pg.lengthCounter = (byte) work.pg.lengthCounter;
+        work.pg.lengthCounter = work.pg.lengthCounter & 0xff;
         if (work.pg.lengthCounter == 0) {
             FMSUB1();
             return;
@@ -2420,10 +2422,10 @@ public class Music2 {
 
     /** ﾘﾋﾟｰﾄ ｽﾀｰﾄ ｾｯﾄ */
     public void REPSTF() {
-        byte e = (byte) (work.pg.mData[work.hl++].dat & 0xff);
-        byte d = (byte) (work.pg.mData[work.hl++].dat & 0xff); // de as rewrite adr offset +1
+        int e = work.pg.mData[work.hl++].dat & 0xff;
+        int d = work.pg.mData[work.hl++].dat & 0xff; // de as rewrite adr offset +1
 
-        int hl = (int) work.hl;
+        int hl = work.hl;
         hl -= 2;
         hl += e + d * 0x100;
         byte a = (byte) (work.pg.mData[hl--].dat & 0xff);
@@ -2432,7 +2434,7 @@ public class Music2 {
 
     /** ﾘﾋﾟｰﾄ ｴﾝﾄﾞ ｾｯﾄ(FM) */
     public void REPENF() {
-        byte a = (byte) ((work.pg.mData[work.hl].dat - 1) & 0xff); // dec repeat co.
+        int a = (work.pg.mData[work.hl].dat - 1) & 0xff; // dec repeat co.
         work.pg.mData[work.hl].dat--;
 
         if (a == 0) {
@@ -2444,11 +2446,11 @@ public class Music2 {
 
         work.hl += 2;
 
-        byte e = (byte) (work.pg.mData[work.hl++].dat & 0xff);
-        byte d = (byte) (work.pg.mData[work.hl--].dat & 0xff);
+        int e = work.pg.mData[work.hl++].dat & 0xff;
+        int d = work.pg.mData[work.hl--].dat & 0xff;
 
         //a &= a;
-        work.hl -= (int) (e + d * 0x100);
+        work.hl -= e + d * 0x100;
     }
 
     /** se detune set sub routine */
