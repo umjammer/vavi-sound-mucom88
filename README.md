@@ -67,7 +67,7 @@ This tool is indebted to the following people. We also refer to and use the foll
 
 thank you very much.
 
- - Kodai-san!!
+ - Koshiro-san!!
  - Kuroma-san
  - mucom-san
  - Boukichi-san
