@@ -19,24 +19,30 @@ public class EncAdpcmA {
 
     static final int[] step_adj = {-1, -1, -1, -1, 2, 5, 7, 9, -1, -1, -1, -1, 2, 5, 7, 9};
 
-    //buffers
-    private short[] inBuffer;   //temp Work buffer, used correct byte order and downsample
-    private byte[] outBuffer;   //output buffer, this is your PCM file, save it
+    // buffers
+    /** temp Work buffer, used correct byte order and downsample */
+    private short[] inBuffer;
+    /** output buffer, this is your PCM file, save it */
+    private byte[] outBuffer;
 
-    //decode stuff
+    // decode stuff
     private int[] jedi_table;
-    int acc = 0; //ADPCM accumulator, initial condition must be 0
-    int decstep = 0; //ADPCM decoding step, initial condition must be 0
+    /** ADPCM accumulator, initial condition must be 0 */
+    int acc = 0;
+    /** ADPCM decoding step, initial condition must be 0 */
+    int decstep = 0;
 
     //encode stuff
     int diff;
     int step;
     int predsample;
     int index;
-    int prevsample = 0; // previous sample, initial condition must be 0
-    int previndex = 0; //previous index, initial condition must be 0
+    /**  previous sample, initial condition must be 0 */
+    int prevsample = 0;
+    /** previous index, initial condition must be 0 */
+    int previndex = 0;
 
-    //jedi table is used speed up decoding, run this to init the table before encoding. Mame copy-pasta.
+    /** jedi table is used speed up decoding, run this to init the table before encoding. Mame copy-pasta. */
     private void jedi_table_init() {
         int step, nib;
 
@@ -49,7 +55,7 @@ public class EncAdpcmA {
         }
     }
 
-    //decode sub, returns decoded 12bit data
+    /** decode sub, returns decoded 12bit data */
     private short YM2610_ADPCM_A_Decode(byte code) {
         acc += jedi_table[decstep + code];
         if ((acc & ~0x7ff) != 0) // acc is > 2047
@@ -61,7 +67,7 @@ public class EncAdpcmA {
         return (short) acc;
     }
 
-    // our encoding sub, returns ADPCM nibble
+    /** our encoding sub, returns ADPCM nibble */
     private byte YM2610_ADPCM_A_Encode(short sample) {
         int tempstep;
         byte code;
@@ -107,28 +113,31 @@ public class EncAdpcmA {
         jedi_table_init();
     }
 
-    //our main sub, init buffers and runs the encode process
-    //enter this with your sound file loaded into buffer
-    public byte[] YM_ADPCM_A_Encode(byte[] buffer, boolean is16bit)  //input buffer, load your sound file into this
-    {
+    // our main sub, init buffers and runs the encode process
+    // enter this with your sound file loaded into buffer
+
+    /**
+     * input buffer, load your sound file into this
+     */
+    public byte[] YM_ADPCM_A_Encode(byte[] buffer, boolean is16bit) {
         int i;
 
-        //reset to initial conditions
+        // reset to initial conditions
         acc = 0;
         decstep = 0;
         prevsample = 0;
         previndex = 0;
 
         if (is16bit) {
-            //watch out for odd data count & allocate buffers
+            // watch out for odd data count & allocate buffers
             if ((buffer.length / 2) % 2 != 0) {
                 inBuffer = new short[(buffer.length / 2) + 1];
                 inBuffer[inBuffer.length - 1] = 0x00;
             } else inBuffer = new short[buffer.length / 2];
 
-            //fix byte order and downscale data to 12 bits
+            // fix byte order and downscale data to 12 bits
             for (i = 0; i < buffer.length; i += 2) {
-                inBuffer[i / 2] = (short) ((buffer[i]) | (buffer[i + 1] << 8));
+                inBuffer[i / 2] = (short) ((buffer[i] & 0xff) | ((buffer[i + 1] & 0xff) << 8));
                 inBuffer[i / 2] >>= 4;
             }
         } else {
@@ -147,13 +156,13 @@ public class EncAdpcmA {
         outSize = (outSize % 0x100) != 0 ? ((outSize / 0x100) + 1) * 0x100 : outSize;
         outBuffer = new byte[outSize];
 
-        //actual encoding
+        // actual encoding
         for (i = 0; i < inBuffer.length; i += 2) {
-            outBuffer[i / 2] = (byte) ((YM2610_ADPCM_A_Encode(inBuffer[i]) << 4) | YM2610_ADPCM_A_Encode(inBuffer[i + 1]));
+            outBuffer[i / 2] = (byte) ((YM2610_ADPCM_A_Encode(inBuffer[i]) << 4) | YM2610_ADPCM_A_Encode(inBuffer[i + 1]) & 0xff);
         }
-        //padding
+        // padding
         for (i = i / 2; i < outBuffer.length; i++) {
-            outBuffer[i] = (byte) ((YM2610_ADPCM_A_Encode((byte) 0x00) << 4) | YM2610_ADPCM_A_Encode((byte) 0x00));
+            outBuffer[i] = (byte) ((YM2610_ADPCM_A_Encode((byte) 0x00) << 4) | YM2610_ADPCM_A_Encode((byte) 0x00) & 0xff);
         }
 
         return outBuffer;
@@ -185,7 +194,7 @@ public class EncAdpcmA {
         for (lpc = 0; lpc < size; lpc++) {
             if (is16bit) {
                 if (buffer.length > lpc * 2 + 1)
-                    src = (short) ((buffer[lpc * 2]) | (buffer[lpc * 2 + 1] << 8)); //16 bit samples, + fixing byte order
+                    src = (short) ((buffer[lpc * 2] & 0xff) | (buffer[lpc * 2 + 1] & 0xff) << 8); //16 bit samples, + fixing byte order
                 else src = 0;
             } else {
                 if (buffer.length > lpc)

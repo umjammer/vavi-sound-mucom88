@@ -26,23 +26,18 @@ public class Config {
         switch (contents) {
         case "FORMAT":
             String val = value.toUpperCase();
-            if (val.equals("MUCOM88")) FormatType = mucom88.compiler.pcmTool.FormatType.mucom88;
-            else if (val.equals("MUCOMDOTNET"))
-                FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNA_ADPCM;
-            else if (val.equals("OPNA")) FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNA_ADPCM;
-            else if (val.equals("OPNB_B"))
-                FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
-            else if (val.equals("OPNB_A"))
-                FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
-            else if (val.equals("OPNB-B"))
-                FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
-            else if (val.equals("OPNB-A"))
-                FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
-            else if (val.equals("OPNBB"))
-                FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
-            else if (val.equals("OPNBA"))
-                FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
-            else Debug.printf(Level.SEVERE, "Unknown format type.[%s]", value);
+            switch (val) {
+            case "MUCOM88" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucom88;
+            case "MUCOMDOTNET" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNA_ADPCM;
+            case "OPNA" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNA_ADPCM;
+            case "OPNB_B" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
+            case "OPNB_A" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
+            case "OPNB-B" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
+            case "OPNB-A" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
+            case "OPNBB" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
+            case "OPNBA" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
+            default -> Debug.printf(Level.SEVERE, "Unknown format type.[%s]", value);
+            }
             break;
 
         default:

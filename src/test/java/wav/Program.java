@@ -36,17 +36,15 @@ class Program {
     private static WaveWriter ww = null;
     private static int loop = 2;
 
-    public static int main(String[] args) {
+    public static void main(String[] args) {
 
         int fnIndex = analyzeOption(args);
 
         if (args == null || args.length != fnIndex + 1) {
-            Debug.printf(Level.SEVERE, "引数(.mubファイル)１個欲しいよぉ");
-            return -1;
+            throw new IllegalArgumentException("引数(.mubファイル)１個欲しいよぉ");
         }
         if (!File.exists(args[fnIndex])) {
-            Debug.printf(Level.SEVERE, "ファイルが見つかりません");
-            return -1;
+            throw new IllegalArgumentException("ファイルが見つかりません");
         }
 
         try {
@@ -71,29 +69,37 @@ class Program {
             Ym2608Inst ym2608 = new Ym2608Inst();
             for (int i = 0; i < 2; i++) {
                 chip = new MDSound.Chip();
-                chip.id = (byte) i;
+                chip.id = i;
                 chip.instrument = ym2608;
                 chip.samplingRate = SamplingRate;
                 chip.clock = opnaMasterClock;
                 chip.volume = 0;
+                chip.setVolumes.put("FM", ym2608::setFMVolume);
+                chip.setVolumes.put("PSG", ym2608::setPSGVolume);
+                chip.setVolumes.put("Rhythm", ym2608::setRhythmVolume);
+                chip.setVolumes.put("Adpcm", ym2608::setAdpcmVolume);
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
             Ym2610Inst ym2610 = new Ym2610Inst();
             for (int i = 0; i < 2; i++) {
                 chip = new MDSound.Chip();
-                chip.id = (byte) i;
+                chip.id = i;
                 chip.instrument = ym2610;
                 chip.samplingRate = SamplingRate;
                 chip.clock = opnbMasterClock;
                 chip.volume = 0;
+                chip.setVolumes.put("FM", ym2610::setFMVolume);
+                chip.setVolumes.put("PSG", ym2610::setPSGVolume);
+                chip.setVolumes.put("AdpcmA", ym2610::setAdpcmAVolume);
+                chip.setVolumes.put("AdpcmB", ym2610::setAdpcmBVolume);
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
             Ym2151Inst ym2151 = new Ym2151Inst();
             for (int i = 0; i < 1; i++) {
                 chip = new MDSound.Chip();
-                chip.id = (byte) i;
+                chip.id = i;
                 chip.instrument = ym2151;
                 chip.samplingRate = SamplingRate;
                 chip.clock = opmMasterClock;
@@ -160,8 +166,6 @@ class Program {
                 ww.close();
             }
         }
-
-        return 0;
     }
 
     private static int analyzeOption(String[] args) {
@@ -174,7 +178,7 @@ class Program {
                 && args[i] != null
                 && args[i].charAt(0) == '-') {
             String op = args[i].substring(1).toUpperCase();
-            if (op.length() > 2 && op.substring(0, 2).equals("L=")) {
+            if (op.length() > 2 && op.startsWith("L=")) {
                 try {
                     loop = Integer.parseInt(op.substring(2));
                 } catch (NumberFormatException e) {
@@ -198,15 +202,15 @@ class Program {
     }
 
     private static void writeOPNA(ChipDatum dat) {
-        if (dat != null && dat.addtionalData != null) {
-            MmlDatum md = (MmlDatum) dat.addtionalData;
+        if (dat != null && dat.additionalData != null) {
+            MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
                 Debug.printf(Level.FINEST, String.format("! r%d c%d", md.linePos.row, md.linePos.col));
             }
         }
         if (dat.address == -1) return;
         //Debug.printf(Level.FINEST, String.format("FM P%d Out:adr[%02x] val[%02x]", (int)dat.address, (int)dat.data,dat.port));
-        mds.writeYm2608((byte) 0, (byte) dat.port, (byte) dat.address, (byte) dat.data);
+        mds.write(Ym2608Inst.class, (byte) 0, dat.port, dat.address, dat.data);
     }
 
     private static void OPNAWaitSend(long elapsed, int size) {
@@ -262,22 +266,22 @@ class Program {
     }
 
     private static void writeOPNA(int chipId, ChipDatum dat) {
-        if (dat != null && dat.addtionalData != null) {
-            MmlDatum md = (MmlDatum) dat.addtionalData;
+        if (dat != null && dat.additionalData != null) {
+            MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
                 Debug.printf(Level.FINEST, String.format("! OPNA i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
             }
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
+        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
 
-        mds.writeYm2608((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
+        mds.write(Ym2608Inst.class, chipId, dat.port, dat.address, dat.data);
     }
 
     private static void writeOPNB(int chipId, ChipDatum dat) {
-        if (dat != null && dat.addtionalData != null) {
-            MmlDatum md = (MmlDatum) dat.addtionalData;
+        if (dat != null && dat.additionalData != null) {
+            MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
                 Debug.printf(Level.FINEST, String.format("! OPNB i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
             }
@@ -286,22 +290,22 @@ class Program {
         if (dat.address == -1) return;
         Debug.printf(Level.FINEST, String.format("Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
 
-        mds.writeYm2610((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
+        mds.write(Ym2610Inst.class, chipId, dat.port, dat.address, dat.data);
     }
 
     private static void writeOPNBAdpcmA(int chipId, byte[] pcmData) {
-        mds.writeYm2610SetAdpcmA((byte) chipId, pcmData);
+        mds.writeYm2610SetAdpcmA(chipId, pcmData);
 
     }
 
     private static void writeOPNBAdpcmB(int chipId, byte[] pcmData) {
-        mds.writeYm2610SetAdpcmB((byte) chipId, pcmData);
+        mds.writeYm2610SetAdpcmB(chipId, pcmData);
 
     }
 
     private static void writeOPM(int chipId, ChipDatum dat) {
-        if (dat != null && dat.addtionalData != null) {
-            MmlDatum md = (MmlDatum) dat.addtionalData;
+        if (dat != null && dat.additionalData != null) {
+            MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
                 Debug.printf(Level.FINEST, String.format("! OPM i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
             }
@@ -310,7 +314,7 @@ class Program {
         if (dat.address == -1) return;
         Debug.printf(Level.FINEST, String.format("Out OPMChip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
 
-        mds.writeYm2151((byte) chipId, (byte) dat.address, (byte) dat.data);
+        mds.write(Ym2151Inst.class, chipId, 0, dat.address, dat.data);
     }
 }
 

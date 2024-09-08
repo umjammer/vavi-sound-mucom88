@@ -75,7 +75,7 @@ public class Msub {
             0
     };
 
-    public byte[] TONES = new byte[] {
+    public int[] TONES = new int[] {
             0x63, 0, // 'c'
             0x64, 2, // 'd'
             0x65, 4, // 'e'
@@ -300,10 +300,10 @@ Debug.println(Level.FINE, "over 7 digits");
 
         Debug.printf(Level.FINEST, String.valueOf(c));
 
-        for (int i = 0; i < 7; i++) {
-            if (c == TONES[i * 2]) {
+        for (int[] i = new int[1]; i[0] < 7; i[0]++) {
+            if (c == TONES[i[0] * 2]) {
                 mucInfo.setCarry(false);
-                return toNext((byte) i);
+                return toNext(i);
             }
         }
 
@@ -312,9 +312,9 @@ Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES))
         return 0;
     }
 
-    private byte toNext(byte n) {
-        n = TONES[n * 2 + 1];
-        int o = work.octave;
+    private byte toNext(int[] n) {
+        n[0] = TONES[n[0] * 2 + 1];
+        int[] o = new int[] {work.octave};
 
         mucInfo.incAndGetSrcCPtr();
         char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
@@ -322,41 +322,41 @@ Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES))
                 : (char) 0;
 
         if (c == '+') {
-            if (n == 11) { // KEY='b'?
-                n = (byte) 0xff;
-                o++;
-                if (o == 8) {
-                    o = 7;
+            if (n[0] == 11) { // KEY='b'?
+                n[0] = 0xff;
+                o[0]++;
+                if (o[0] == 8) {
+                    o[0] = 7;
                 }
             }
-            n++;
+            n[0]++;
         } else if (c == '-') {
-            if (n == 0) {
-                n = 12;
-                o--;
-                if (o < 0) {
-                    o = 0;
+            if (n[0] == 0) {
+                n[0] = 12;
+                o[0]--;
+                if (o[0] < 0) {
+                    o[0] = 0;
                 }
             }
-            n--;
+            n[0]--;
         } else {
             mucInfo.decSrcCPtr();
         }
 
         siftKey(/*ref*/ o, /*ref*/ n);
         mucInfo.setCarry(false);
-        return (byte) (((o & 0xf) << 4) | (n & 0xf));
+        return (byte) ((((o[0] & 0xf) << 4) | (n[0] & 0xf)) & 0xff);
     }
 
-    public void siftKey(/*ref*/ int oct,/*ref*/ byte n) {
-        int shift = (byte) work.siftDat + (byte) work.siftDa2;
+    public void siftKey(/*ref*/ int[] oct,/*ref*/ int[] n) {
+        int shift = work.siftDat + work.siftDa2;
         if (shift == 0) return;
 
         //mucInfo.Carry = (oct * 12 + n > 0xff);
-        n = (byte) (oct * 12 + n);
+        n[0] = oct[0] * 12 + n[0];
 
-        oct = (n + shift) / 12;
-        n = (byte) ((n + shift) % 12);
+        oct[0] = (n[0] + shift) / 12;
+        n[0] = (n[0] + shift) % 12;
     }
 
     /**

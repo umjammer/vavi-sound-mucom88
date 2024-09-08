@@ -1,11 +1,11 @@
-#title    �X���b�g�f�B�`���[���T���v��
+#title    スロットディチューンサンプル
 #composer none
 #author   none
 #date     2021/04/30
 #comment  none
 #driver   mucomDotNET
 
-' lead synth���ۂ��Ȃɂ�
+' lead synthっぽいなにか
   @2
    0, 0
   000,001,001,015,127,000,000,000,000
@@ -14,10 +14,10 @@
   031,001,001,015,000,000,000,000,000
 
 
- S�R�}���h�̈����͈ȉ��̏��ɂȂ�
+ Sコマンドの引数は以下の順になる
  Sop4,op3,op1,op2
 
- Ch3�̓p�[�g�\�L�ł͂ł� C/N/c/n
+ Ch3はパート表記ではでは C/N/c/n
 N  C192 t183 v11 l8o6@2
 N  S0,0,0,0 c
 N  S100,0,0,0 c

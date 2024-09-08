@@ -387,12 +387,12 @@ e.printStackTrace();
         for (String v : text) {
             try {
                 int p = v.indexOf(' ');
-                String tag = "";
-                String ele = "";
+                String tag;
+                String ele;
                 if (p >= 0) {
                     tag = v.substring(1, 1 + p).trim().toLowerCase();
                     ele = v.substring(p + 1).trim();
-                    Tuple<String, String> item = new Tuple<String, String>(tag, ele);
+                    Tuple<String, String> item = new Tuple<>(tag, ele);
                     tags.add(item);
                 }
             } catch (Exception e) {
@@ -426,7 +426,7 @@ e.printStackTrace();
 
             int pcmFlag = 0;
             int maxCount = 0;
-            int mubSize = 0;
+            int mubSize;
             StringBuilder tCount = new StringBuilder();
             StringBuilder lCount = new StringBuilder();
             StringBuilder bCount = new StringBuilder();
@@ -556,6 +556,7 @@ e.printStackTrace();
      */
     private int saveMusic(int length, int option, boolean isExtendFormat) {
 
+Debug.println("isExtendFormat: " + isExtendFormat);
         if (isExtendFormat) {
             return saveMusicExtendFormat(length, option);
         }

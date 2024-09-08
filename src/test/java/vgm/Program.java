@@ -160,8 +160,8 @@ class Program {
     }
 
     private static void writeOPNA(ChipDatum dat) {
-        if (dat != null && dat.addtionalData != null) {
-            MmlDatum md = (MmlDatum) dat.addtionalData;
+        if (dat != null && dat.additionalData != null) {
+            MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
                 Debug.printf(Level.FINEST, String.format("! r%d c%d", md.linePos.row, md.linePos.col));
             }
@@ -205,52 +205,52 @@ class Program {
     }
 
     private static void writeOPNA(int chipId, ChipDatum dat) {
-        if (dat != null && dat.addtionalData != null) {
-            MmlDatum md = (MmlDatum) dat.addtionalData;
+        if (dat != null && dat.additionalData != null) {
+            MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
                 Debug.printf(Level.FINEST, String.format("! OPNA i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
             }
         }
         if (dat.address == -1) return;
 
-        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
+        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
 
-        writer.writeYM2608((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
+        writer.writeYM2608(chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
     }
 
     private static void writeOPNB(int chipId, ChipDatum dat) {
-        if (dat != null && dat.addtionalData != null) {
-            MmlDatum md = (MmlDatum) dat.addtionalData;
+        if (dat != null && dat.additionalData != null) {
+            MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
                 Debug.printf(Level.FINEST, String.format("! OPNB i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
             }
         }
         if (dat.address == -1) return;
 
-        Debug.printf(Level.FINEST, String.format("Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
+        Debug.printf(Level.FINEST, String.format("Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
 
-        writer.writeYM2610((byte) chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
+        writer.writeYM2610(chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
     }
 
     private static void writeOPNBAdpcmA(int chipId, byte[] pcmData) {
-        writer.writeYM2610SetAdpcmA((byte) chipId, pcmData);
+        writer.writeYM2610SetAdpcmA(chipId, pcmData);
     }
 
     private static void writeOPNBAdpcmB(int chipId, byte[] pcmData) {
-        writer.writeYM2610SetAdpcmB((byte) chipId, pcmData);
+        writer.writeYM2610SetAdpcmB(chipId, pcmData);
     }
 
     private static void writeOPM(int chipId, ChipDatum dat) {
-        if (dat != null && dat.addtionalData != null) {
-            MmlDatum md = (MmlDatum) dat.addtionalData;
+        if (dat != null && dat.additionalData != null) {
+            MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
                 Debug.printf(Level.FINEST, String.format("! OPM i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
             }
         }
         if (dat.address == -1) return;
 
-        Debug.printf(Level.FINEST, String.format("Out OPM Chip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, (int) dat.address, (int) dat.data));
+        Debug.printf(Level.FINEST, String.format("Out OPM Chip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
 
-        writer.writeYM2151((byte) chipId, (byte) dat.address, (byte) dat.data);
+        writer.writeYM2151(chipId, (byte) dat.address, (byte) dat.data);
     }
 }

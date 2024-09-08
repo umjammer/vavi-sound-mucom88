@@ -14,7 +14,7 @@ import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 public class WaveWriter {
     private FileStream dest = null;
     private int len = 0;
-    private int sampleFreq = 44100;
+    private int sampleFreq;
 
     public WaveWriter(int samplingFreq/*=44100*/) {
         sampleFreq = samplingFreq;

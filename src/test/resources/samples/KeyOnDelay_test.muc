@@ -1,11 +1,11 @@
-#title    KeyOnDelay ƒTƒ“ƒvƒ‹
+#title    KeyOnDelay ã‚µãƒ³ãƒ—ãƒ«
 #composer none
 #author   none
 #date     2021/04/30
 #comment  none
 #driver   mucomDotNET
 
-' lead synth‚Á‚Û‚¢‚È‚É‚©
+' lead synthã£ã½ã„ãªã«ã‹
   @2
    0, 7
   031,004,001,015,000,000,000,001,000

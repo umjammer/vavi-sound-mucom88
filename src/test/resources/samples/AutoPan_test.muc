@@ -1,11 +1,11 @@
-#title    ƒI[ƒgƒpƒ“ƒTƒ“ƒvƒ‹
+#title    ã‚ªãƒ¼ãƒˆãƒ‘ãƒ³ã‚µãƒ³ãƒ—ãƒ«
 #composer none
 #author   none
 #date     2021/04/30
 #comment  none
 #driver   mucomDotNET
 
-' lead synth‚Á‚Û‚¢‚È‚É‚©
+' lead synthã£ã½ã„ãªã«ã‹
   @2
    5, 4
   031,001,001,001,005,026,000,001,002
@@ -16,17 +16,17 @@
 
 
 A  C192 t183 v11 l8 o4 @2
- ‰E
+ å³
 A  p1    cdefgabr
- ¶
+ å·¦
 A  p2    cdefgabr
- ’†‰›
+ ä¸­å¤®
 A  p3    cdefgabr
- ‰EƒI[ƒgƒpƒ“
+ å³ã‚ªãƒ¼ãƒˆãƒ‘ãƒ³
 A  p4,10 cdefgabr
- ¶ƒI[ƒgƒpƒ“
+ å·¦ã‚ªãƒ¼ãƒˆãƒ‘ãƒ³
 A  p5,10 cdefgabr
- ƒ‰ƒ“ƒ_ƒ€ƒI[ƒgƒpƒ“
+ ãƒ©ãƒ³ãƒ€ãƒ ã‚ªãƒ¼ãƒˆãƒ‘ãƒ³
 A  p6,10 cdefgabr
 
 

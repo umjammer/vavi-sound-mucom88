@@ -7,7 +7,7 @@ public class OPNATimer extends FMTimer {
 
     public OPNATimer(int renderingFreq, int opnaMasterClock) {
         super(renderingFreq, opnaMasterClock);
-        step = opnaMasterClock / 72.0 / 2.0 / (double) renderingFreq;
+        step = opnaMasterClock / 72.0 / 2.0 / renderingFreq;
     }
 
     @Override
@@ -16,7 +16,7 @@ public class OPNATimer extends FMTimer {
         // timerA
         case 0x24:
             timerA &= 0x3;
-            timerA |= (data << 2);
+            timerA |= ((data & 0xff) << 2);
             return true;
         case 0x25:
             timerA &= 0x3fc;
@@ -24,7 +24,7 @@ public class OPNATimer extends FMTimer {
             return true;
         case 0x26:
             // timerB
-            timerB = (256 - data) << 4;
+            timerB = (256 - (data & 0xff)) << 4;
             return true;
         case 0x27:
             // タイマー制御レジスタ

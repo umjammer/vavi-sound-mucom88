@@ -23,7 +23,7 @@ public abstract class RSoundChip {
 
     public abstract int SetMasterClock(int mClock);
 
-    public abstract void setSSGVolume(byte vol);
+    public abstract void setSSGVolume(int vol);
 
     public abstract void OPNAWaitSend(long elapsed, int size);
 

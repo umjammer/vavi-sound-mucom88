@@ -69,7 +69,7 @@ public class RC86ctlSoundChip extends RSoundChip {
     }
 
     @Override
-    public void setSSGVolume(byte vol) {
+    public void setSSGVolume(int vol) {
         NIGimic2 gm = realChip.QueryInterface();
         gm.setSSGVolume(vol);
     }
@@ -94,7 +94,7 @@ public class RC86ctlSoundChip extends RSoundChip {
     @Override
     public RSoundChip CheckDevice() {
         SChipType ct = null;
-        int iCount = 0;
+        int iCount;
 
         nScci = new NScci.NScci();
         iCount = nScci.NSoundInterfaceManager_.getInterfaceCount();

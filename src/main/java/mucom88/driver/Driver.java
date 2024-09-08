@@ -351,7 +351,7 @@ public class Driver implements IDriver {
         case "mda ": // OPNA ADPCM
         case "mdbb": // OPNB ADPCM-B
         case "mdba": // OPNB ADPCM-A
-            int cnt = pcm[id][4] + (pcm[id][5] << 8) + 1;
+            int cnt = (pcm[id][4] & 0xff) + ((pcm[id][5] & 0xff) << 8) + 1;
             int p = 6;
             for (int i = 0; i < cnt; i++) {
                 List<Byte> b = new ArrayList<>();
@@ -418,8 +418,8 @@ public class Driver implements IDriver {
                 new ChipDatum(0x1, 0x00, 0x61),
                 new ChipDatum(0x1, 0x00, 0x68),
                 new ChipDatum(0x1, 0x01, 0x00),
-                new ChipDatum(0x1, 0x02, (byte) ((startAddress >> 2) & 0xff)),
-                new ChipDatum(0x1, 0x03, (byte) ((startAddress >> 10) & 0xff)),
+                new ChipDatum(0x1, 0x02, (startAddress >> 2) & 0xff),
+                new ChipDatum(0x1, 0x03, (startAddress >> 10) & 0xff),
                 new ChipDatum(0x1, 0x04, 0xff),
                 new ChipDatum(0x1, 0x05, 0xff),
                 new ChipDatum(0x1, 0x0c, 0xff),
@@ -442,7 +442,8 @@ public class Driver implements IDriver {
     // rendering
     //
 
-    public void startRendering(int renderingFreq, Tuple<String, Integer>... chipMasterClocks) {
+    @SafeVarargs
+    public final void startRendering(int renderingFreq, Tuple<String, Integer>... chipMasterClocks) {
         synchronized (work.systemInterrupt) {
 
             work.timeCounter = 0L;
@@ -575,7 +576,7 @@ public class Driver implements IDriver {
     public void startMusic(int musicNumber) {
         Debug.printf(Level.FINEST, "演奏開始");
         music2.MSTART(musicNumber);
-        music2.SkipCount((int) header.jumpCount);
+        music2.skipCount(header.jumpCount);
     }
 
     public void stopMusic() {
@@ -732,12 +733,12 @@ public class Driver implements IDriver {
         for (String v : text) {
             try {
                 int p = v.indexOf(' ');
-                String tag = "";
-                String ele = "";
+                String tag;
+                String ele;
                 if (p >= 0) {
                     tag = v.substring(1, 1 + p).trim().toLowerCase();
                     ele = v.substring(p + 1).trim();
-                    Tuple<String, String> item = new Tuple<String, String>(tag, ele);
+                    Tuple<String, String> item = new Tuple<>(tag, ele);
                     tags.add(item);
                 }
             } catch (Exception e) {
@@ -769,8 +770,7 @@ public class Driver implements IDriver {
     }
 
     public void setDriverSwitch(Object... param) {
-        if (param[0] instanceof String) {
-            String cmd = (String) param[0];
+        if (param[0] instanceof String cmd) {
             if (cmd.equals("AllMute")) {
                 setAllMuteFlag((boolean) param[1]);
             } else if (cmd.equals("SetMute")) {

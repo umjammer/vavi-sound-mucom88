@@ -8,7 +8,7 @@ public class OPNAData {
     public long time;
     public Object addtionalData = null;
 
-    public OPNAData(byte port, byte address, byte data, long time/* = 0*/, Object addtionalData/* = null*/) {
+    public OPNAData(byte port, byte address, byte data, long time /* = 0 */, Object addtionalData /* = null*/) {
         this.port = port;
         this.address = address;
         this.data = data;

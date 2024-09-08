@@ -4,6 +4,7 @@ import java.util.logging.Level;
 
 import mucom88.player.RSoundChip;
 import mucom88.player.SChipType;
+import mucom88.player.real.RC86ctlSoundChip.EnmRealChipType;
 import vavi.util.Debug;
 
 
@@ -60,14 +61,14 @@ public class RScciSoundChip extends RSoundChip {
      */
     @Override
     public int SetMasterClock(int mClock) {
-        //SCCIはクロックの変更不可
+        // SCCIはクロックの変更不可
 
         return (int) realChip.getSoundChipClock();
     }
 
     @Override
-    public void setSSGVolume(byte vol) {
-        //SCCIはSSG音量の変更不可
+    public void setSSGVolume(int vol) {
+        // SCCIはSSG音量の変更不可
     }
 
     @Override
@@ -92,7 +93,7 @@ public class RScciSoundChip extends RSoundChip {
     @Override
     public RSoundChip CheckDevice() {
         SChipType ct = null;
-        int iCount = 0;
+        int iCount;
 
         nc86ctl = new Nc86ctl.Nc86ctl();
         nc86ctl.initialize();
@@ -107,7 +108,7 @@ public class RScciSoundChip extends RSoundChip {
             NIRealChip rc = nc86ctl.getChipInterface(i);
             NIGimic2 gm = rc.QueryInterface();
             ChipType cct = gm.getModuleType();
-            int o = -1;
+            int o;
             if (cct == ChipType.CHIP_YM2608 || cct == ChipType.CHIP_YMF288 || cct == ChipType.CHIP_YM2203) {
                 ct = new SChipType();
                 ct.setSoundLocation(-1);

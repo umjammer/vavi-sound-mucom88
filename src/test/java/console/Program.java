@@ -24,7 +24,7 @@ import vavi.util.Debug;
 import vavi.util.serdes.Serdes;
 
 
-class Program {
+public class Program {
 
     private static ResourceBundle rb = ResourceBundle.getBundle("lang/message");
 
@@ -53,7 +53,7 @@ class Program {
         }
     }
 
-    static String getCompledFilename(Path p) {
+    public static String getCompledFilename(Path p) {
         return p.getFileName().toString().replaceFirst("\\.muc$", ".mub");
     }
 
@@ -84,7 +84,7 @@ Debug.println(Level.FINE, srcFile + " -> " + destFileName);
                     return;
                 }
 
-                boolean isSuccess = false;
+                boolean isSuccess;
                 try (FileStream sourceMML = new FileStream(srcFile, FileMode.Open, FileAccess.Read, FileShare.Read);
                      MemoryStream destCompiledBin = new MemoryStream();
                      Stream bufferedDestStream = new BufferedStream(destCompiledBin)) {
@@ -103,7 +103,7 @@ Debug.println(Level.FINE, srcFile + " -> " + destFileName);
                 if (destFile != null) {
                     destFileName = destFile;
                 }
-                MmlDatum[] dest = null;
+                MmlDatum[] dest;
 
                 try (FileStream sourceMML = new FileStream(srcFile, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                     dest = compiler.compile(sourceMML, Program::appendFileReaderCallback);

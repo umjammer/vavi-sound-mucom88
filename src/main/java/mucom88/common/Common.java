@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.nio.charset.Charset;
 
 import musicDriverInterface.MmlDatum;
+import vavi.util.ByteUtil;
 
 
 public class Common {
@@ -16,10 +17,7 @@ public class Common {
             throw new IndexOutOfBoundsException();
         }
 
-        int dat;
-        dat = (int) buf[adr] * 0x100 + (int) buf[adr + 1];
-
-        return dat;
+        return ByteUtil.readBeShort(buf, adr);
     }
 
     @Deprecated
@@ -28,9 +26,7 @@ public class Common {
             throw new IndexOutOfBoundsException();
         }
 
-        int dat= (buf[adr] & 0xff) + (buf[adr + 1] & 0xff) * 0x100;
-
-        return dat;
+        return ByteUtil.readLeShort(buf, adr);
     }
 
     @Deprecated
@@ -54,9 +50,7 @@ public class Common {
             throw new IndexOutOfBoundsException("adr: " + adr);
         }
 
-        int dat = (buf[adr] & 0xff) + (buf[adr + 1] & 0xff) * 0x100 + (buf[adr + 2] & 0xff) * 0x10000;
-
-        return dat;
+        return ByteUtil.readLe24(buf, adr);
     }
 
     @Deprecated
@@ -67,10 +61,7 @@ public class Common {
             throw new IndexOutOfBoundsException("adr: " + adr);
         }
 
-        int dat = (buf[adr] & 0xff) + (buf[adr + 1] & 0xff) * 0x100 + (buf[adr + 2] & 0xff) * 0x10000 +
-                (buf[adr + 3] & 0xff) * 0x100_0000;
-
-        return dat;
+        return ByteUtil.readLeInt(buf, adr);
     }
 
     @Deprecated

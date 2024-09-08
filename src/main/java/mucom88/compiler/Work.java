@@ -44,7 +44,7 @@ public class Work {
     public int vicAdr = 0; // w
     public static final String titleFmt = "[  MUCOM88 Ver:0.0  ]  Address:0000-0000(0000)         [ 00:00 ] MODE:NORMAL  ";
     public String title = "[  MUCOM88 Ver:0.0  ]  Address:0000-0000(0000)         [ 00:00 ] MODE:NORMAL  ";
-    //public byte fmvoiceCnt = 0; // 50
+//    public byte fmvoiceCnt = 0; // 50
     public byte[] lfoData = new byte[] {1, 0, 0, 0, 0, 0, 0};
     public byte linCfg = 0;
     public int adrStc = 0;

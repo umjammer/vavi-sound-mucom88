@@ -7,7 +7,7 @@ public class OPMTimer extends FMTimer {
 
     public OPMTimer(int renderingFreq, int opmMasterClock) {
         super(renderingFreq, opmMasterClock);
-        step = opmMasterClock / 64.0 / 1.0 / (double) renderingFreq;
+        step = opmMasterClock / 64.0 / 1.0 / renderingFreq;
     }
 
     @Override
@@ -15,7 +15,7 @@ public class OPMTimer extends FMTimer {
         switch (adr) {
         case 0x10:
             timerA &= 0x3;
-            timerA |= (data << 2);
+            timerA |= ((data & 0xff) << 2);
             return true;
         case 0x11:
             timerA &= 0x3fc;
@@ -23,7 +23,7 @@ public class OPMTimer extends FMTimer {
             return true;
         case 0x12:
             // timerB
-            timerB = (256 - (int) data) << (10 - 6);
+            timerB = (256 - (data & 0xff)) << (10 - 6);
             return true;
         case 0x14:
             // タイマー制御レジスタ

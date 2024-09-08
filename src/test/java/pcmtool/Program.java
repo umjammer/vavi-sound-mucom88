@@ -79,7 +79,7 @@ class Program {
                 if (pcmdata[i] == null) continue;
                 String dstFn = Path.combine(Path.getDirectoryName(fn), Path.getFileNameWithoutExtension(fn) + addName[i]);
                 File.writeAllBytes(dstFn, pcmdata[i]);
-                Debug.printf(Level.INFO, String.format("Write:%d size:%d", dstFn, pcmdata[i].length));
+                Debug.printf(Level.INFO, String.format("Write:%s size:%d", dstFn, pcmdata[i].length));
             }
         } catch (Exception ex) {
             Debug.printf(Level.SEVERE, "Fatal error.");

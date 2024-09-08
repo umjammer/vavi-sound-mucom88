@@ -22,36 +22,36 @@ public class SMon {
             }
         }
         vbuf[36] = mucInfo.getMmlVoiceDataWork().get(37);
-        vbuf[38] = mucInfo.getMmlVoiceDataWork().get(38); //次のOPEXにて37に移動するよ
+        vbuf[38] = mucInfo.getMmlVoiceDataWork().get(38); // 次のOPEXにて37に移動するよ
 
-        //OPEX()
+        // OPEX()
         for (int col = 0; col < 10; col++) {
             byte b = vbuf[col * 4 + 1];
             vbuf[col * 4 + 1] = vbuf[col * 4 + 2];
             vbuf[col * 4 + 2] = b;
         }
 
-        //GETPARA
+        // GETPARA
         int a;
         for (int row = 0; row < 4; row++) {
-            //MUL/DT
+            // MUL/DT
             a = (vbuf[row + 32] & 0xf) * 16 + (vbuf[row + 28] & 0xf);
             mucInfo.getMmlVoiceDataWork().set(row + 1, (byte) a);
 
-            //TL
-            mucInfo.getMmlVoiceDataWork().set(row + 5, (byte) vbuf[row + 20]);
+            // TL
+            mucInfo.getMmlVoiceDataWork().set(row + 5, vbuf[row + 20]);
 
-            //KS/AR
+            // KS/AR
             a = (vbuf[row + 24] & 0x3) * 64 + (vbuf[row] & 0x1f);
             mucInfo.getMmlVoiceDataWork().set(row + 9, (byte) a);
 
-            //DR
-            mucInfo.getMmlVoiceDataWork().set(row + 13, (byte) vbuf[row + 4]);
+            // DR
+            mucInfo.getMmlVoiceDataWork().set(row + 13, vbuf[row + 4]);
 
-            //SR
-            mucInfo.getMmlVoiceDataWork().set(row + 17, (byte) vbuf[row + 8]);
+            // SR
+            mucInfo.getMmlVoiceDataWork().set(row + 17, vbuf[row + 8]);
 
-            //SL/RR
+            // SL/RR
             a = (vbuf[row + 16] & 0xf) * 16 + (vbuf[row + 12] & 0xf);
             mucInfo.getMmlVoiceDataWork().set(row + 21, (byte) a);
         }
@@ -73,25 +73,25 @@ public class SMon {
             int op = row;
             op = (op == 1 ? 2 : (op == 2 ? 1 : op));
 
-            //DT/MUL
+            // DT/MUL
             a = voi.get(op * 10 + 2 + 8) * 16 + voi.get(op * 10 + 2 + 7);
             mucInfo.getMmlVoiceDataWork().set(row + 1, (byte) a);
 
-            //TL
+            // TL
             mucInfo.getMmlVoiceDataWork().set(row + 5, voi.get(op * 10 + 2 + 5));
 
-            //KS/AR
+            // KS/AR
             a = voi.get(op * 10 + 2 + 6) * 64 + voi.get(op * 10 + 2 + 0);
             mucInfo.getMmlVoiceDataWork().set(row + 9, (byte) a);
 
-            //DR
+            // DR
             mucInfo.getMmlVoiceDataWork().set(row + 13, voi.get(op * 10 + 2 + 1));
 
-            //DT2/SR
+            // DT2/SR
             a = voi.get(op * 10 + 2 + 9) * 64 + voi.get(op * 10 + 2 + 2);
             mucInfo.getMmlVoiceDataWork().set(row + 17, (byte) a);
 
-            //SL/RR
+            // SL/RR
             a = voi.get(op * 10 + 2 + 4) * 16 + voi.get(op * 10 + 2 + 3);
             mucInfo.getMmlVoiceDataWork().set(row + 21, (byte) a);
         }

@@ -17,7 +17,7 @@ public class Expand {
     public SMon smon = null;
     public Muc88 muc88 = null;
 
-    public short[][] FNUMB = new short[][] {
+    public static final short[][] FNUMB = {
             new short[] {
                     0x026A, 0x028F, 0x02B6, 0x02DF,
                     0x030B, 0x0339, 0x036A, 0x039E,
@@ -29,7 +29,7 @@ public class Expand {
                     0x03d3, 0x040e, 0x044b, 0x048d
             }
     };
-    public short[][] SNUMB = new short[][] {
+    public static final short[][] SNUMB = {
             new short[] {
                     0x0EE8, 0x0E12, 0x0D48, 0x0C89,
                     0x0BD5, 0x0B2B, 0x0A8A, 0x09F3,
@@ -41,7 +41,7 @@ public class Expand {
                     0x0968, 0x08e1, 0x0861, 0x07E9
             }
     };
-    public short[][] FNUMBopm = new short[][] {
+    public static final short[][] FNUMBopm = {
             new short[] {
                     0x0000, 0x0040, 0x0080, 0x00c0,
                     0x0100, 0x0140, 0x0180, 0x01c0,
@@ -61,7 +61,7 @@ public class Expand {
 
     public void FVTEXT(int vn) {
         int fvfg;
-        int fmlib1 = 1;// 0x6001;
+        int fmlib1 = 1; // 0x6001;
         boolean found = false;
 
         for (int i = 0; i < mucInfo.getBasSrc().size(); i++) {
@@ -100,7 +100,7 @@ public class Expand {
                         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
                             muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
-                        srcCPtr[0]++;// SKIP','
+                        srcCPtr[0]++; // SKIP','
                         mucInfo.getMmlVoiceDataWork().set(
                                 fmlib1++
                                 , v
@@ -141,7 +141,7 @@ public class Expand {
                             muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
                         srcCPtr[0]++; // skip ','
-                        voi.add((byte) v);
+                        voi.add(v);
                     }
                 }
 
@@ -171,10 +171,7 @@ public class Expand {
                             muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
                         srcCPtr[0]++; // skip ','
-                        mucInfo.getMmlVoiceDataWork().set(
-                                fmlib1++
-                                , v
-                        );
+                        mucInfo.getMmlVoiceDataWork().set(fmlib1++, v);
                     }
                 }
                 mucInfo.getMmlVoiceDataWork().set(fmlib1++, (byte) fb);
@@ -236,9 +233,7 @@ public class Expand {
             }
         }
 
-        if (mucInfo.getSsgVoice().containsKey(n)) {
-            mucInfo.getSsgVoice().remove(n);
-        }
+        mucInfo.getSsgVoice().remove(n);
         mucInfo.getSsgVoice().put(n, v);
     }
 
@@ -336,15 +331,15 @@ public class Expand {
         byte note = msub.STTONE();
         work.mData = DE;
         if (mucInfo.getCarry()) {
-            mucInfo.setCarry(true);//  SCF
-            return 0;//    RET
+            mucInfo.setCarry(true); // SCF
+            return 0; // RET
         }
 
-        int depth = CULP2(chipIndex, note) / work.getBefCo();//Mem.LD_8(BEFCO + 1); ?
+        int depth = CULP2(chipIndex, note) / work.getBefCo(); // Mem.LD_8(BEFCO + 1); ?
 
         if (!mucInfo.getCarry()) return depth;
         mucInfo.setCarry(false);
-        return -depth;//    RET
+        return -depth; // RET
     }
 
     private int CULP2(int chipIndex, byte note) {
@@ -372,7 +367,7 @@ public class Expand {
         }
 
         int noteNum = ctone(note) - ctone(work.getBeforeTone()[0]);
-        if (noteNum == 0) return 0;//変化なし
+        if (noteNum == 0) return 0; // 変化なし
         if (noteNum >= 0) {
             up = !CULP2_Ptn;
         } else {
@@ -394,7 +389,7 @@ public class Expand {
     }
 
     private int culc(float facc, int frq, int amul) {
-        float frqbef = (float) frq;
+        float frqbef = frq;
         for (int count = 0; count < amul; count++) {
             frqbef *= facc;
         }
@@ -405,4 +400,3 @@ public class Expand {
         return (byte) ((a & 0x0f) + ((a & 0xf0) >> 4) * 12);
     }
 }
-

@@ -197,7 +197,7 @@ public class VgmWriter {
         dest.writeByte((byte) 0x66);
 
         // Total # samples
-        dest.setPosition(0x18);
+        dest.position(0x18);
         dest.writeByte((byte) (totalSample & 0xff));
         dest.writeByte((byte) ((totalSample >> 8) & 0xff));
         dest.writeByte((byte) ((totalSample >> 16) & 0xff));
@@ -237,9 +237,9 @@ public class VgmWriter {
             long gd3ofs = dest.getLength() - 0x14;
             for (byte b : tagBytes) dest.writeByte(b);
 
-            //Tag offset
+            // Tag offset
             if (tagBytes.length > 0) {
-                dest.setPosition(0x14);
+                dest.position(0x14);
                 dest.writeByte((byte) (gd3ofs & 0xff));
                 dest.writeByte((byte) ((gd3ofs >> 8) & 0xff));
                 dest.writeByte((byte) ((gd3ofs >> 16) & 0xff));
@@ -247,29 +247,29 @@ public class VgmWriter {
             }
         }
 
-        //EOF offset
-        dest.setPosition(0x4);
+        // EOF offset
+        dest.position(0x4);
         dest.writeByte((byte) ((dest.getLength() - 4) & 0xff));
         dest.writeByte((byte) (((dest.getLength() - 4) >> 8) & 0xff));
         dest.writeByte((byte) (((dest.getLength() - 4) >> 16) & 0xff));
         dest.writeByte((byte) (((dest.getLength() - 4) >> 24) & 0xff));
 
-        //YM2608 offset
-        dest.setPosition(0x48);
+        // YM2608 offset
+        dest.position(0x48);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
 
-        //YM2610 offset
-        dest.setPosition(0x4c);
+        // YM2610 offset
+        dest.position(0x4c);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
 
-        //YM2151 offset
-        dest.setPosition(0x30);
+        // YM2151 offset
+        dest.position(0x30);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
@@ -280,7 +280,7 @@ public class VgmWriter {
             switch (useChips[i]) {
             case 1:
             case 2:
-                dest.setPosition(0x48);
+                dest.position(0x48);
                 dest.writeByte((byte) (opnaMasterClock >> 0));
                 dest.writeByte((byte) (opnaMasterClock >> 8));
                 dest.writeByte((byte) (opnaMasterClock >> 16));
@@ -289,7 +289,7 @@ public class VgmWriter {
                 break;
             case 3:
             case 4:
-                dest.setPosition(0x4c);
+                dest.position(0x4c);
                 dest.writeByte((byte) (opnbMasterClock >> 0));
                 dest.writeByte((byte) (opnbMasterClock >> 8));
                 dest.writeByte((byte) (opnbMasterClock >> 16));
@@ -297,7 +297,7 @@ public class VgmWriter {
                 else dest.writeByte((byte) 0x40);
                 break;
             case 5:
-                dest.setPosition(0x30);
+                dest.position(0x30);
                 dest.writeByte((byte) (opmMasterClock >> 0));
                 dest.writeByte((byte) (opmMasterClock >> 8));
                 dest.writeByte((byte) (opmMasterClock >> 16));
@@ -326,7 +326,7 @@ public class VgmWriter {
         waitCounter++;
     }
 
-    public void writeAdpcm(byte chipId, byte[] adpcmData) {
+    public void writeAdpcm(int chipId, byte[] adpcmData) {
         if (useChips[chipId] == 0 || adpcmData == null || adpcmData.length < 1) return;
 
         dest.writeByte((byte) 0x67);
@@ -336,7 +336,7 @@ public class VgmWriter {
         writePCMData(chipId, adpcmData);
     }
 
-    public void writeYM2610SetAdpcmA(byte chipId, byte[] pcmData) {
+    public void writeYM2610SetAdpcmA(int chipId, byte[] pcmData) {
         dest.writeByte((byte) 0x67);
         dest.writeByte((byte) 0x66);
         dest.writeByte((byte) 0x82);
@@ -344,7 +344,7 @@ public class VgmWriter {
         writePCMData(chipId, pcmData);
     }
 
-    public void writeYM2610SetAdpcmB(byte chipId, byte[] pcmData) {
+    public void writeYM2610SetAdpcmB(int chipId, byte[] pcmData) {
 
         dest.writeByte((byte) 0x67);
         dest.writeByte((byte) 0x66);
@@ -353,10 +353,10 @@ public class VgmWriter {
         writePCMData(chipId, pcmData);
     }
 
-    private void writePCMData(byte chipId, byte[] pcmData) {
+    private void writePCMData(int chipId, byte[] pcmData) {
         int size = pcmData.length;
 
-        long sizeOfData = size + 8 + chipId * 0x8000_0000;
+        long sizeOfData = size + 8 + chipId * 0x8000_0000L;
         dest.writeByte((byte) (sizeOfData >> 0));
         dest.writeByte((byte) (sizeOfData >> 8));
         dest.writeByte((byte) (sizeOfData >> 16));
@@ -373,8 +373,8 @@ public class VgmWriter {
         dest.writeByte((byte) (startAddress >> 16));
         dest.writeByte((byte) (startAddress >> 24));
 
-        for (int i = 0x0; i < pcmData.length; i++) {
-            dest.writeByte(pcmData[i]);
+        for (byte pcmDatum : pcmData) {
+            dest.writeByte(pcmDatum);
         }
     }
 

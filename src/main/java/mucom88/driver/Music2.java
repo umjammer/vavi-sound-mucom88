@@ -129,7 +129,7 @@ public class Music2 {
 
             if (work.resetPlaySync) {
                 work.resetPlaySync = false;
-                ChipDatum dat = new ChipDatum(-1, -1, -1, 0, new MmlDatum(MMLType.ResetPlaySync, null, null, 0));
+                ChipDatum dat = new ChipDatum(-1, 0, 0, 0, new MmlDatum(MMLType.ResetPlaySync, null, null, 0));
                 writeRegister(0, dat);
             }
 
@@ -168,7 +168,7 @@ public class Music2 {
         }
     }
 
-    public void SkipCount(int count) {
+    public void skipCount(int count) {
         synchronized (work.systemInterrupt) {
             // Work.systemInterrupt = true;
             for (int c = 0; c < 4; c++) {
@@ -274,7 +274,7 @@ public class Music2 {
 
     public void setPSGCOM() {
         psgCom = new Runnable[] {
-                this::OTOSSG,  // 0xF0 - ｵﾝｼｮｸ ｾｯﾄ         '@'
+                this::OTOSSG, // 0xF0 - ｵﾝｼｮｸ ｾｯﾄ         '@'
                 this::PSGVOL, // 0xF1 - volume SET
                 this::FRQ_DF, // 0xF2 - DETUNE
                 this::SETQ,   // 0xF3 - COMMAND OF        'q'
@@ -299,7 +299,7 @@ public class Music2 {
                 this::REVERVE,        // 0xFF 0xF3 - ﾘﾊﾞｰﾌﾞ
                 this::REVMOD,         // 0xFF 0xF4 - ﾘﾊﾞｰﾌﾞﾓｰﾄﾞ
                 this::REVSW,          // 0xFF 0xF5 - ﾘﾊﾞｰﾌﾞ ｽｲｯﾁ
-                this::SelectWaveForm, // 0xFF 0xF6
+                this::selectWaveForm, // 0xFF 0xF6
                 this::MW_REG,         // 0xFF 0xF7 - multi Write Register n1,n2,n3,n4
                 this::CH3SP,          // 0xFF 0xF8 - 効果音モード系制御コマンド
                 this::PORTAON,        // 0xFF 0xF9 - ポルタメント n1,n2,n3  (st ed totalclock)
@@ -312,7 +312,7 @@ public class Music2 {
         };
     }
 
-    private void SelectWaveForm() {
+    private void selectWaveForm() {
         byte a = (byte) (work.pg.mData[work.hl++].dat & 0xff);
         if (a != (byte) 0xff) {
             // 波形プリセット選択
@@ -330,14 +330,14 @@ public class Music2 {
 
         // WaveForm送信
         if (work.pg.getSsgWfNum() > 9) {
-            SendSSGWf(a);
+            sendSSGWf(a);
         }
     }
 
-    private void SendSSGWf(byte wfNum) {
+    private void sendSSGWf(byte wfNum) {
         if (work.ssgVoiceAtMusData == null) return;
-        if (!work.ssgVoiceAtMusData.containsKey(wfNum)) return;
-        byte[] dat = work.ssgVoiceAtMusData.get(wfNum);
+        if (!work.ssgVoiceAtMusData.containsKey(wfNum & 0xff)) return;
+        byte[] dat = work.ssgVoiceAtMusData.get(wfNum & 0xff);
         byte vch = (byte) (work.pg.channelNumber >> 1);
         PSGOUT((byte) 0x0d, (byte) (0x80 | ((vch & 3) << 4) | (work.pg.hardEnvelopValue & 0xf)));
         for (byte b : dat) PSGOUT((byte) 0x0e, (byte) (b + 0x80));
@@ -353,7 +353,7 @@ public class Music2 {
     private void AKYOFF() {
         for (int i = 0; i < 5; i++) {
             for (int e = 0; e < (i != 4 ? 7 : 8); e++) {
-                ChipDatum dat = new ChipDatum(0, (i != 4 ? 0x28 : 0x08), (byte) e);
+                ChipDatum dat = new ChipDatum(0, (i != 4 ? 0x28 : 0x08), e & 0xff);
                 writeRegister(i, dat);
             }
         }
@@ -641,18 +641,18 @@ public class Music2 {
         ChipDatum dat;
         work.soundWork.setFmPort(0);
         for (int b = 0; b < 3; b++) {
-            dat = new ChipDatum(0, (byte) (0xb4 + b), 0xc0); // fm 1-3
+            dat = new ChipDatum(0, 0xb4 + b, 0xc0); // fm 1-3
             writeRegister(work.soundWork.getCurrentChip(), dat);
         }
 
         for (int b = 0; b < 6; b++) {
-            dat = new ChipDatum(0, (byte) (0x18 + b), 0xc0); // rhythm
+            dat = new ChipDatum(0, 0x18 + b, 0xc0); // rhythm
             writeRegister(work.soundWork.getCurrentChip(), dat);
         }
 
         work.soundWork.setFmPort(4);
         for (int b = 0; b < 3; b++) {
-            dat = new ChipDatum(1, (byte) (0xb4 + b), 0xc0); // fm 4-6
+            dat = new ChipDatum(1, 0xb4 + b, 0xc0); // fm 4-6
             writeRegister(work.soundWork.getCurrentChip(), dat);
         }
 
@@ -712,7 +712,7 @@ public class Music2 {
         ChipDatum dat;
 
         for (int c = 0; c < 4; c++) {
-            dat = new ChipDatum(0, 0x26, e);
+            dat = new ChipDatum(0, 0x26, e & 0xff);
             writeRegister(c, dat);
 
             dat = new ChipDatum(0, 0x27, 0x78);
@@ -722,7 +722,7 @@ public class Music2 {
             writeRegister(c, dat);
         }
 
-        dat = new ChipDatum(0, 0x12, e);
+        dat = new ChipDatum(0, 0x12, e & 0xff);
         writeRegister(4, dat);
 
         dat = new ChipDatum(0, 0x14, 0x78);
@@ -766,14 +766,14 @@ public class Music2 {
     private void updateTimer() {
         ChipDatum dat;
         if (work.currentTimer != 4) {
-            dat = new ChipDatum(0, 0x27, work.soundWork.PLSET1_VAL[work.currentTimer]); // TIMER-OFF DATA
+            dat = new ChipDatum(0, 0x27, work.soundWork.PLSET1_VAL[work.currentTimer] & 0xff); // TIMER-OFF DATA
             writeRegister(work.currentTimer, dat);
-            dat = new ChipDatum(0, 0x27, work.soundWork.PLSET2_VAL[work.currentTimer]); // TIMER-ON DATA
+            dat = new ChipDatum(0, 0x27, work.soundWork.PLSET2_VAL[work.currentTimer] & 0xff); // TIMER-ON DATA
             writeRegister(work.currentTimer, dat);
         } else {
-            dat = new ChipDatum(0, 0x14, work.soundWork.PLSET1_VAL[work.currentTimer]); // TIMER-OFF DATA
+            dat = new ChipDatum(0, 0x14, work.soundWork.PLSET1_VAL[work.currentTimer] & 0xff); // TIMER-OFF DATA
             writeRegister(work.currentTimer, dat);
-            dat = new ChipDatum(0, 0x14, work.soundWork.PLSET2_VAL[work.currentTimer]); // TIMER-ON DATA
+            dat = new ChipDatum(0, 0x14, work.soundWork.PLSET2_VAL[work.currentTimer] & 0xff); // TIMER-ON DATA
             writeRegister(work.currentTimer, dat);
         }
     }
@@ -1044,7 +1044,7 @@ public class Music2 {
 
         } else {
             for (int b = 0; b < 4; b++) {
-                if ((c & (1 << b)) != 0) {
+                if (((c & 0xff) & (1 << b)) != 0) {
                     byte v = e;
                     if (work.isDotNET) {
                         if (e == (byte) 255) {
@@ -1087,7 +1087,7 @@ public class Music2 {
         c = SoundWork.CRYDAT[work.pg.algo];
 
         for (int b = 0; b < 4; b++) {
-            if ((c & (1 << b)) != 0) {
+            if (((c & 0xff) & (1 << b)) != 0) {
                 byte v = e;
                 if (work.isDotNET) {
                     if (e == (byte) 255) {
@@ -1123,17 +1123,17 @@ public class Music2 {
         //    Debug.printf("%x %x", d, e);
         //}
 
-        ChipDatum dat = new ChipDatum(port, d, e, 0, work.crntMmlDatum);
+        ChipDatum dat = new ChipDatum(port, d & 0xff, e & 0xff, 0, work.crntMmlDatum);
         writeRegister(work.soundWork.getCurrentChip(), dat);
     }
 
     public void PSGOUT(byte c, byte p, byte d, byte e) {
-        ChipDatum dat = new ChipDatum(p, d, e, 0, work.crntMmlDatum);
+        ChipDatum dat = new ChipDatum(p, d & 0xff, e & 0xff, 0, work.crntMmlDatum);
         writeRegister(c, dat);
     }
 
     public void outDummy() {
-        ChipDatum dat = new ChipDatum(-1, -1, -1, 0, work.crntMmlDatum);
+        ChipDatum dat = new ChipDatum(-1, 0, 0, 0, work.crntMmlDatum);
         writeRegister(work.soundWork.getCurrentChip(), dat);
     }
 
@@ -1550,10 +1550,10 @@ public class Music2 {
     }
 
     public void FMSUB6opm(int hl, int bc) {
-        hl = addDetuneToFNumOpm((short) hl, (short) (short) bc);
+        hl = addDetuneToFNumOpm((short) hl, (short) bc);
 
-        byte oct = (byte) (((hl & 0x3800) >> 11));
-        byte note = (byte) (((hl & 0x7ff) >> 6));
+        byte oct = (byte) ((hl & 0x3800) >> 11);
+        byte note = (byte) ((hl & 0x7ff) >> 6);
         note--;
         if (note == (byte) 0xff) {
             oct--;
@@ -1561,7 +1561,7 @@ public class Music2 {
         }
         note = (byte) (note < 3 ? note : (note < 6 ? (note + 1) : (note < 9 ? (note + 2) : (note + 3))));
 
-        byte e = (byte) ((oct << 4) | note); // oct:bit6-4 note :bit3-0
+        byte e = (byte) ((oct << 4) | (note & 0xff)); // oct:bit6-4 note :bit3-0
         byte d = 0x28; // KC のアドレス
         d += (byte) work.pg.channelNumber;
         PSGOUT(d, e);
@@ -2562,7 +2562,7 @@ public class Music2 {
             } else if (work.soundWork.getSsgF1() != 0) {
                 // pan & phrst は volume出力時に共に更新されるのでここで音源に送信する必要は無い
             } else {
-                work.pg.panValue = (byte) a;
+                work.pg.panValue = a;
                 a = (byte) (((a & 1) << 1) | ((a & 2) >> 1));
                 c = (byte) ((a << 6) | (work.pg.feedback << 3) | work.pg.algo);
                 a = (byte) (0x20 + work.pg.channelNumber);
@@ -2761,7 +2761,7 @@ public class Music2 {
                 break;
             }
 
-            a = (byte) autoPantable[a];
+            a = autoPantable[a];
 
             c = (byte) (a << 6);
             d = work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()];
@@ -2972,13 +2972,12 @@ public class Music2 {
             a = (byte) (((work.soundWork.drmPanValue[work.soundWork.getCurrentChip()][n] << 6) & 0b1100_0000) | (c & 0b0001_1111));
             work.soundWork.drmvol[work.soundWork.getCurrentChip()][n] = a;
 
-            if (work.cd.getCurrentPageNo() == work.pg.getPageNo())
-                if (work.cd.getCurrentPageNo() == work.pg.getPageNo()) {
-                    if (work.soundWork.getCurrentChip() < 2)
-                        PSGOUT((byte) (n + 0x18), a);
-                    else
-                        PCMOUT((byte) 1, (byte) (n + 0x8), a);
-                }
+            if (work.cd.getCurrentPageNo() == work.pg.getPageNo()) {
+                if (work.soundWork.getCurrentChip() < 2)
+                    PSGOUT((byte) (n + 0x18), a);
+                else
+                    PCMOUT((byte) 1, (byte) (n + 0x8), a);
+            }
         }
     }
 
@@ -3093,7 +3092,7 @@ public class Music2 {
         PSGOUT((byte) 0x22, a);
 
         byte c = (byte) (work.pg.mData[work.hl++].dat & 0xff); // pms
-        c = (byte) (c | (work.pg.mData[work.hl++].dat << 4)); // ams+pms
+        c = (byte) ((c & 0xff) | (work.pg.mData[work.hl++].dat << 4)); // ams+pms
         int de = work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo(); // paldat
         a = (byte) ((work.soundWork.PALDAT[de] & 0b1100_0000) | c);
         work.soundWork.PALDAT[de] = a;
@@ -3378,7 +3377,7 @@ public class Music2 {
             return;
         }
 
-        hl += (int) work.soundWork.getDeltN()[work.soundWork.getCurrentChip()];
+        hl += work.soundWork.getDeltN()[work.soundWork.getCurrentChip()];
         work.soundWork.getDeltN()[work.soundWork.getCurrentChip()] = hl;
 
         PCMOUT((byte) 0x09, (byte) hl);
@@ -3520,8 +3519,8 @@ public class Music2 {
     }
 
     public void PLLFO2opm(int hl) {
-        byte oct = (byte) (((hl & 0x3800) >> 11));
-        byte note = (byte) (((hl & 0x7ff) >> 6));
+        byte oct = (byte) ((hl & 0x3800) >> 11);
+        byte note = (byte) ((hl & 0x7ff) >> 6);
         note--;
         if (note == (byte) 0xff) {
             oct--;
@@ -3529,7 +3528,7 @@ public class Music2 {
         }
         note = (byte) (note < 3 ? note : (note < 6 ? (note + 1) : (note < 9 ? (note + 2) : (note + 3))));
 
-        byte e = (byte) ((oct << 4) | note); // oct:bit6-4 note :bit3-0
+        byte e = (byte) ((oct << 4) | (note & 0xff)); // oct:bit6-4 note :bit3-0
         byte d = 0x28; // KC のアドレス
         d += (byte) work.pg.channelNumber;
         PSGOUT(d, e);
@@ -3621,7 +3620,7 @@ public class Music2 {
             return;
         }
 
-        hl += (int) work.soundWork.getDeltN()[work.soundWork.getCurrentChip()];
+        hl += work.soundWork.getDeltN()[work.soundWork.getCurrentChip()];
         work.soundWork.getDeltN()[work.soundWork.getCurrentChip()] = hl;
 
     }
@@ -3629,7 +3628,7 @@ public class Music2 {
     public void prcPLSKI2(int hl) {
         if (work.soundWork.getSsgF1() != 0 && work.pg.getSsgTremoloFlg()) {
             work.pg.addSSGTremoloVol(hl);
-            //Debug.printf(Work.pg.SSGTremoloVol);
+//            Debug.printf(Work.pg.SSGTremoloVol);
             return;
         }
 
@@ -3637,15 +3636,15 @@ public class Music2 {
             // KUMA:FMの時はリミットチェック処理
 
             int[] num = new int[1];
-            short dlt = (short) (short) hl;
-            //Debug.printf("b:{0} num:%x -> +{2}", blk, num, dlt);
+            short dlt = (short) hl;
+//            Debug.printf("b:{0} num:%x -> +{2}", blk, num, dlt);
 
             if (work.soundWork.getCurrentChip() != 4) {
                 num[0] = work.pg.fnum & 0x7ff;
                 int[] blk = new int[] {work.pg.fnum >> 11};
                 num[0] += dlt;
                 getFNum(/*ref*/ blk, /*ref*/ num);
-                //Debug.printf(" -> b:{0} num:%x",blk,num);
+//                Debug.printf(" -> b:{0} num:%x",blk,num);
                 hl = (blk[0] << 11) | num[0];
             } else {
                 num[0] = addDetuneToFNumOpm((short) work.pg.fnum, dlt);
@@ -3753,10 +3752,10 @@ public class Music2 {
         }
 
         // 小数部からfnumを算出
-        double d = (double) (isNeg ? ((bsFnum - nxFnum) * (1.0 - (noteDelta - (int) noteDelta))) : ((nxFnum - bsFnum) * noteDelta));
+        double d = isNeg ? ((bsFnum - nxFnum) * (1.0 - (noteDelta - (int) noteDelta))) : ((nxFnum - bsFnum) * noteDelta);
         d += isNeg ? nxFnum : bsFnum;
 
-        if (work.pg.portaWorkClock == 0) work.pg.portaBeforeFNum = isNeg ? (int) bsFnum : (int) d;
+        if (work.pg.portaWorkClock == 0) work.pg.portaBeforeFNum = isNeg ? bsFnum : (int) d;
         int delta = (int) d - (int) work.pg.portaBeforeFNum;
         work.pg.portaBeforeFNum = (int) d;
 
@@ -3823,10 +3822,10 @@ public class Music2 {
         }
 
         // 小数部からfNumを算出
-        double d = (double) (isNeg ? ((bsFnum - nxFnum) * (1.0 - (noteDelta - (int) noteDelta))) : ((nxFnum - bsFnum) * noteDelta));
+        double d = isNeg ? ((bsFnum - nxFnum) * (1.0 - (noteDelta - (int) noteDelta))) : ((nxFnum - bsFnum) * noteDelta);
         d += isNeg ? nxFnum : bsFnum;
 
-        if (work.pg.portaWorkClock == 0) work.pg.portaBeforeFNum = isNeg ? (int) bsFnum : (int) d;
+        if (work.pg.portaWorkClock == 0) work.pg.portaBeforeFNum = isNeg ? bsFnum : (int) d;
         int delta = (int) d - (int) work.pg.portaBeforeFNum;
         work.pg.portaBeforeFNum = (int) d;
 
@@ -3894,10 +3893,10 @@ public class Music2 {
         }
 
         // 小数部からfNumを算出
-        double d = (double) (isNeg ? ((bsFnum - nxFnum) * (1.0 - noteDelta)) : ((nxFnum - bsFnum) * noteDelta));
+        double d = isNeg ? ((bsFnum - nxFnum) * (1.0 - noteDelta)) : ((nxFnum - bsFnum) * noteDelta);
         d += isNeg ? nxFnum : bsFnum;
 
-        if (work.pg.portaWorkClock == 0) work.pg.portaBeforeFNum = isNeg ? (int) bsFnum : (int) d;
+        if (work.pg.portaWorkClock == 0) work.pg.portaBeforeFNum = isNeg ? bsFnum : (int) d;
         int delta = (int) d - (int) work.pg.portaBeforeFNum;
         work.pg.portaBeforeFNum = (int) d;
 
@@ -4189,7 +4188,7 @@ public class Music2 {
                 if (work.soundWork.getKEY_FLAG() != 0xff) {
                     PSGOUT((byte) work.pg.volReg, (byte) 0x10);
                 }
-                PSGOUT((byte) 0x0d, (byte) work.pg.hardEnvelopValue);
+                PSGOUT((byte) 0x0d, work.pg.hardEnvelopValue);
             } else {
                 // SOFT ENV.KEYON
 
@@ -4517,10 +4516,10 @@ public class Music2 {
 
     public void tENVPOD() {
 
-        byte e = (byte) work.pg.getBackupHardEnvFine();
+        byte e = work.pg.getBackupHardEnvFine();
         byte d = 0x0b;
         PSGOUT(d, e);
-        e = (byte) work.pg.getBackupHardEnvCoarse();
+        e = work.pg.getBackupHardEnvCoarse();
         d = 0x0c;
         PSGOUT(d, e);
 

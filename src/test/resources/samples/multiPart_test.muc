@@ -1,11 +1,11 @@
-#title    �}���`�p�[�g�\�L �T���v��
+#title    マルチパート表記 サンプル
 #composer none
 #author   none
 #date     2021/04/30
 #comment  none
 #driver   mucomDotNET
 
-' lead synth���ۂ��Ȃɂ�
+' lead synthっぽいなにか
   @2
    5, 4
   031,001,001,001,005,026,000,001,002
@@ -14,7 +14,7 @@
   031,004,003,008,010,004,000,000,005
 
 
- �p�[�g���𕹋L���邱�Ƃɂ�蓯�����e��mml�𕡐��̃p�[�g�ŉ��t�\
+ パート名を併記することにより同じ内容のmmlを複数のパートで演奏可能
 
 ABC   C192 t183 v11 l4 @2 o5
 A     K0

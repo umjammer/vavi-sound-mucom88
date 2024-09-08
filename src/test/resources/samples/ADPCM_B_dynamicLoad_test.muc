@@ -1,43 +1,43 @@
-#title    ADPCM/-B‚Ì”­‰¹ƒTƒ“ƒvƒ‹(wavƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ)
+#title    ADPCM/-Bã®ç™ºéŸ³ã‚µãƒ³ãƒ—ãƒ«(wavãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿)
 #composer none
 #author   none
 #date     2021/04/30
 #comment  none
 #driver   mucomDotNET
 
-.wav‚Ìƒtƒ@ƒCƒ‹Œ`®‚Í
+.wavã®ãƒ•ã‚¡ã‚¤ãƒ«å½¢å¼ã¯
  mono /  8bit / unsigned
-‚Ü‚½‚Í
+ã¾ãŸã¯
  mono / 16bit / signed
-‚ğ—v‹‚·‚é
+ã‚’è¦æ±‚ã™ã‚‹
 
-#@pcm        1 , ƒoƒXƒhƒ‰ƒ€   , .\pcm\Kick1.wav  , 100
-#@pcm        2 , ƒXƒlƒAƒhƒ‰ƒ€ , .\pcm\Snare1.wav , 100
+#@pcm        1 , ãƒã‚¹ãƒ‰ãƒ©ãƒ    , .\pcm\Kick1.wav  , 100
+#@pcm        2 , ã‚¹ãƒã‚¢ãƒ‰ãƒ©ãƒ  , .\pcm\Snare1.wav , 100
 
-#@pcm_2nd    1 , ƒoƒXƒhƒ‰ƒ€   , .\pcm\Kick1.wav  , 100
-#@pcm_2nd    2 , ƒXƒlƒAƒhƒ‰ƒ€ , .\pcm\Snare1.wav , 100
+#@pcm_2nd    1 , ãƒã‚¹ãƒ‰ãƒ©ãƒ    , .\pcm\Kick1.wav  , 100
+#@pcm_2nd    2 , ã‚¹ãƒã‚¢ãƒ‰ãƒ©ãƒ  , .\pcm\Snare1.wav , 100
 
-#@pcm_3rd_b  1 , ƒoƒXƒhƒ‰ƒ€   , .\pcm\Kick1.wav  , 100
-#@pcm_3rd_b  2 , ƒXƒlƒAƒhƒ‰ƒ€ , .\pcm\Snare1.wav , 100
+#@pcm_3rd_b  1 , ãƒã‚¹ãƒ‰ãƒ©ãƒ    , .\pcm\Kick1.wav  , 100
+#@pcm_3rd_b  2 , ã‚¹ãƒã‚¢ãƒ‰ãƒ©ãƒ  , .\pcm\Snare1.wav , 100
 
-#@pcm_4th_b  1 , ƒoƒXƒhƒ‰ƒ€   , .\pcm\Kick1.wav  , 100
-#@pcm_4th_b  2 , ƒXƒlƒAƒhƒ‰ƒ€ , .\pcm\Snare1.wav , 100
+#@pcm_4th_b  1 , ãƒã‚¹ãƒ‰ãƒ©ãƒ    , .\pcm\Kick1.wav  , 100
+#@pcm_4th_b  2 , ã‚¹ãƒã‚¢ãƒ‰ãƒ©ãƒ  , .\pcm\Snare1.wav , 100
 
 
 
- OPNA 1–‡–Ú‚Ì ADPCM ‚ğ”­‰¹
+ OPNA 1æšç›®ã® ADPCM ã‚’ç™ºéŸ³
 K C192 t183 v100
 K o1l4 @1c@2c
 
- OPNA 2–‡–Ú‚Ì ADPCM ‚ğ”­‰¹
+ OPNA 2æšç›®ã® ADPCM ã‚’ç™ºéŸ³
 V C192 t183 v100
 V o1l4   r  r @1c@2c
 
- OPNB 1–‡–Ú‚Ì ADPCM-B ‚ğ”­‰¹
+ OPNB 1æšç›®ã® ADPCM-B ã‚’ç™ºéŸ³
 k C192 t183 v100
 k o1l4   r  r   r  r @1c@2c
 
- OPNB 2–‡–Ú‚Ì ADPCM-B ‚ğ”­‰¹
+ OPNB 2æšç›®ã® ADPCM-B ã‚’ç™ºéŸ³
 v C192 t183 v100 l8
 v o1l4   r  r   r  r   r  r @1c@2c
 

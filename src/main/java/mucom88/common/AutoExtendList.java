@@ -1,14 +1,11 @@
 package mucom88.common;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.stream.IntStream;
-
-import vavi.util.Debug;
 
 
 /**
@@ -132,7 +129,7 @@ public class AutoExtendList<T> implements List<T> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        return buf.containsAll(c);
+        return new HashSet<>(buf).containsAll(c);
     }
 
     @Override

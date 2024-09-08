@@ -224,14 +224,14 @@ public class PCMFileInfo {
 
                     samplerate[0] = buf[p + 4] + buf[p + 5] * 0x100 + buf[p + 6] * 0x10000 + buf[p + 7] * 0x1000000;
                     if (samplerate[0] != 8000 && samplerate[0] != 16000 && samplerate[0] != 18500 && samplerate[0] != 14000) {
-                        //Debug.printf(Level.WARNING, "Unknown samplerate.");
-                        //return null;
+//                        Debug.printf(Level.WARNING, "Unknown samplerate.");
+//                        return null;
                     }
 
                     int bytepersec = buf[p + 8] + buf[p + 9] * 0x100 + buf[p + 10] * 0x10000 + buf[p + 11] * 0x1000000;
                     if (bytepersec != 8000) {
-                        //    msgBox.setWrnMsg(String.Format("PCMファイル：仕様とは異なる平均データ割合です。(%s)", bytepersec));
-                        //    return null;
+//                        msgBox.setWrnMsg(String.Format("PCMファイル：仕様とは異なる平均データ割合です。(%s)", bytepersec));
+//                        return null;
                     }
 
                     int bitswidth = buf[p + 14] + buf[p + 15] * 0x100;
@@ -247,7 +247,6 @@ public class PCMFileInfo {
                         Debug.printf(Level.SEVERE, "Unknown blockalign.");
                         return null;
                     }
-
 
                     p += size;
                 } else if (buf[p + 0] == 'd' && buf[p + 1] == 'a' && buf[p + 2] == 't' && buf[p + 3] == 'a') {
@@ -277,7 +276,7 @@ public class PCMFileInfo {
             if (is16bit[0]) {
                 for (int i = 0; i < des.length; i += 2) {
                     // 16bitのwavファイルはsignedのデータのためそのままボリューム変更可能
-                    int b = (int) ((short) (des[i] | (des[i + 1] << 8)) * vol * 0.01);
+                    int b = (int) ((short) ((des[i] & 0xff) | ((des[i + 1] & 0xff) << 8)) * vol * 0.01);
                     b = (b > 0x7fff) ? 0x7fff : b;
                     b = (b < -0x8000) ? -0x8000 : b;
                     des[i] = (byte) (b & 0xff);
@@ -287,13 +286,13 @@ public class PCMFileInfo {
                 for (int i = 0; i < des.length; i++) {
                     // 8bitのwavファイルはunsignedのデータのためsignedのデータに変更してからボリューム変更する
                     int d = des[i];
-                    //signed化
+                    // signed化
                     d -= 0x80;
                     d = (int) (d * vol * 0.01);
                     //clip
                     d = (d > 127) ? 127 : d;
                     d = (d < -128) ? -128 : d;
-                    //unsigned化
+                    // unsigned化
                     d += 0x80;
 
                     des[i] = (byte) d;

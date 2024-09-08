@@ -51,7 +51,7 @@ public class MubHeader {
 
         magic = Common.getLE32(buf, 0x0000);
 
-        if (magic == 0x3843554d) { // 'MUC8'
+        if (magic == 0x3843_554d) { // 'MUC8'
             dataOffset = Common.getLE32(buf, 0x0004);
             dataSize = Common.getLE32(buf, 0x0008);
             tagData = Common.getLE32(buf, 0x000c);
@@ -80,7 +80,7 @@ public class MubHeader {
             for (int i = 0; i < 32; i++) {
                 extFmVoice[i] = (byte) (buf[0x0030 + i].dat & 0xff);
             }
-        } else if (magic == 0x6250756d) {
+        } else if (magic == 0x6250_756d) {
             mupb = new MupbInfo();
             mupb.setVersion(Common.getLE32(buf, 0x0004));
             mupb.setVariableLengthCount(buf[0x0008].dat);
@@ -96,7 +96,7 @@ public class MubHeader {
 
             int p = 0x0022;
 
-            //Chip Define division.
+            // Chip Define division.
             mupb.setChips(new MupbInfo.ChipDefine[mupb.getUseChipCount()]);
             for (int i = 0; i < mupb.getUseChipCount(); i++) {
                 mupb.getChips()[i] = new MupbInfo.ChipDefine();
@@ -222,15 +222,12 @@ public class MubHeader {
             if (dataOffset == 0) return null;
             if (srcBuf == null) return null;
 
-            List<MmlDatum> lb = new ArrayList<>();
-            for (int i = 0; i < dataSize; i++) {
-                lb.add(srcBuf[dataOffset + i]);
-            }
+            List<MmlDatum> lb = new ArrayList<>(Arrays.asList(srcBuf).subList(0 + dataOffset + 0, dataSize + dataOffset + 0));
 Debug.println(srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.size());
 
             return lb.toArray(MmlDatum[]::new);
         } catch (Exception e) {
-e.printStackTrace();
+            Debug.printStackTrace(e);
             return null;
         }
     }

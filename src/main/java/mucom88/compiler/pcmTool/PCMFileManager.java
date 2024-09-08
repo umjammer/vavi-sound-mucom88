@@ -28,7 +28,7 @@ public class PCMFileManager {
 
         List<String> itemList = AnalyzeLine(lin);
         PCMFileInfo fi = new PCMFileInfo(itemList, appendFileReaderCallback);
-        if (dicFile.containsKey(fi.getNumber() - 1)) dicFile.remove(fi.getNumber() - 1);
+        dicFile.remove(fi.getNumber() - 1);
         dicFile.put(fi.getNumber() - 1, fi);
         if (fi.getLength() > -1) fi.Encode(config.FormatType);
     }
