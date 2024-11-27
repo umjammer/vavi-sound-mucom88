@@ -40,10 +40,10 @@ public class Work {
         return mDataAdr;
     }
 
-    //public int idx { get; internal set; }
+//    public int idx { get; internal set; }
 
     /**
-     * カレントのチャンネル
+     * Current Channel
      */
     SoundWork.CHDAT cd;
 
@@ -52,7 +52,7 @@ public class Work {
     }
 
     /**
-     * カレントのページ
+     * Current page
      */
     SoundWork.CHDAT.PGDAT pg;
 

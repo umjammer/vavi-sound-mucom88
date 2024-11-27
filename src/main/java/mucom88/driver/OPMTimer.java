@@ -1,9 +1,9 @@
 package mucom88.driver;
 
-//
-//  OPM timer エミュレーション
-//
-public class OPMTimer extends FMTimer {
+/**
+ * OPM timer Emulation
+ */
+class OPMTimer extends FMTimer {
 
     public OPMTimer(int renderingFreq, int opmMasterClock) {
         super(renderingFreq, opmMasterClock);
@@ -26,12 +26,11 @@ public class OPMTimer extends FMTimer {
             timerB = (256 - (data & 0xff)) << (10 - 6);
             return true;
         case 0x14:
-            // タイマー制御レジスタ
+            // Timer Control Register
             timerReg = data & 0x8F;
-            statReg &= 0xFF - ((data >> 4) & 3);
+            statReg &= 0xff - ((data >> 4) & 3);
             return true;
         }
         return false;
     }
 }
-

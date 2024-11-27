@@ -1,9 +1,9 @@
 package mucom88.driver;
 
-//
-// OPNA timer エミュレーション
-//
-public class OPNATimer extends FMTimer {
+/**
+ * OPNA timer emulation
+ */
+class OPNATimer extends FMTimer {
 
     public OPNATimer(int renderingFreq, int opnaMasterClock) {
         super(renderingFreq, opnaMasterClock);
@@ -27,9 +27,9 @@ public class OPNATimer extends FMTimer {
             timerB = (256 - (data & 0xff)) << 4;
             return true;
         case 0x27:
-            // タイマー制御レジスタ
+            // Timer Control Register
             timerReg = data & 0x8F;
-            statReg &= 0xFF - ((data >> 4) & 3);
+            statReg &= 0xff - ((data >> 4) & 3);
             return true;
         }
         return false;

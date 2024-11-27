@@ -9,7 +9,7 @@ import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 // https://wiki.neogeodev.org/index.php?title=ADPCM_codecs
 public class EncAdpcmA {
 
-    static final short[] step_size = {
+    static final int[] step_size = {
             16, 17, 19, 21, 23, 25, 28, 31, 34, 37,
             41, 45, 50, 55, 60, 66, 73, 80, 88, 97,
             107, 118, 130, 143, 157, 173, 190, 209, 230, 253,
@@ -56,7 +56,7 @@ public class EncAdpcmA {
     }
 
     /** decode sub, returns decoded 12bit data */
-    private short YM2610_ADPCM_A_Decode(byte code) {
+    private int YM2610_ADPCM_A_Decode(int code) {
         acc += jedi_table[decstep + code];
         if ((acc & ~0x7ff) != 0) // acc is > 2047
             acc |= ~0xfff;
@@ -64,13 +64,13 @@ public class EncAdpcmA {
         decstep += step_adj[code & 7] * 16;
         if (decstep < 0) decstep = 0;
         if (decstep > 48 * 16) decstep = 48 * 16;
-        return (short) acc;
+        return acc;
     }
 
     /** our encoding sub, returns ADPCM nibble */
-    private byte YM2610_ADPCM_A_Encode(short sample) {
+    private int YM2610_ADPCM_A_Encode(int sample) {
         int tempstep;
-        byte code;
+        int code;
 
         predsample = prevsample;
         index = previndex;
@@ -158,28 +158,33 @@ public class EncAdpcmA {
 
         // actual encoding
         for (i = 0; i < inBuffer.length; i += 2) {
-            outBuffer[i / 2] = (byte) ((YM2610_ADPCM_A_Encode(inBuffer[i]) << 4) | YM2610_ADPCM_A_Encode(inBuffer[i + 1]) & 0xff);
+            outBuffer[i / 2] = (byte) (((YM2610_ADPCM_A_Encode(inBuffer[i]) << 4) | YM2610_ADPCM_A_Encode(inBuffer[i + 1])) & 0xff);
         }
         // padding
         for (i = i / 2; i < outBuffer.length; i++) {
-            outBuffer[i] = (byte) ((YM2610_ADPCM_A_Encode((byte) 0x00) << 4) | YM2610_ADPCM_A_Encode((byte) 0x00) & 0xff);
+            outBuffer[i] = (byte) (((YM2610_ADPCM_A_Encode(0x00) << 4) | YM2610_ADPCM_A_Encode(0x00)) & 0xff);
         }
 
         return outBuffer;
     }
 
+    static int[] stepSizeTable = {57, 57, 57, 57, 77, 102, 128, 153, 57, 57, 57, 57, 77, 102, 128, 153};
+//    /** our input buffer, load your sample file into this before encoding */
+//    private byte[] buffer;
+//    /**
+//     * our output buffer, this is your PCM file, save it after encoding.
+//     * Its size has to be allocated to buffer.length / 4 (16 bits per sample to 4 bits per sample)
+//     */
+//    private byte[] outBuffer;
+//    /** reset to 0 before each encoding */
+//    private int outBufferIndex = 0;
 
-    static long[] stepsizeTable = {57, 57, 57, 57, 77, 102, 128, 153, 57, 57, 57, 57, 77, 102, 128, 153};
-    //private byte[] buffer;  //our input buffer, load your sample file into this before encoding
-    //private byte[] outBuffer; //our output buffer, this is your PCM file, save it after encoding. Its size has to be allocated to buffer.length / 4 (16 bits per sample to 4 bits per sample)
-    //private int outBufferIndex = 0; //reset to 0 before each encoding
-
-    public byte[] YM_ADPCM_B_Encode(byte[] buffer, boolean is16bit, boolean isYM2610B, boolean isY8950/* =false*/) {
+    public byte[] YM_ADPCM_B_Encode(byte[] buffer, boolean is16bit, boolean isYM2610B, boolean isY8950 /* = false */) {
         int lpc, flag;
-        long i, dn, xn, stepSize;
-        byte adpcm;
-        byte adpcmPack = 0;
-        short src;
+        int i, dn, xn, stepSize;
+        int adpcm;
+        int adpcmPack = 0;
+        int src;
         List<Byte> outBuffer = new ArrayList<>();
 
         xn = 0;
@@ -194,18 +199,18 @@ public class EncAdpcmA {
         for (lpc = 0; lpc < size; lpc++) {
             if (is16bit) {
                 if (buffer.length > lpc * 2 + 1)
-                    src = (short) ((buffer[lpc * 2] & 0xff) | (buffer[lpc * 2 + 1] & 0xff) << 8); //16 bit samples, + fixing byte order
+                    src = (buffer[lpc * 2] & 0xff) | (buffer[lpc * 2 + 1] & 0xff) << 8; // 16 bit samples, + fixing byte order
                 else src = 0;
             } else {
                 if (buffer.length > lpc)
-                    src = (short) ((buffer[lpc] - 128) << 8);
+                    src = (buffer[lpc] - 128) << 8;
                 else src = 0;
             }
 
             dn = src - xn;
             i = (Math.abs(dn) << 16) / (stepSize << 14);
             if (i > 7) i = 7;
-            adpcm = (byte) i;
+            adpcm = i & 0xff;
             i = (adpcm * 2 + 1) * stepSize / 8;
             if (dn < 0) {
                 adpcm |= 0x8;
@@ -213,18 +218,18 @@ public class EncAdpcmA {
             } else {
                 xn += i;
             }
-            stepSize = (stepsizeTable[adpcm] * stepSize) / 64;
+            stepSize = (stepSizeTable[adpcm] * stepSize) / 64;
             if (stepSize < 127)
                 stepSize = 127;
             else if (stepSize > 24576)
                 stepSize = 24576;
             if (flag == 0) {
-                adpcmPack = (byte) (adpcm << 4);
+                adpcmPack = (adpcm << 4) & 0xff;
                 flag = 1;
             } else {
                 adpcmPack |= adpcm;
                 //outBuffer[outBufferIndex++] = adpcmPack;
-                outBuffer.add(adpcmPack);
+                outBuffer.add((byte) adpcmPack);
                 flag = 0;
             }
         }

@@ -1,19 +1,24 @@
 package mucom88.compiler.pcmTool;
 
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.List;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 import dotnet4j.io.File;
 import dotnet4j.io.MemoryStream;
 import dotnet4j.io.Path;
 import dotnet4j.io.Stream;
 import mucom88.common.MucException;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 public class PCMFileInfo {
+
+    private static final Logger logger = getLogger(PCMFileInfo.class.getName());
+
     private int number;
 
     public int getNumber() {
@@ -62,7 +67,7 @@ public class PCMFileInfo {
         if (itemList == null) return;
 
         int n;
-        if (itemList.size() > 0) {
+        if (!itemList.isEmpty()) {
             String item = itemList.get(0).toLowerCase().trim();
             if (item.length() > 1 && item.charAt(0) == '$') {
                 n = Integer.parseInt(item.substring(1), 16);
@@ -104,9 +109,9 @@ public class PCMFileInfo {
                 raw = GetPCMDataFromFile("", fileName, volume, /*out*/ isRaw, /*out*/ is16bit, /*out*/ samplerate);
                 if (raw != null) length = (short) raw.length;
                 else
-                    throw new MucException(String.format("Fail get pcm data from file[%s].", fileName));
+                    throw new MucException("Fail get pcm data from file[%s].".formatted(fileName));
             } else {
-                Debug.printf(Level.WARNING, "file[%s] not found", fileName);
+                logger.log(Level.WARNING, "file[%s] not found".formatted(fileName));
             }
         } else {
             boolean[] isRaw = new boolean[1];
@@ -114,7 +119,7 @@ public class PCMFileInfo {
             raw = GetPCMDataFromFile(buf, volume, /*out*/ isRaw, /*out*/ is16bit, /*out*/ samplerate);
             if (raw != null) length = (short) raw.length;
             else
-                throw new MucException(String.format("Fail get pcm data from file[%s].", fileName));
+                throw new MucException("Fail get pcm data from file[%s].".formatted(fileName));
         }
 
     }
@@ -164,7 +169,7 @@ public class PCMFileInfo {
         samplerate[0] = 8000;
 
         if (!File.exists(fnPcm)) {
-            Debug.printf(Level.SEVERE, "File not found.");
+            logger.log(Level.ERROR, "File not found.");
             return null;
         }
 
@@ -185,19 +190,19 @@ public class PCMFileInfo {
         samplerate[0] = 8000;
 
         if (buf.length < 4) {
-            Debug.printf(Level.SEVERE, "This file is not wave.");
+            logger.log(Level.ERROR, "This file is not wave.");
             return null;
         }
         if (buf[0] != 'R' || buf[1] != 'I' || buf[2] != 'F' || buf[3] != 'F') {
-            Debug.printf(Level.SEVERE, "This file is not wave.");
+            logger.log(Level.ERROR, "This file is not wave.");
             return null;
         }
 
         // サイズ取得
-        int fSize = buf[0x4] + buf[0x5] * 0x100 + buf[0x6] * 0x10000 + buf[0x7] * 0x1000000;
+        int fSize = (buf[0x4] & 0xff) + (buf[0x5] & 0xff) * 0x100 + (buf[0x6] & 0xff) * 0x1_0000 + (buf[0x7] & 0xff) * 0x100_0000;
 
         if (buf[0x8] != 'W' || buf[0x9] != 'A' || buf[0xa] != 'V' || buf[0xb] != 'E') {
-            Debug.printf(Level.SEVERE, "This file is not wave.");
+            logger.log(Level.ERROR, "This file is not wave.");
             return null;
         }
 
@@ -208,50 +213,50 @@ public class PCMFileInfo {
             while (p < fSize + 8) {
                 if (buf[p + 0] == 'f' && buf[p + 1] == 'm' && buf[p + 2] == 't' && buf[p + 3] == ' ') {
                     p += 4;
-                    int size = buf[p + 0] + buf[p + 1] * 0x100 + buf[p + 2] * 0x10000 + buf[p + 3] * 0x1000000;
+                    int size = (buf[p + 0] & 0xff) + (buf[p + 1] & 0xff) * 0x100 + (buf[p + 2] & 0xff) * 0x1_0000 + (buf[p + 3] & 0xff) * 0x100_0000;
                     p += 4;
-                    int format = buf[p + 0] + buf[p + 1] * 0x100;
+                    int format = (buf[p + 0] & 0xff) + (buf[p + 1] & 0xff) * 0x100;
                     if (format != 1) {
-                        Debug.printf(Level.SEVERE, "isn't Mono.");
+                        logger.log(Level.ERROR, "isn't Mono.");
                         return null;
                     }
 
-                    int channels = buf[p + 2] + buf[p + 3] * 0x100;
+                    int channels = (buf[p + 2]) + (buf[p + 3] & 0xff) * 0x100;
                     if (channels != 1) {
-                        Debug.printf(Level.SEVERE, "isn't Mono.");
+                        logger.log(Level.ERROR, "isn't Mono.");
                         return null;
                     }
 
-                    samplerate[0] = buf[p + 4] + buf[p + 5] * 0x100 + buf[p + 6] * 0x10000 + buf[p + 7] * 0x1000000;
+                    samplerate[0] = (buf[p + 4] & 0xff) + (buf[p + 5] & 0xff) * 0x100 + (buf[p + 6] & 0xff) * 0x1_0000 + (buf[p + 7] & 0xff) * 0x100_0000;
                     if (samplerate[0] != 8000 && samplerate[0] != 16000 && samplerate[0] != 18500 && samplerate[0] != 14000) {
-//                        Debug.printf(Level.WARNING, "Unknown samplerate.");
+//                        logger.log(Level.WARNING, "Unknown sample-rate.");
 //                        return null;
                     }
 
-                    int bytepersec = buf[p + 8] + buf[p + 9] * 0x100 + buf[p + 10] * 0x10000 + buf[p + 11] * 0x1000000;
+                    int bytepersec = (buf[p + 8] & 0xff) + (buf[p + 9] & 0xff) * 0x100 + (buf[p + 10] & 0xff) * 0x1_0000 + ((buf[p + 11] & 0xff) * 0x100_0000);
                     if (bytepersec != 8000) {
-//                        msgBox.setWrnMsg(String.Format("PCMファイル：仕様とは異なる平均データ割合です。(%s)", bytepersec));
+//                        msgBox.setWrnMsg(String.Format("PCM files: Average data percentage different from specification.(%s)", bytepersec));
 //                        return null;
                     }
 
-                    int bitswidth = buf[p + 14] + buf[p + 15] * 0x100;
+                    int bitswidth = (buf[p + 14] & 0xff) + (buf[p + 15] & 0xff) * 0x100;
                     if (bitswidth != 8 && bitswidth != 16) {
-                        Debug.printf(Level.SEVERE, "Unknown bitswidth.");
+                        logger.log(Level.ERROR, "Unknown bits-width.");
                         return null;
                     }
 
                     is16bit[0] = bitswidth == 16;
 
-                    int blockalign = buf[p + 12] + buf[p + 13] * 0x100;
+                    int blockalign = (buf[p + 12] & 0xff) + (buf[p + 13] & 0xff) * 0x100;
                     if (blockalign != (is16bit[0] ? 2 : 1)) {
-                        Debug.printf(Level.SEVERE, "Unknown blockalign.");
+                        logger.log(Level.ERROR, "Unknown block-align.");
                         return null;
                     }
 
                     p += size;
                 } else if (buf[p + 0] == 'd' && buf[p + 1] == 'a' && buf[p + 2] == 't' && buf[p + 3] == 'a') {
                     p += 4;
-                    int size = buf[p + 0] + buf[p + 1] * 0x100 + buf[p + 2] * 0x10000 + buf[p + 3] * 0x1000000;
+                    int size = (buf[p + 0] & 0xff) + (buf[p + 1] & 0xff) * 0x100 + (buf[p + 2] & 0xff) * 0x1_0000 + (buf[p + 3] & 0xff) * 0x100_0000;
                     p += 4;
 
                     des = new byte[size];
@@ -265,7 +270,7 @@ public class PCMFileInfo {
                         break;
                     }
 
-                    int size = buf[p + 0] + buf[p + 1] * 0x100 + buf[p + 2] * 0x10000 + buf[p + 3] * 0x1000000;
+                    int size = (buf[p + 0] & 0xff) + (buf[p + 1] & 0xff) * 0x100 + (buf[p + 2] & 0xff) * 0x1_0000 + (buf[p + 3] & 0xff) * 0x100_0000;
                     p += 4;
 
                     p += size;
@@ -301,7 +306,7 @@ public class PCMFileInfo {
 
             return des;
         } catch (Exception e) {
-            Debug.printf(Level.SEVERE, "Unknown error: " + e);
+            logger.log(Level.ERROR, "Unknown error: " + e);
             return null;
         }
     }

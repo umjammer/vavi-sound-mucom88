@@ -13,27 +13,27 @@ import dotnet4j.util.compat.StringUtilities;
 
 public class PCMFileManager {
 
-    private Map<Integer, PCMFileInfo> dicFile = new HashMap<>();
-    private Config config;
-    private Function<String, Stream> appendFileReaderCallback;
+    private final Map<Integer, PCMFileInfo> dicFile = new HashMap<>();
+    private final Config config;
+    private final Function<String, Stream> appendFileReaderCallback;
 
-    public PCMFileManager(Config config, Function<String, Stream> appendFileReaderCallback /*=null*/) {
+    public PCMFileManager(Config config, Function<String, Stream> appendFileReaderCallback /* = null */) {
         this.config = config;
         this.appendFileReaderCallback = appendFileReaderCallback;
     }
 
-    public void Add(String lin) {
+    public void add(String lin) {
         if (StringUtilities.isNullOrEmpty(lin)) return;
         if (lin.length() < 3) return;
 
-        List<String> itemList = AnalyzeLine(lin);
+        List<String> itemList = analyzeLine(lin);
         PCMFileInfo fi = new PCMFileInfo(itemList, appendFileReaderCallback);
         dicFile.remove(fi.getNumber() - 1);
         dicFile.put(fi.getNumber() - 1, fi);
         if (fi.getLength() > -1) fi.Encode(config.FormatType);
     }
 
-    public List<Byte> GetRawData() {
+    public List<Byte> getRawData() {
         List<Byte> ret = new ArrayList<>();
         int num = 0;
         int cnt = 0;
@@ -53,7 +53,7 @@ public class PCMFileManager {
         return ret;
     }
 
-    public List<Byte> GetName(int i, int v) {
+    public List<Byte> getName(int i, int v) {
         List<Byte> ret = new ArrayList<>();
 
         if (!dicFile.containsKey(i) || dicFile.get(i) == null || StringUtilities.isNullOrEmpty(dicFile.get(i).getName())) {
@@ -72,21 +72,21 @@ public class PCMFileManager {
         return ret;
     }
 
-    public short GetVolume(int i) {
+    public int getVolume(int i) {
         if (!dicFile.containsKey(i) || dicFile.get(i) == null) {
             return 0;
         }
-        return (short) dicFile.get(i).getVolume();
+        return dicFile.get(i).getVolume();
     }
 
-    public int GetLengthAddress(int i) {
+    public int getLengthAddress(int i) {
         if (!dicFile.containsKey(i) || dicFile.get(i) == null) {
             return 0;
         }
         return dicFile.get(i).getLength();
     }
 
-    public List<Byte> GetName(int i) {
+    public List<Byte> getName(int i) {
         List<Byte> ret = new ArrayList<>();
 
         if (!dicFile.containsKey(i) || dicFile.get(i) == null || StringUtilities.isNullOrEmpty(dicFile.get(i).getName())) {
@@ -103,7 +103,7 @@ public class PCMFileManager {
         return ret;
     }
 
-    public int GetCount() {
+    public int getCount() {
         int i = 0;
         for (PCMFileInfo o : dicFile.values()) {
             i = Math.max(i, o.getNumber());
@@ -113,7 +113,7 @@ public class PCMFileManager {
     }
 
 
-    private List<String> AnalyzeLine(String lin) {
+    private List<String> analyzeLine(String lin) {
         List<String> itemList = new ArrayList<>();
         int pos = 0;
         StringBuilder item = new StringBuilder();

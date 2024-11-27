@@ -253,7 +253,7 @@ public class SChipType {
         latencyForScci = value;
     }
 
-    public SChipType Copy() {
+    public SChipType copy() {
         SChipType ct = new SChipType();
         ct.useEmu = this.useEmu;
         ct.useEmu2 = this.useEmu2;

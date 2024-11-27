@@ -1,5 +1,7 @@
 package mucom88.driver;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,12 +11,15 @@ import dotnet4j.util.compat.Tuple;
 import mucom88.common.Common;
 import mucom88.common.MubException;
 import musicDriverInterface.MmlDatum;
-import vavi.util.Debug;
 
 import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
+import static java.lang.System.getLogger;
 
 
 public class MubHeader {
+
+    private static final Logger logger = getLogger(MubHeader.class.getName());
+
     public int magic;
     public int dataOffset = 0;
     public int dataSize = 0;
@@ -32,7 +37,7 @@ public class MubHeader {
     public int extPlayer = 0;
     public int pad1 = 0;
     public byte[] extFmVoice = new byte[32];
-    private MmlDatum[] srcBuf;
+    private final MmlDatum[] srcBuf;
     public MupbInfo mupb;
     private int mupbDataPtr;
     public boolean carrierCorrection;
@@ -173,10 +178,10 @@ public class MubHeader {
                 p += 4;
             }
 
-            // データ部開始位置
+            // Data section start position
             mupbDataPtr = p;
 
-            // Chip 毎のページ情報割り当てとページデータの取り込み
+            // Allocating page information for each chip and capturing page data
             int pp = 0;
             int pr = 0;
             for (int i = 0; i < mupb.getUseChipCount(); i++) {
@@ -193,7 +198,7 @@ public class MubHeader {
                 }
             }
 
-            // instrument データの取り込み
+            // Acquiring instrument data
             for (int i = 0; i < mupb.getUseInstrumentSetCount(); i++) {
                 MupbInfo.InstrumentDefine id = mupb.getInstruments()[i];
                 id.setData(new byte[id.getLength()]);
@@ -202,7 +207,7 @@ public class MubHeader {
                 }
             }
 
-            // pcm データの取り込み
+            // Importing pcm data
             for (int i = 0; i < mupb.getUsePCMSetCount(); i++) {
                 MupbInfo.PCMDefine pd = mupb.getPcms()[i];
                 pd.setData(new byte[pd.getLength()]);
@@ -223,11 +228,11 @@ public class MubHeader {
             if (srcBuf == null) return null;
 
             List<MmlDatum> lb = new ArrayList<>(Arrays.asList(srcBuf).subList(0 + dataOffset + 0, dataSize + dataOffset + 0));
-Debug.println(srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.size());
+logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.size());
 
             return lb.toArray(MmlDatum[]::new);
         } catch (Exception e) {
-            Debug.printStackTrace(e);
+            logger.log(Level.ERROR, e.getMessage(), e);
             return null;
         }
     }
@@ -241,11 +246,11 @@ Debug.println(srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.si
             for (int i = 0; i < tagSize; i++) {
                 lb.add((byte) (srcBuf[tagData + i].dat & 0xff));
             }
-//Debug.println(srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.size());
+//logger.log(Level.TRACE, srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.size());
 
             return getTagsByteArray(toByteArray(lb));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             return null;
         }
     }
@@ -262,7 +267,7 @@ Debug.println(srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.si
 
             return toByteArray(lb);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             return null;
         }
     }
@@ -284,7 +289,7 @@ Debug.println(srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.si
                     tags.add(item);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
@@ -295,7 +300,7 @@ Debug.println(srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.si
 
     public void setDriverOptionFromTags(List<Tuple<String, String>> tags) {
         if (tags == null) return;
-        if (tags.size() < 1) return;
+        if (tags.isEmpty()) return;
 
         for (var tag : tags) {
             if (tag == null) continue;

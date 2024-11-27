@@ -1,11 +1,12 @@
 package mucom88.driver;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 import dotnet4j.util.compat.Tuple6;
 import mucom88.common.Common;
@@ -13,12 +14,15 @@ import musicDriverInterface.ChipDatum;
 import musicDriverInterface.LinePos;
 import musicDriverInterface.MmlDatum;
 import musicDriverInterface.MMLType;
-import vavi.util.Debug;
+import vavi.util.ByteUtil;
 
 import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
+import static java.lang.System.getLogger;
 
 
 public class Music2 {
+
+    private static final Logger logger = getLogger(Music2.class.getName());
 
     public static final int MAXCH = 11;
     // FM CONTROL COMMAND(s)
@@ -27,16 +31,16 @@ public class Music2 {
     public Runnable[] lfoTbl = null;
     // PSG COMMAND TABLE
     public Runnable[] psgCom = null;
-    public Runnable[] psgCom2 = null; // kuma:DotNET専用テーブル
+    public Runnable[] psgCom2 = null; // kuma DotNET dedicated table
 
-    private Work work;
-    private Consumer<ChipDatum> writeOPNAPRegister;
-    private Consumer<ChipDatum> writeOPNASRegister;
-    private Consumer<ChipDatum> writeOPNBPRegister;
-    private Consumer<ChipDatum> writeOPNBSRegister;
-    private Consumer<ChipDatum> writeOPMPRegister;
+    private final Work work;
+    private final Consumer<ChipDatum> writeOPNAPRegister;
+    private final Consumer<ChipDatum> writeOPNASRegister;
+    private final Consumer<ChipDatum> writeOPNBPRegister;
+    private final Consumer<ChipDatum> writeOPNBSRegister;
+    private final Consumer<ChipDatum> writeOPMPRegister;
 
-    private byte[] autoPantable = new byte[] {2, 3, 1, 3};
+    private final byte[] autoPantable = new byte[] {2, 3, 1, 3};
 
 
     public Music2(Work work,
@@ -79,7 +83,7 @@ public class Music2 {
             work.setStatus(1);
             work.currentTimer = 0;
 
-            // 一度だけタイマ割り込みをさせる(初めの発音が不安定になる現象対策)
+            // Timer interrupt only once (to prevent the initial sound from becoming unstable)
             while ((work.timerOPNA1.statReg & 3) == 0) {
                 synchronized (work.systemInterrupt) {
                     work.timerOPNA1.timer();
@@ -139,7 +143,7 @@ public class Music2 {
             work.timerOPNB2.timer();
             work.timerOPM.timer();
 
-            // Debug.printf("CurrentTimer:%d", Work.currentTimer);
+            // logger.log(Level.TRACE, "CurrentTimer:%d".formatted(Work.currentTimer));
 
             work.timeCounter++;
             boolean flg = false;
@@ -217,42 +221,42 @@ public class Music2 {
 
     public void setFMCOMTable() {
         fmCom = new Runnable[] {
-                this::OTOPST,       // 0xF0 - ｵﾝｼｮｸ ｾｯﾄ    '@'
-                this::VOLPST,       // 0xF1 - volume SET   'v'
-                this::FRQ_DF,       // 0xF2 - DETUNE(ｼｭｳﾊｽｳ ｽﾞﾗｼ) 'D'
-                this::SETQ,         // 0xF3 - SET COMMAND 'q'
+                this::OTOPST,       // 0xF0 - Sound Set                     '@'
+                this::VOLPST,       // 0xF1 - volume SET                    'v'
+                this::FRQ_DF,       // 0xF2 - DETUNE(Frequency Shift)       'D'
+                this::SETQ,         // 0xF3 - SET COMMAND                   'q'
                 this::LFOON,        // 0xF4 - LFO SET
-                this::REPSTF,       // 0xF5 - REPEAT START SET  '['
-                this::REPENF,       // 0xF6 - REPEAT END SET    ']'
-                this::MDSET,        // 0xF7 - FMｵﾝｹﾞﾝ ﾓｰﾄﾞｾｯﾄ  KUMA:'S'スロットディチューンコマンド
+                this::REPSTF,       // 0xF5 - REPEAT START SET              '['
+                this::REPENF,       // 0xF6 - REPEAT END SET                ']'
+                this::MDSET,        // 0xF7 - FM Sound source mode set KUMA 'S' Slot Detune Command
 //              this::STEREO,       // 0xF8 - STEREO MODE
-                this::STEREO_AMD98, // 0xF8 - STEREO MODE  'p'
+                this::STEREO_AMD98, // 0xF8 - STEREO MODE                   'p'
                 this::FLGSET,       // 0xF9 - FLAG SET
-                this::W_REG,        // 0xFA - COMMAND OF   'y'
-                this::VOLUPF,       // 0xFB - volume UP    ')'
+                this::W_REG,        // 0xFA - COMMAND OF                    'y'
+                this::VOLUPF,       // 0xFB - volume UP                     ')'
                 this::HLFOON,       // 0xFC - HARD LFO
                 this::TIE,          // (CANT USE)
-                this::RSKIP,        // 0xFE - REPEAT JUMP'/'
-                this::SECPRC        // 0xFF - to second com
+                this::RSKIP,        // 0xFE - REPEAT JUMP                   '/'
+                this::SECPRC        // 0xff - to second com
         };
 
         fmCom2 = new Runnable[] {
-                this::PVMCHG,        // 0xFF 0xF0 - PCM volume MODE
-                this::HRDENV,        // 0xFF 0xF1 - HARD ENVE SET 's'  -> 'S'(kuma)
-                this::ENVPOD,        // 0xFF 0xF2 - HARD ENVE PERIOD 'm'
-                this::REVERVE,       // 0xFF 0xF3 - ﾘﾊﾞｰﾌﾞ
-                this::REVMOD,        // 0xFF 0xF4 - ﾘﾊﾞｰﾌﾞﾓｰﾄﾞ
-                this::REVSW,         // 0xFF 0xF5 - ﾘﾊﾞｰﾌﾞ ｽｲｯﾁ
-                this::SetKeyOnDelay, // 0xFF 0xF6 - キーオンディレイ 'kd' n1,n2,n3,n4
-                this::MW_REG,        // 0xFF 0xF7 - multi Write Register n1,n2,n3,n4
-                this::CH3SP,         // 0xFF 0xF8 - 効果音モード系制御コマンド
-                this::PORTAON,       // 0xFF 0xF9 - ポルタメント n1,n2,n3  (st ed totalclock)
-                this::ENVPSTex,      // 0xFF 0xFA - ソフトエンベロープ 'E' n1,n2,n3,n4,n5,n6
-                this::FMVolMode,     // 0xFF 0xFB - FMボリュームモード切替
-                this::NTMEAN,        // 0xFF 0xFC
-                this::NTMEAN,        // 0xFF 0xFD
-                this::NTMEAN,        // 0xFF 0xFE
-                this::NOP            // 0xFF 0xFF
+                this::PVMCHG,        // 0xff 0xF0 - PCM volume MODE
+                this::HRDENV,        // 0xff 0xF1 - HARD ENVE SET 's'  -> 'S'(kuma)
+                this::ENVPOD,        // 0xff 0xF2 - HARD ENVE PERIOD 'm'
+                this::REVERVE,       // 0xff 0xF3 - Reverb
+                this::REVMOD,        // 0xff 0xF4 - Reverb mode
+                this::REVSW,         // 0xff 0xF5 - Reverb switch
+                this::SetKeyOnDelay, // 0xff 0xF6 - KeyOn delay 'kd' n1,n2,n3,n4
+                this::MW_REG,        // 0xff 0xF7 - multi Write Register n1,n2,n3,n4
+                this::CH3SP,         // 0xff 0xF8 - Sound effect mode control commands
+                this::PORTAON,       // 0xff 0xF9 - Portamento n1,n2,n3 (st ed totalclock)
+                this::ENVPSTex,      // 0xff 0xFA - Soft Envelope 'E' n1,n2,n3,n4,n5,n6
+                this::FMVolMode,     // 0xff 0xFB - FM volume mode switching
+                this::NTMEAN,        // 0xff 0xFC
+                this::NTMEAN,        // 0xff 0xFD
+                this::NTMEAN,        // 0xff 0xFE
+                this::NOP            // 0xff 0xff
         };
     }
 
@@ -274,61 +278,61 @@ public class Music2 {
 
     public void setPSGCOM() {
         psgCom = new Runnable[] {
-                this::OTOSSG, // 0xF0 - ｵﾝｼｮｸ ｾｯﾄ         '@'
+                this::OTOSSG, // 0xF0 - Sound Set          '@'
                 this::PSGVOL, // 0xF1 - volume SET
                 this::FRQ_DF, // 0xF2 - DETUNE
-                this::SETQ,   // 0xF3 - COMMAND OF        'q'
+                this::SETQ,   // 0xF3 - COMMAND OF         'q'
                 this::LFOON,  // 0xF4 - LFO
-                this::REPSTF, // 0xF5 - REPEAT START SET  '['
-                this::REPENF, // 0xF6 - REPEAT END SET    ']'
-                this::NOISE,  // 0xF7 - MIX PORT          'P'
-                this::NOISEW, // 0xF8 - NOIZE PARAMATER   'w'
+                this::REPSTF, // 0xF5 - REPEAT START SET   '['
+                this::REPENF, // 0xF6 - REPEAT END SET     ']'
+                this::NOISE,  // 0xF7 - MIX PORT           'P'
+                this::NOISEW, // 0xF8 - NOIZE PARAMATER    'w'
                 this::FLGSET, // 0xF9 - FLAG SET
-                this::ENVPST, // 0xFA - SOFT ENVELOPE     'E'
-                this::VOLUPS, // 0xFB - volume UP    ')'
-                this::OTOSET, // 0xFC - ｵﾝｼｮｸﾃｲｷﾞ   '@='
+                this::ENVPST, // 0xFA - SOFT ENVELOPE      'E'
+                this::VOLUPS, // 0xFB - volume UP          ')'
+                this::OTOSET, // 0xFC - Sound Detemination '@='
                 this::TIE,    // 0x
                 this::RSKIP,  // 0x
-                this::SECPRC  // 0xFF - to sec com
+                this::SECPRC  // 0xff - to sec com
         };
 
         psgCom2 = new Runnable[] {
-                this::STEREO_AMD98,   // 0xFF 0xF0 - 'p' パン
-                this::HRDENV,         // 0xFF 0xF1 - HARD ENVE SET 's'  -> 'S'(kuma)
-                this::ENVPOD,         // 0xFF 0xF2 - HARD ENVE PERIOD 'm'
-                this::REVERVE,        // 0xFF 0xF3 - ﾘﾊﾞｰﾌﾞ
-                this::REVMOD,         // 0xFF 0xF4 - ﾘﾊﾞｰﾌﾞﾓｰﾄﾞ
-                this::REVSW,          // 0xFF 0xF5 - ﾘﾊﾞｰﾌﾞ ｽｲｯﾁ
-                this::selectWaveForm, // 0xFF 0xF6
-                this::MW_REG,         // 0xFF 0xF7 - multi Write Register n1,n2,n3,n4
-                this::CH3SP,          // 0xFF 0xF8 - 効果音モード系制御コマンド
-                this::PORTAON,        // 0xFF 0xF9 - ポルタメント n1,n2,n3  (st ed totalclock)
-                this::ENVPSTex,       // 0xFF 0xFA - ソフトエンベロープ 'E' n1,n2,n3,n4,n5,n6
-                this::NOP,            // 0xFF 0xFB
-                this::NTMEAN,         // 0xFF 0xFC
-                this::NTMEAN,         // 0xFF 0xFD
-                this::NTMEAN,         // 0xFF 0xFE
-                this::NOP             // 0xFF 0xFF
+                this::STEREO_AMD98,   // 0xff 0xF0 - 'p' pan
+                this::HRDENV,         // 0xff 0xF1 - HARD ENVE SET 's'  -> 'S'(kuma)
+                this::ENVPOD,         // 0xff 0xF2 - HARD ENVE PERIOD 'm'
+                this::REVERVE,        // 0xff 0xF3 - Reverb
+                this::REVMOD,         // 0xff 0xF4 - Reverb mode
+                this::REVSW,          // 0xff 0xF5 - Reverb switch
+                this::selectWaveForm, // 0xff 0xF6
+                this::MW_REG,         // 0xff 0xF7 - multi Write Register n1,n2,n3,n4
+                this::CH3SP,          // 0xff 0xF8 - Sound effect mode control commands
+                this::PORTAON,        // 0xff 0xF9 - Portamento n1,n2,n3 (st ed totalclock)
+                this::ENVPSTex,       // 0xff 0xFA - Soft Envelope 'E' n1,n2,n3,n4,n5,n6
+                this::NOP,            // 0xff 0xFB
+                this::NTMEAN,         // 0xff 0xFC
+                this::NTMEAN,         // 0xff 0xFD
+                this::NTMEAN,         // 0xff 0xFE
+                this::NOP             // 0xff 0xff
         };
     }
 
     private void selectWaveForm() {
         byte a = (byte) (work.pg.mData[work.hl++].dat & 0xff);
         if (a != (byte) 0xff) {
-            // 波形プリセット選択
+            // Waveform Preset Selection
             work.pg.setSsgWfNum(a);
         } else {
-            // ユーザー波形選択
-            work.pg.setSsgWfNum(10 + (work.pg.channelNumber >> 1)); // >>1の理由は、SSGのchannelNumberは0,2,4となっている為
+            // User Waveform Selection
+            work.pg.setSsgWfNum(10 + (work.pg.channelNumber >> 1)); // The reason for ">>1" is that the channelNumber of SSG is 0, 2, and 4.
             a = (byte) (work.pg.mData[work.hl++].dat & 0xff);
         }
 
-        // SSG拡張モードでは無いときは送信しない
+        // Do not transmit when not in SSG extended mode
         if (!work.SSGExtend) return;
 
-        // dutycycle更新
+        // update dutycycle
 
-        // WaveForm送信
+        // WaveForm Send
         if (work.pg.getSsgWfNum() > 9) {
             sendSSGWf(a);
         }
@@ -367,8 +371,8 @@ public class Music2 {
                 dat = new ChipDatum(0, (byte) (0x8 + b), 0x0);
                 writeRegister(i, dat);
             }
-            //dat = new ChipDatum(0, (byte)0x7, 0x0);
-            //writeRegister(i, dat);
+//            dat = new ChipDatum(0, (byte)0x7, 0x0);
+//            writeRegister(i, dat);
         }
     }
 
@@ -387,9 +391,9 @@ public class Music2 {
         }
 
         int num = work.soundWork.getMusNum();
-//Debug.println("num: " + num);
+//logger.log(Level.TRACE, "num: " + num);
         work.mDataAdr = work.soundWork.getMuTop();
-//Debug.println("work.mDataAdr: " + work.mDataAdr + ", " + work.mData);
+//logger.log(Level.TRACE, "work.mDataAdr: " + work.mDataAdr + ".formatted(" + work.mData));
 
         for (int i = 0; i < num; i++) {
             work.mDataAdr += 1 + MAXCH * 4;
@@ -399,10 +403,10 @@ public class Music2 {
         work.soundWork.setTimerB((work.mData[work.mDataAdr] != null) ? (byte) (work.mData[work.mDataAdr].dat & 0xff) : (byte) 200);
         work.soundWork.setTbTop(++work.mDataAdr);
 
-        int ch = 0; // (CH1DATのこと)
+        int ch = 0; // (means CH1DAT)
         for (ch = 0; ch < 6; ch++) {
             FMINIT(0, ch);
-            //ch++; // オリジナルは　ix+=WKLENG だが、配列化しているので。
+            //ch++; // The original is "ix+=WKLENG", but it has been converted into an array.
         }
 
         work.soundWork.setChNum(0);
@@ -413,7 +417,7 @@ public class Music2 {
         //ix = 7; // CHADAT
         for (ch = 7; ch < 7 + 4; ch++) {
             FMINIT(0, ch);
-            // オリジナルは　ix+=WKLENG だが、配列化しているので。
+            // The original is "ix+=WKLENG", but it has been converted into an array.
         }
 
         work.fmVoiceAtMusData = getVoiceDataAtMusData();
@@ -426,7 +430,7 @@ public class Music2 {
         work.soundWork.setTimerB((byte) 200);
         work.soundWork.setTbTop(0);
 
-        int ch; // (CH1DATのこと)
+        int ch; // (means CH1DAT)
         for (int c = 0; c < 5; c++) {
             work.soundWork.setChNum(0);
             for (ch = 0; ch < (c != 4 ? 6 : 8); ch++) FMINITex(c, ch);
@@ -446,7 +450,7 @@ public class Music2 {
         if (work.getHeader().mupb.getInstruments() != null && work.getHeader().mupb.getInstruments().length > 0 && work.getHeader().mupb.getInstruments()[0].getData() != null) {
             work.fmVoiceAtMusData = work.getHeader().mupb.getInstruments()[0].getData();
 
-            // SSG波形データの読み込み
+            // Loading SSG waveform data
             work.ssgVoiceAtMusData = null;
             if (work.getHeader().mupb.getInstruments().length == 2) {
                 work.ssgVoiceAtMusData = new HashMap<>();
@@ -472,7 +476,7 @@ public class Music2 {
         for (int i = 0; i < voiCnt * 25; i++) {
             buf.add((byte) (work.mData[otoDat + i].dat & 0xff));
         }
-        return toByteArray(buf);
+        return ByteUtil.toByteArray(buf);
     }
 
     private void FMINIT(int chipIndex, int ch) {
@@ -485,12 +489,12 @@ public class Music2 {
         work.soundWork.chData.get(chipIndex).get(ch).setFmVolMode((byte) 0);
         work.soundWork.chData.get(chipIndex).get(ch).setCurrentFMVolTable(SoundWork.FMVDAT);
 
-        // POINTER ﾉ ｻｲｾｯﾃｲ
+        // set POINTER again
         int stPtr = Common.getLE16(work.mData, work.soundWork.getTbTop());
         int lpPtr = Common.getLE16(work.mData, work.soundWork.getTbTop() + 2);
         if (lpPtr == 0) lpPtr = -1;
 
-        // 次のチャンネル
+        // next channel
         int nCPtr = Common.getLE16(work.mData, work.soundWork.getTbTop() + 4);
 
         List<MmlDatum> bf = new ArrayList<>();
@@ -523,8 +527,8 @@ public class Music2 {
     private void FMINITex(int chipIndex, int ch) {
         work.soundWork.chData.get(chipIndex).set(ch, new SoundWork.CHDAT());
         work.soundWork.chData.get(chipIndex).get(ch).pgDat = new ArrayList<>();
-        work.soundWork.chData.get(chipIndex).get(ch).setKeyOnCh(-1); // KUMA:初期化不要だが念のため
-        work.soundWork.chData.get(chipIndex).get(ch).setCurrentPageNo(0); // KUMA:初期カレントは0ページ
+        work.soundWork.chData.get(chipIndex).get(ch).setKeyOnCh(-1); // KUMA No initialization required, but just in case
+        work.soundWork.chData.get(chipIndex).get(ch).setCurrentPageNo(0); // KUMA The initial current page is 0.
         work.soundWork.chData.get(chipIndex).get(ch).setFmVolMode((byte) 0);
         work.soundWork.chData.get(chipIndex).get(ch).setCurrentFMVolTable(SoundWork.FMVDAT);
 
@@ -554,7 +558,7 @@ public class Music2 {
                     pg.volReg = work.soundWork.getChNum() + 5; // ix 7
                     pg.channelNumber = (work.soundWork.getChNum() - 3) * 2; // ix 8
                 }
-                // リズムchの場合は音色番号を 0x3f にセットして全てのドラム音を有効にする
+                // For the rhythm channel, set the tone number to 0x3f to enable all drum sounds.
                 if (ch == 6) {
                     pg.instrumentNumber = 0x3f;
                 }
@@ -569,17 +573,17 @@ public class Music2 {
     }
 
     /**
-     * サウンドボード2のチェックと割り込みベクタ、ポートの設定
-     * (割り込みベクタ、ポートの設定は不要)
+     * Checking sound board 2 and setting interrupt vector and port
+     * (No need to set interrupt vectors or ports)
      */
     private void CHK() {
         work.soundWork.setNoTsb2(notSoundBoard2 ? 1 : 0);
     }
 
-    /** ﾜﾘｺﾐ ﾉ ﾚﾍﾞﾙ ｿﾉﾀ ｼｮｷｾｯﾃｲ ｦ ｵｺﾅｳ */
+    /** Set the interrupt level and other initial settings */
     private void INT57() {
 
-        // 割り込み系の設定は不要
+        // No interrupt settings required
 
         for (int c = 0; c < 5; c++) {
             work.soundWork.setCurrentChip(c);
@@ -616,7 +620,7 @@ public class Music2 {
                 dat = new ChipDatum(1, 0x07, 0x01);
                 writeRegister(c, dat);
             } else {
-                // OPM どうしようかな
+                // OPM: What should I do?
                 dat = new ChipDatum(0, 1, 0x02); // LFO reset
                 writeRegister(c, dat);
             }
@@ -692,11 +696,11 @@ public class Music2 {
         }
     }
 
-    /** ﾐｭｰｼﾞｯｸ ﾜﾘｺﾐ ENABLE */
+    /** music interruption ENABLE */
     public void ENBL() {
         STTMB(work.soundWork.getTimerB()); // SET Timer-B
 
-        // 割り込みベクタリセット不要
+        // No need to reset the interrupt vector
         // Z80.A = M_VECTR;
         // Z80.C = Z80.A;
         // Z80.A = PC88.IN(Z80.C);
@@ -705,7 +709,7 @@ public class Music2 {
     }
 
     /**
-     * Timer-B ｶｳﾝﾀ･ｾｯﾄ ﾙｰﾁﾝ
+     * Timer-B counter set routine.
      * IN: E<= TIMER_B COUNTER
      */
     private void STTMB(byte e) {
@@ -731,7 +735,7 @@ public class Music2 {
         dat = new ChipDatum(0, 0x14, 0x7a);
         writeRegister(4, dat);
 
-        // 割り込みレベルリセット不要
+        // No need to reset the interrupt level
         //Z80.A = 5;
         //PC88.OUT(0xe4, Z80.A);
     }
@@ -818,16 +822,16 @@ public class Music2 {
             Tuple6<String, Integer, Integer, Integer, Integer, Runnable>[] drive = (c != 4) ? drives : mDrives;
 
             for (int i = 0; i < drive.length; i++) {
-                //Debug.printf(Level.FINEST, drives[i].getItem1());
+                //logger.log(Level.TRACE, drives[i].getItem1());
 
-                // KUMA:フラグ系パラメータのセット
+                // KUMA Set of flag parameters
                 work.soundWork.setFmPort(drive[i].getItem2());
                 work.soundWork.setSsgF1(drive[i].getItem3());
                 work.soundWork.setDrmF1(drive[i].getItem4());
                 work.soundWork.setPcmFlg(drive[i].getItem5());
 
-                work.cd = work.soundWork.chData.get(c).get(i); // KUMA:カレントのパートワーク切り替え
-                work.cd.setKeyOnCh(-1); // KUMA:発音ページ情報をリセット
+                work.cd = work.soundWork.chData.get(c).get(i); // KUMA Switching current partwork
+                work.cd.setKeyOnCh(-1); // KUMA Reset pronunciation page information
                 if (c != 4) {
                     work.rhythmOR[c] = 0;
                     work.rhythmORKeyOff[c] = 0;
@@ -836,20 +840,20 @@ public class Music2 {
                 int m = 0;
                 for (int j = 0; j < work.cd.pgDat.size(); j++) {
                     work.soundWork.setCurrentCh(i * 10 + j);
-                    work.pg = work.cd.pgDat.get(j); // KUMA:カレントのページワーク切り替え
+                    work.pg = work.cd.pgDat.get(j); // KUMA Switching current partwork
                     if (!work.pg.getMusicEnd()) {
                         if (work.pg.muteFlg || work.pg.silentFlg)
-                            work.soundWork.setReady((byte) 0x00); // KUMA: 0x08(bit3)=MUTE FLAG 又は外部からmuteの指定がある場合
+                            work.soundWork.setReady((byte) 0x00); // KUMA: 0x08 (bit3) = MUTE FLAG or mute specified from outside
 
-                        drive[i].getItem6().run(); // KUMA:パートごとの処理をコール
+                        drive[i].getItem6().run(); // KUMA Call processing for each part
 
                         if (work.pg.muteFlg || work.pg.silentFlg)
-                            work.soundWork.setReady(0xff); // KUMA: 0x08(bit3)=MUTE FLAG
+                            work.soundWork.setReady(0xff); // KUMA 0x08(bit3)=MUTE FLAG
                     } else {
                         if (work.isDotNET)
                             addEffect();
                     }
-                    // KUMA:終了パートのカウント
+                    // KUMA End part count
                     if ((work.pg.dataTopAddress == -1 && work.pg.loopEndFlg)
                             || work.pg.getLoopCounter() >= work.maxLoopCount) m++;
 
@@ -862,7 +866,7 @@ public class Music2 {
                 if (m == work.cd.pgDat.size())
                     n++;
 
-                // リズム音源のキーオンオフ制御
+                // Rhythm sound source key on/off control
                 if (c < 2) {
                     if (work.rhythmORKeyOff[c] != 0)
                         PSGOUT((byte) 0x10, (byte) ((work.rhythmORKeyOff[c] & 0b0011_1111) | 0x80)); // KEY OFF
@@ -912,7 +916,7 @@ public class Music2 {
 
     public void addEffect() {
 
-        // !! ここにくる以前に最新のfNumが送信されている前提になっています !!
+        // !! It is assumed that the latest fNum has been sent before arriving here. !!
         int fNum = work.pg.fnum;
         int deltn = 0;
         if (work.soundWork.getPcmFlg() != 0)
@@ -933,7 +937,7 @@ public class Music2 {
 
         if (work.soundWork.getPcmFlg() != 0) {
             prcSoftEnvelope();
-            //Debug.printf("%d", Work.aReg);
+            //logger.log(Level.TRACE, "%d".formatted(Work.aReg));
             // send volume
 
             if ((work.pg.softEnvelopeFlag & 0x80) != 0) {
@@ -945,7 +949,7 @@ public class Music2 {
         }
     }
 
-    /** FM ｵﾝｹﾞﾝ ﾆ ﾀｲｽﾙ ｴﾝｿｳ ﾙｰﾁﾝ */
+    /** Playback routine for FM sound source */
     public void FMSUB() {
         //Work.carry = false;
         work.pg.lengthCounter--;
@@ -1003,7 +1007,7 @@ public class Music2 {
 
         byte d = (byte) (0x40 + work.pg.channelNumber); // GET PORT No.
 
-        if (work.pg.algo >= 8) return; // KUMA: オリジナルはチェック無し
+        if (work.pg.algo >= 8) return; // KUMA: The original is unchecked
 
         c = SoundWork.CRYDAT[work.pg.algo];
 
@@ -1013,7 +1017,7 @@ public class Music2 {
                 {
                     byte v = e;
                     if (work.isDotNET) v = (byte) Math.min(Math.max(e + work.pg.vTl[0], 0), 127);
-                    PSGOUT((byte) (d + 0 * 4), v); // ｷｬﾘｱ ﾅﾗ PSGOUT ﾍ
+                    PSGOUT((byte) (d + 0 * 4), v); // If CAREER go to PNGOUT
                 }
             }
 
@@ -1022,7 +1026,7 @@ public class Music2 {
                 {
                     byte v = e;
                     if (work.isDotNET) v = (byte) Math.min(Math.max(e + work.pg.vTl[1], 0), 127);
-                    PSGOUT((byte) (d + 1 * 4), v); // ｷｬﾘｱ ﾅﾗ PSGOUT ﾍ
+                    PSGOUT((byte) (d + 1 * 4), v); // If CAREER go to PNGOUT
                 }
             }
 
@@ -1030,7 +1034,7 @@ public class Music2 {
                 if ((c & (1 << 2)) != 0) { // slot2
                     byte v = e;
                     if (work.isDotNET) v = (byte) Math.min(Math.max(e + work.pg.vTl[2], 0), 127);
-                    PSGOUT((byte) (d + 2 * 4), v); // ｷｬﾘｱ ﾅﾗ PSGOUT ﾍ
+                    PSGOUT((byte) (d + 2 * 4), v); // If CAREER go to PNGOUT
                 }
             }
 
@@ -1038,7 +1042,7 @@ public class Music2 {
                 if ((c & (1 << 3)) != 0) { // slot4
                     byte v = e;
                     if (work.isDotNET) v = (byte) Math.min(Math.max(e + work.pg.vTl[3], 0), 127);
-                    PSGOUT((byte) (d + 3 * 4), v); // ｷｬﾘｱ ﾅﾗ PSGOUT ﾍ
+                    PSGOUT((byte) (d + 3 * 4), v); // If CAREER go to PNGOUT
                 }
             }
 
@@ -1053,12 +1057,12 @@ public class Music2 {
                             v = (byte) Math.min(Math.max(e + work.pg.vTl[b], 0), 127);
                         }
                     }
-                    PSGOUT((byte) (d + b * 4), v); // ｷｬﾘｱ ﾅﾗ PSGOUT ﾍ
+                    PSGOUT((byte) (d + b * 4), v); // If CAREER go to PNGOUT
                 }
             }
         }
 
-        // パラメータ表示向け
+        // For parameter display
         List<Object> args = new ArrayList<>();
         if (work.isDotNET && (work.cd.getFmVolMode() == 2 || work.cd.getFmVolMode() == 3))
             args.add(work.pg.volume);
@@ -1082,7 +1086,7 @@ public class Music2 {
 
         byte d = (byte) (0x60 + work.pg.channelNumber); // GET PORT No.
 
-        if (work.pg.algo >= 8) return; // KUMA: オリジナルはチェック無し
+        if (work.pg.algo >= 8) return; // KUMA: The original is unchecked
 
         c = SoundWork.CRYDAT[work.pg.algo];
 
@@ -1096,11 +1100,11 @@ public class Music2 {
                         v = (byte) Math.min(Math.max(e + work.pg.vTl[b], 0), 127);
                     }
                 }
-                PSGOUT((byte) (d + b * 8), v); // ｷｬﾘｱ ﾅﾗ PSGOUT ﾍ
+                PSGOUT((byte) (d + b * 8), v); // If CAREER go to PNGOUT
             }
         }
 
-        // パラメータ表示向け
+        // For parameter display
         List<Object> args = new ArrayList<>();
         if (work.isDotNET && (work.cd.getFmVolMode() == 2 || work.cd.getFmVolMode() == 3))
             args.add(work.pg.volume);
@@ -1120,7 +1124,7 @@ public class Music2 {
         }
 
         //if (d == 0x27) // && d <= 0x1d) {
-        //    Debug.printf("%x %x", d, e);
+        //    logger.log(Level.TRACE, "%x %x".formatted(d, e));
         //}
 
         ChipDatum dat = new ChipDatum(port, d & 0xff, e & 0xff, 0, work.crntMmlDatum);
@@ -1167,7 +1171,7 @@ public class Music2 {
     }
 
     /** KEY-OFF ROUTINE */
-    public void KEYOFF(boolean force /*=false*/) {
+    public void KEYOFF(boolean force /* = false */) {
         if (work.isDotNET && !work.pg.enableKeyOff && !force) return;
 
         if (work.soundWork.getCurrentChip() == 4) {
@@ -1186,8 +1190,8 @@ public class Music2 {
 
         if (work.soundWork.getDrmF1() != 0) {
             if (work.getHeader().mupb == null) {
-                // ﾘｽﾞﾑ ｵﾝｹﾞﾝ ﾉ ｷｰｵﾌ
-                PSGOUT((byte) 0x10, (byte) ((work.soundWork.getRhythm() & 0b0011_1111) | 0x80)); // get rethm parameter
+                // Rhythm Sound Source Key Off
+                PSGOUT((byte) 0x10, (byte) ((work.soundWork.getRhythm() & 0b0011_1111) | 0x80)); // get rhythm parameter
             } else {
                 work.rhythmORKeyOff[work.soundWork.getCurrentChip()] |= (work.pg.instrumentNumber & 0b0011_1111);
             }
@@ -1203,7 +1207,7 @@ public class Music2 {
             work.cd.ch3KeyOn &= (byte) ~(work.pg.useSlot << 4);
             byte a = (byte) (work.cd.ch3KeyOn | 0x2);
             PSGOUT((byte) 0x28, a); // KEY-OFF
-            //Debug.printf("KEYOFF : %02x", a);
+            //logger.log(Level.TRACE, "KEYOFF : %02x".formatted(a));
         } else {
             PSGOUT((byte) 0x28, (byte) (work.soundWork.getFmPort() + work.pg.channelNumber)); // KEY-OFF
         }
@@ -1225,7 +1229,7 @@ public class Music2 {
             return;
         }
 
-        work.pg.softEnvelopeFlag &= 0b1000_1111; // STATE 4 (ﾘﾘｰｽ)
+        work.pg.softEnvelopeFlag &= 0b1000_1111; // STATE 4 (release)
     }
 
     public void PCMEND2610() {
@@ -1238,7 +1242,7 @@ public class Music2 {
             return;
         }
 
-        work.pg.softEnvelopeFlag &= 0b1000_1111; // STATE 4 (ﾘﾘｰｽ)
+        work.pg.softEnvelopeFlag &= 0b1000_1111; // STATE 4 (release)
     }
 
     /** ADPCM OUT */
@@ -1269,17 +1273,17 @@ public class Music2 {
         byte a;
         boolean nrFlg = false;
         do {
-            Debug.printf(Level.FINEST, "%x", hl + 0xc200);
+logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             a = (byte) (work.pg.mData[hl].dat & 0xff);
             // 00H as end
-            while (a == 0) { // ﾃﾞｰﾀ ｼｭｳﾘｮｳ ｦ ｼﾗﾍﾞﾙ
+            while (a == 0) { // Check data end
                 work.pg.loopEndFlg = true;
 
                 if (work.pg.dataTopAddress == -1 || nrFlg) {
                     if (nrFlg)
                         work.abnormalEnd = true;
-                    FMEND(hl); // DATA TOP ADRESS ｶﾞ 0000H ﾃﾞ BGM
-                    return; // ﾉ ｼｭｳﾘｮｳ ｦ ｹｯﾃｲ ｿﾚ ｲｶﾞｲﾊ ｸﾘｶｴｼ
+                    FMEND(hl); // If DATA TOP ADDRESS is 0000H, BGM
+                    return; // ﾉ Decide when to end, otherwise repeat
                 }
                 hl = work.pg.dataTopAddress;
                 a = (byte) (work.pg.mData[hl].dat & 0xff); // get flag & length
@@ -1288,15 +1292,15 @@ public class Music2 {
                 nrFlg = true;
             }
 
-            // 演奏情報退避
+            // Evacuate performance information
             work.crntMmlDatum = work.pg.mData[hl];
 
             // SET LENGTH
             hl++;
             if ((a & 0xff) < 0xf0) break;
 
-            // DATA ｶﾞ ｺﾏﾝﾄﾞ ﾅﾗ FMSUBA ﾍ
-            // ｻﾌﾞ･ｺﾏﾝﾄﾞ ﾉ ｹｯﾃｲ
+            // If DATA is a command, go to FMSUBA
+            // Sub-command selection
             // FMSUBA
             a &= 0xf; // A=COMMAND No.(0-F)
             work.hl = hl;
@@ -1308,7 +1312,7 @@ public class Music2 {
         work.pg.lengthCounter = a & 0x7f; // set wait counter
 
 
-        if ((a & 0x80) != 0) { // BIT7(ｷｭｳﾌ ﾌﾗｸﾞ)
+        if ((a & 0x80) != 0) { // BIT7(Rest flag)
             work.crntMmlDatum = work.pg.mData[hl - 1];
             // SET F-NUMBER
             work.pg.dataAddressWork = hl; // set next sound data add
@@ -1340,20 +1344,20 @@ public class Music2 {
         }
 
         if (!checkCh3SpecialMode() && work.cd.getCurrentPageNo() != work.pg.getPageNo()) {
-            // 切り替え処理
+            // Switching Process
             RestoreOTOPST();
             restoreSTEREO_AMD98();
         }
 
-        // カレントページ情報セット
+        // Current page information set
         work.cd.setCurrentPageNo(work.pg.getPageNo());
 
-        // ｵﾝﾌﾟ ﾅﾗ fmsub5 ﾍ
+        // For notes go to fmsub5
         if (work.pg.keyOffFlag) {
             KEYOFF(false);
         }
 
-        if (!work.soundWork.ch3SpMode(work.soundWork.getCurrentChip())) { // 効果音モードでは無い場合
+        if (!work.soundWork.ch3SpMode(work.soundWork.getCurrentChip())) { // When not in sound effect mode
             FMSUB4(hl);
             return;
         }
@@ -1371,7 +1375,7 @@ public class Music2 {
         FMSUB4(hl);
     }
 
-    /** ｴﾝｿｳ ｵﾜﾘ */
+    /** End of performance */
     public void FMEND(int hl) {
         work.pg.setMusicEnd(true);
         work.pg.dataAddressWork = hl;
@@ -1416,7 +1420,7 @@ public class Music2 {
             }
             LFORST2();
             PLAY();
-            return; // 戻り値がcarry
+            return; // The return value is "carry"
         }
 
         if (work.soundWork.getDrmF1() == 0) {
@@ -1424,14 +1428,14 @@ public class Music2 {
             if (work.soundWork.getCurrentChip() != 4) {
                 hl = work.soundWork.FNUMB[work.soundWork.getCurrentChip() / 2][(a & 0xff) & 0xf]; // get key code(C, C+, D...B)
                 hl |= (short) ((a & 0x70) << 7); // get block data
-                // A4-A6 ﾎﾟｰﾄ ｼｭﾂﾘｮｸﾖｳ ﾆ ｱﾜｾﾙ
-                // get fnum2
-                // a= key code & fnum hi
+                // Adjust for A4-A6 port output
+                // get fNum2
+                // a= key code & fNum hi
 
                 hl = hl + work.pg.detune; // get detune data
                 // detune plus
             } else {
-                // OPM 専用処理
+                // OPM dedicated processing
                 short val = work.soundWork.FNUMBopm[work.getHeader().opmClockMode == MubHeader.enmOPMClockMode.normal ? 0 : 1][a & 0xf]; // get key code(C, C+, D...B)
                 int oct = (a & 0x70) >> 4;
                 if (val < 0) {
@@ -1443,7 +1447,7 @@ public class Music2 {
                     }
                 }
 
-                // detune 加算
+                // Detune Add
                 hl = addDetuneToFNumOpm((short) (val | ((oct & 0x7) << 11)), (short) work.pg.detune);
             }
 
@@ -1457,7 +1461,7 @@ public class Music2 {
             }
             LFORST2();
 //FMSUB8:
-            FMSUB6(hl, work.soundWork.getFmSub8Val()); // 戻り値が carry
+            FMSUB6(hl, work.soundWork.getFmSub8Val()); // The return value is "carry"
             return;
         }
 
@@ -1465,11 +1469,11 @@ public class Music2 {
         if (!work.pg.keyOffFlag) {
             return;
         }
-        DKEYON(); // 戻り値が carry
+        DKEYON(); // The return value is "carry"
     }
 
     /**
-     * 効果音モード専用の FMSUB4
+     * FMSUB4 for sound effect mode only
      */
     public void FMSUB4ex(int hl) {
         byte a;
@@ -1486,9 +1490,9 @@ public class Music2 {
 
         hl = work.soundWork.FNUMB[work.soundWork.getCurrentChip() / 2][a & 0xf]; // get key code(C, C+, D...B)
         hl |= (short) ((a & 0x70) << 7); // get block data
-        // A4-A6 ﾎﾟｰﾄ ｼｭﾂﾘｮｸﾖｳ ﾆ ｱﾜｾﾙ
-        // get fnum2
-        // a= key code & fnum hi
+        // Adjust for A4-A6 port output
+        // get fNum2
+        // a= key code & fNum hi
 
         hl = hl + work.pg.detune; // get detune data
         // DETUNE PLUS
@@ -1562,11 +1566,11 @@ public class Music2 {
         note = (byte) (note < 3 ? note : (note < 6 ? (note + 1) : (note < 9 ? (note + 2) : (note + 3))));
 
         byte e = (byte) ((oct << 4) | (note & 0xff)); // oct:bit6-4 note :bit3-0
-        byte d = 0x28; // KC のアドレス
+        byte d = 0x28; // KC address
         d += (byte) work.pg.channelNumber;
         PSGOUT(d, e);
 
-        d += 8; // KF のアドレス
+        d += 8; // KF address
         e = (byte) ((hl & 0x3f) << 2); // KF (bit:7-2)
         PSGOUT(d, e);
 
@@ -1608,7 +1612,7 @@ public class Music2 {
 
         fnum11b += detune;
         if (detune < 0) {
-            while (fnum11b < 0) { // 0より小さい
+            while (fnum11b < 0) { // Less than 0
                 if (block == 0) {
                     if (fnum11b < 0) fnum11b = 0; // limit
                     break;
@@ -1632,16 +1636,16 @@ public class Music2 {
         return (short) (((block & 7) << 11) | (fnum11b & 0x7ff));
     }
 
-    /** se mode ﾉ detune ｾｯﾃｲ */
+    /** se mode detune setting */
     public void EXMODE(int hl) {
-        // fNum算出
+        // fNum calculation
 
         FMSUB4ex(hl); // set op1
         if (work.carry) {
             return;
         }
 
-        // ch3 のスロット毎に fNum をセット
+        // Set fNum for each slot of ch3
         if ((work.pg.useSlot & 8) != 0) // slot4
             FMSUB6ex(work.soundWork.getFNum(), work.soundWork.detdat[work.soundWork.getCurrentChip()][0]);
 
@@ -1665,13 +1669,13 @@ public class Music2 {
 
     /** reset peak l.&delay */
     public void LFORST() {
-        work.pg.lfoDelayWork = work.pg.lfoDelay; // lfo delay ﾉ ｻｲｾｯﾃｲ
+        work.pg.lfoDelayWork = work.pg.lfoDelay; // Resetting the lfo delay
         work.pg.lfoContFlg = false; // reset lfo contine flag
     }
 
     public void LFORST2() {
-        work.pg.lfoPeakWork = work.pg.lfoPeak >> 1; // lfo peak level ｻｲ ｾｯﾃｲ
-        work.pg.lfoDeltaWork = work.pg.lfoDelta; // ﾍﾝｶﾘｮｳ ｻｲｾｯﾃｲ
+        work.pg.lfoPeakWork = work.pg.lfoPeak >> 1; // Resetting the lfo peak level
+        work.pg.lfoDeltaWork = work.pg.lfoDelta; // Resetting the amount of change
         work.pg.setSsgTremoloVol(0);
         if (!work.pg.tlLfoFlag) {
             return;
@@ -1682,9 +1686,9 @@ public class Music2 {
 
     /**
      * adpcm play
-     * in:(sttadr)<=ｻｲｾｲ ｽﾀｰﾄ ｱﾄﾞﾚｽ
-     * (endadr)  <=ｻｲｾｲ ｴﾝﾄﾞ ｱﾄﾞﾚｽ
-     * (delt_n)<=ｻｲｾｲ ﾚｰﾄ
+     * in:(sttadr)<=Play Start Address
+     * (endadr)  <=Play End Address
+     * (delt_n)<=Playback Rate
      */
     public void PLAY() {
         if (work.soundWork.getCurrentChip() > 1) {
@@ -1693,7 +1697,7 @@ public class Music2 {
         }
 
         if (work.cd.getKeyOnCh() != -1)
-            return; // KUMA:既に他のページが発音中の場合は処理しない
+            return; // KUMA: Do not process if another page is already playing
         work.cd.setKeyOnCh(work.pg.getPageNo());
 
         if (work.soundWork.getReady() == 0) return;
@@ -1715,12 +1719,12 @@ public class Music2 {
             work.pg.lfoContFlg = false; // RESET LFO CONTINE FLAG
             if ((work.pg.softEnvelopeFlag & 0x80) != 0) {
                 work.pg.softEnvelopeFlag = 0x90;
-                work.pg.softEnvelopeCounter = (byte) work.pg.softEnvelopeParam[0]; // KUMA:ALがcounterの初期値として使用される
+                work.pg.softEnvelopeCounter = (byte) work.pg.softEnvelopeParam[0]; // KUMA: AL is used as the initial value of the counter.
             }
         }
 
-        PCMOUT((byte) 0x09, (byte) work.soundWork.getDeltN()[work.soundWork.getCurrentChip()]); // ｻｲｾｲ ﾚｰﾄ ｶｲ
-        PCMOUT((byte) 0x0a, (byte) (work.soundWork.getDeltN()[work.soundWork.getCurrentChip()] >> 8)); // ｻｲｾｲ ﾚｰﾄ ｼﾞｮｳｲ
+        PCMOUT((byte) 0x09, (byte) work.soundWork.getDeltN()[work.soundWork.getCurrentChip()]); // Playback Rate Lower
+        PCMOUT((byte) 0x0a, (byte) (work.soundWork.getDeltN()[work.soundWork.getCurrentChip()] >> 8)); // Playback Rate Upper
         PCMOUT((byte) 0x00, (byte) 0xa0);
 
         byte e = (byte) (work.soundWork.getTOTALV() * 4 + work.pg.volume);
@@ -1738,13 +1742,13 @@ public class Music2 {
         e = (byte) ((work.soundWork.getPcmLr()[work.soundWork.getCurrentChip()] & 3) << 6);
         PCMOUT((byte) 0x01, e); // 1 bit TYPE, L&R OUT
 
-        // ｼﾝｺﾞｳﾀﾞｽ
+        // Send a signal
         work.soundWork.setPOut(work.soundWork.getPcmNum());
     }
 
     public void PLAY2610() {
         if (work.cd.getKeyOnCh() != -1)
-            return; // KUMA:既に他のページが発音中の場合は処理しない
+            return; // KUMA: Do not process if another page is already playing
         work.cd.setKeyOnCh(work.pg.getPageNo());
 
         if (work.soundWork.getReady() == 0) return;
@@ -1762,12 +1766,12 @@ public class Music2 {
             work.pg.lfoContFlg = false; // RESET LFO CONTINE FLAG
             if ((work.pg.softEnvelopeFlag & 0x80) != 0) {
                 work.pg.softEnvelopeFlag = 0x90;
-                work.pg.softEnvelopeCounter = (byte) work.pg.softEnvelopeParam[0]; // KUMA:ALがcounterの初期値として使用される
+                work.pg.softEnvelopeCounter = (byte) work.pg.softEnvelopeParam[0]; // KUMA: AL is used as the initial value of the counter.
             }
         }
 
-        PCMOUT((byte) 0, (byte) 0x19, (byte) (work.soundWork.getDeltN()[work.soundWork.getCurrentChip()] >> 0)); // ｻｲｾｲ ﾚｰﾄ ｶｲ
-        PCMOUT((byte) 0, (byte) 0x1a, (byte) (work.soundWork.getDeltN()[work.soundWork.getCurrentChip()] >> 8)); // ｻｲｾｲ ﾚｰﾄ ｼﾞｮｳｲ
+        PCMOUT((byte) 0, (byte) 0x19, (byte) (work.soundWork.getDeltN()[work.soundWork.getCurrentChip()] >> 0)); // Playback Rate Lower
+        PCMOUT((byte) 0, (byte) 0x1a, (byte) (work.soundWork.getDeltN()[work.soundWork.getCurrentChip()] >> 8)); // Playback Rate Upper
         PCMOUT((byte) 0, (byte) 0x10, (byte) 0xa0);
 
         byte e = (byte) (work.soundWork.getTOTALV() * 4 + work.pg.volume);
@@ -1785,7 +1789,7 @@ public class Music2 {
         e = (byte) ((work.soundWork.getPcmLr()[work.soundWork.getCurrentChip()] & 3) << 6);
         PCMOUT((byte) 0, (byte) 0x11, e); // 1 bit TYPE, L&R OUT
 
-        // ｼﾝｺﾞｳﾀﾞｽ
+        // Send a signal
         work.soundWork.setPOut(work.soundWork.getPcmNum());
     }
 
@@ -1809,7 +1813,7 @@ public class Music2 {
 
     }
 
-    /** ﾘｽﾞﾑ ｵﾝｹﾞﾝ ﾉ ｷｰｵﾝ */
+    /** Rhythm sound source key on */
     public void DKEYON() {
         if (work.soundWork.getReady() == 0) return;
         if (work.getHeader().mupb == null) {
@@ -1818,7 +1822,7 @@ public class Music2 {
             work.rhythmOR[work.soundWork.getCurrentChip()] |= (work.pg.instrumentNumber &
                     work.getHeader().rhythmMute[work.soundWork.getCurrentChip()]);
 
-            // アドレス送信
+            // Send address
             if (work.soundWork.getCurrentChip() > 1) {
                 for (int i = 0; i < 6; i++) {
                     if ((work.pg.instrumentNumber & (1 << i)) != 0) {
@@ -1833,7 +1837,7 @@ public class Music2 {
     /** KEY-ON ROUTINE */
     public void KEYON() {
         if (work.soundWork.getReady() == 0) return;
-        if (work.cd.getKeyOnCh() != -1) return; // KUMA:既に他のページが発音中の場合は処理しない
+        if (work.cd.getKeyOnCh() != -1) return; // KUMA: Do not process if another page is already playing
 
         byte a = 0x04;
         if (work.soundWork.getFmPort() == 0) {
@@ -1856,7 +1860,7 @@ public class Music2 {
             work.pg.kdWork[3] = work.pg.kd[3];
         }
 
-        // 発音ページ情報セット
+        // Pronunciation page information set
         work.cd.setKeyOnCh(work.pg.getPageNo());
 
         // KEYON2:
@@ -1870,7 +1874,7 @@ public class Music2 {
 
     public void KEYONex() {
         if (work.soundWork.getReady() == 0) return;
-        //if (Work.cd.keyOnCh != -1) return; // KUMA:既に他のページが発音中の場合は処理しない
+        //if (Work.cd.keyOnCh != -1) return; // KUMA:Do not process if another page is already playing
 
         byte a = 0x02;
         //if (Work.soundWork.FMPORT == 0) {
@@ -1893,7 +1897,7 @@ public class Music2 {
             work.pg.kdWork[3] = work.pg.kd[3];
         }
 
-        // 発音ページ情報セット
+        // Pronunciation page information set
         //Work.cd.keyOnCh = Work.pg.getPageNo();
 
         work.cd.ch3KeyOn |= (byte) (work.pg.useSlot << 4);
@@ -1907,7 +1911,7 @@ public class Music2 {
 
     public void KEYONopm() {
         if (work.soundWork.getReady() == 0) return;
-        if (work.cd.getKeyOnCh() != -1) return; // KUMA:既に他のページが発音中の場合は処理しない
+        if (work.cd.getKeyOnCh() != -1) return; // KUMA: Do not process if another page is already playing
 
         byte a = 0x00;
         if (!work.pg.keyOnDelayFlag) {
@@ -1926,7 +1930,7 @@ public class Music2 {
             work.pg.kdWork[3] = work.pg.kd[3];
         }
 
-        // 発音ページ情報セット
+        // Pronunciation page information set
         work.cd.setKeyOnCh(work.pg.getPageNo());
 
 //KEYON2:
@@ -1966,7 +1970,7 @@ public class Music2 {
         STVOL();
     }
 
-    /** ｵﾝｼｮｸ ｾｯﾄ ﾒｲﾝ */
+    /** Tone Setting Main */
     public void OTOPST() {
         if (work.soundWork.getPcmFlg() != 0) {
             OTOPCM();
@@ -1980,7 +1984,7 @@ public class Music2 {
 
         work.pg.instrumentNumber = work.pg.mData[work.hl++].dat;
 
-        // KUMA:カレントページの場合、または効果音モード有効時のみ音色を変更する
+        // KUMA: Changes the tone only for the current page or when sound effect mode is enabled
         if (!checkCh3SpecialMode() && work.cd.getCurrentPageNo() != work.pg.getPageNo()) return;
 
         STENV();
@@ -2036,7 +2040,7 @@ public class Music2 {
         work.pg.volume = (byte) work.pcmTables[work.soundWork.getCurrentChip()][a].getItem2()[3];
     }
 
-    /** ｵﾝｼｮｸ ｾｯﾄ ｻﾌﾞﾙｰﾁﾝ(FM) */
+    /** Tone Setting subroutine (FM) */
     public void STENV() {
         if (work.soundWork.getCurrentChip() == 4) {
             STENVopm();
@@ -2060,21 +2064,21 @@ public class Music2 {
             if ((work.pg.useSlot & 8) != 0) PSGOUT(a, e);
         } else {
             do {
-                PSGOUT(a, e); // ﾘﾘｰｽ(RR) ｶｯﾄ ﾉ ｼｮﾘ
+                PSGOUT(a, e); // Release (RR) Cut Processing
                 a += 4;
                 b--;
             } while (b != 0);
         }
 
-        // ﾜｰｸ ｶﾗ ｵﾝｼｮｸ ﾅﾝﾊﾞｰ ｦ ｴﾙ
+        // Get the tone number from the work
 //STENV0:
         int hl = work.pg.instrumentNumber * 25; // HL=*25
         //hl += Work.mData[Work.soundWork.otoDat].dat + Work.mData[Work.soundWork.otoDat + 1].dat * 0x100 + 1; // HL ﾊ ｵﾝｼｮｸﾃﾞｰﾀ ｶｸﾉｳ ｱﾄﾞﾚｽ
         //hl += Work.soundWork.MUSNUM;
-        hl++; // 音色数を格納している為いっこずらす
+        hl++; // Since the number of tones is stored, shift it one by one.
 
 
-        // KUMA:tlの保存
+        // KUMA: Save TL
         if (work.isDotNET && work.getHeader().carrierCorrection) {
             work.pg.vTl[0] = work.fmVoiceAtMusData[hl + 4 + 0];
             work.pg.vTl[1] = work.fmVoiceAtMusData[hl + 4 + 1];
@@ -2139,17 +2143,17 @@ public class Music2 {
         byte b = 4;
 
         do {
-            PSGOUT(a, e); // ﾘﾘｰｽ(RR) ｶｯﾄ ﾉ ｼｮﾘ
+            PSGOUT(a, e); // Release (RR) Cut Processing
             a += 8;
             b--;
         } while (b != 0);
 
-        // ﾜｰｸ ｶﾗ ｵﾝｼｮｸ ﾅﾝﾊﾞｰ ｦ ｴﾙ
+        // Get the tone number from the work
 //STENV0:
         int hl = work.pg.instrumentNumber * 25; // HL=*25
-        hl++; // 音色数を格納している為いっこずらす
+        hl++; // Since the number of tones is stored, shift it one by one.
 
-        // KUMA:tlの保存
+        // KUMA: Save TL
         if (work.getHeader().carrierCorrection) {
             work.pg.vTl[0] = work.fmVoiceAtMusData[hl + 4 + 0];
             work.pg.vTl[1] = work.fmVoiceAtMusData[hl + 4 + 1];
@@ -2175,7 +2179,7 @@ public class Music2 {
 
         e = work.fmVoiceAtMusData[hl]; // get feedback/algorithm
         a = (byte) (((work.pg.panValue & 1) << 1)
-                | ((work.pg.panValue & 2) >> 1)); // bit並び入れ替え
+                | ((work.pg.panValue & 2) >> 1)); // Bit order swapping
         e |= (byte) (a << 6); // pan
 
         // get algorithm
@@ -2186,7 +2190,7 @@ public class Music2 {
         PSGOUT(d, e);
     }
 
-    /** ﾎﾞﾘｭｰﾑ ｾｯﾄ */
+    /** Volume setting */
     public void VOLPST() {
         outDummy();
         if (work.soundWork.getPcmFlg() != 0) {
@@ -2270,11 +2274,11 @@ public class Music2 {
             PCMOUT((byte) 1, (byte) 0x1, a);
     }
 
-    /** ﾃﾞﾁｭｰﾝ ｾｯﾄ */
+    /** detune setting */
     public void FRQ_DF() {
 
         outDummy();
-        work.pg.beforeCode = 0; // detune ﾉ ﾊﾞｱｲﾊ before code ｦ clear
+        work.pg.beforeCode = 0; // if detune clear before code
         int de = (short) ((work.pg.mData[work.hl].dat & 0xff) + (work.pg.mData[work.hl + 1].dat & 0xff) * 0x100);
         work.hl += 2;
         byte a = (byte) (work.pg.mData[work.hl++].dat & 0xff);
@@ -2432,7 +2436,7 @@ public class Music2 {
         work.pg.mData[hl].dat = a & 0xff;
     }
 
-    /** ﾘﾋﾟｰﾄ ｴﾝﾄﾞ ｾｯﾄ(FM) */
+    /** Repeat end setting (FM) */
     public void REPENF() {
         int a = (work.pg.mData[work.hl].dat - 1) & 0xff; // dec repeat co.
         work.pg.mData[work.hl].dat--;
@@ -2550,8 +2554,8 @@ public class Music2 {
             outDummy();
 
             if (work.soundWork.getCurrentChip() != 4 && work.soundWork.getSsgF1() == 0) {
-                // 既存処理
-                c = (byte) (((a >> 2) & 0x3f) | (a << 6)); // 右ローテート2回(左6回のほうがC#的にはシンプル)
+                // Existing process
+                c = (byte) (((a >> 2) & 0x3f) | (a << 6)); // Rotate right twice (rotate left six times is simpler in C#)
                 d = work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()];
                 d = (byte) ((d & 0b0011_1111) | c);
                 work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()] = d;
@@ -2560,7 +2564,7 @@ public class Music2 {
                 if (checkCh3SpecialMode() || work.cd.getCurrentPageNo() == work.pg.getPageNo())
                     PSGOUT(a, d);
             } else if (work.soundWork.getSsgF1() != 0) {
-                // pan & phrst は volume出力時に共に更新されるのでここで音源に送信する必要は無い
+                // Pan & Phrst are updated together when the volume is output, so there is no need to send them to the audio source here.
             } else {
                 work.pg.panValue = a;
                 a = (byte) (((a & 1) << 1) | ((a & 2) >> 1));
@@ -2571,11 +2575,11 @@ public class Music2 {
                     PSGOUT(a, c);
             }
 
-            work.pg.panEnable = 0; // パーン禁止
+            work.pg.panEnable = 0; // No panning
 //            return;
         } else {
 //STE012:
-            work.pg.panEnable |= 1; // パーン許可
+            work.pg.panEnable |= 1; // pan is allowed
             // Work.pg.panMode = a;
             work.pg.panCounterWork = (byte) (work.pg.mData[work.hl].dat & 0xff);
             work.pg.panCounter = (byte) (work.pg.mData[work.hl].dat & 0xff);
@@ -2596,7 +2600,7 @@ public class Music2 {
 
             if (work.soundWork.getCurrentChip() != 4) {
                 if (work.soundWork.getSsgF1() != 0) {
-                    // pan & phrst は volume出力時に共に更新されるのでここで音源に送信する必要は無い
+                    // Pan & Phrst are updated together when the volume is output, so there is no need to send them to the audio source here.
                 } else {
                     c = (byte) (a << 6);
                     d = work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()];
@@ -2621,8 +2625,8 @@ public class Music2 {
     public void STEREO_AMD98_RHYTHM() {
         outDummy();
 
-        // bit0～3 rythmType RTHCSB
-        // bit4～7 パン(1:右, 2:左, 3:中央 4:右オート 5:左オート 6:ランダム)を指定する。
+        // bit 0~3 rythmType RTHCSB
+        // bit 4~7 specify pan (1: right, 2: left, 3: center, 4: auto right, 5: auto left, 6: random).
         byte a = (byte) ((work.pg.mData[work.hl].dat >> 4) & 0xff);
         byte b = (byte) (work.pg.mData[work.hl].dat & 0xf);
         work.hl++;
@@ -2630,7 +2634,7 @@ public class Music2 {
         if (b >= 6) return;
 
         if (a < 4) {
-            // 既存処理
+            // Existing process
             c = work.soundWork.drmvol[work.soundWork.getCurrentChip()][b];
             a = (byte) (((a << 6) & 0b1100_0000) | (c & 0b0001_1111));
             work.soundWork.drmvol[work.soundWork.getCurrentChip()][b] = a;
@@ -2641,11 +2645,11 @@ public class Music2 {
                 else
                     PCMOUT((byte) 1, (byte) (b + 0x8), a);
             }
-            work.soundWork.drmPanEnable[work.soundWork.getCurrentChip()][b] = 0; // パーン禁止
+            work.soundWork.drmPanEnable[work.soundWork.getCurrentChip()][b] = 0; // No panning
             return;
         }
 
-        work.soundWork.drmPanEnable[work.soundWork.getCurrentChip()][b] |= 1; // パーン許可
+        work.soundWork.drmPanEnable[work.soundWork.getCurrentChip()][b] |= 1; // pan is allowed
         work.soundWork.drmPanMode[work.soundWork.getCurrentChip()][b] = a;
         work.soundWork.drmPanCounterWork[work.soundWork.getCurrentChip()][b] = (byte) (work.pg.mData[work.hl].dat & 0xff);
         work.soundWork.drmPanCounter[work.soundWork.getCurrentChip()][b] = (byte) (work.pg.mData[work.hl].dat & 0xff);
@@ -2681,15 +2685,15 @@ public class Music2 {
         byte a = (byte) (work.pg.mData[work.hl++].dat & 0xff);
 
         if (a < 4) {
-            // 既存処理
+            // Existing process
             if (work.cd.getCurrentPageNo() == work.pg.getPageNo())
                 work.soundWork.getPcmLr()[work.soundWork.getCurrentChip()] = a;
             work.pg.panValue = a;
-            work.pg.panEnable = 0; // パーン禁止
+            work.pg.panEnable = 0; // No panning
             return;
         }
 
-        work.pg.panEnable |= 1; // パーン許可
+        work.pg.panEnable |= 1; // pan is allowed
         work.pg.panMode = a;
         work.pg.panCounterWork = (byte) (work.pg.mData[work.hl].dat & 0xff);
         work.pg.panCounter = (byte) (work.pg.mData[work.hl].dat & 0xff);
@@ -2736,18 +2740,18 @@ public class Music2 {
 
             outDummy();
 
-            // 既存処理
-            c = (byte) (((a >> 2) & 0x3f) | (a << 6)); // 右ローテート2回(左6回のほうがC#的にはシンプル)
+            // Existing process
+            c = (byte) (((a >> 2) & 0x3f) | (a << 6)); // Rotate right twice (rotate left six times is simpler in C#)
             d = work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()];
             d = (byte) ((d & 0b0011_1111) | c);
             work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()] = d;
             a = (byte) (0x0B4 + work.pg.channelNumber);
             PSGOUT(a, d);
-            work.pg.panEnable = 0; // パーン禁止
+            work.pg.panEnable = 0; // No panning
 //            return;
         } else {
 //STE012:
-            work.pg.panEnable |= 1; // パーン許可
+            work.pg.panEnable |= 1; // pan is allowed
             work.pg.panCounterWork = work.pg.panCounter;
             switch (a) {
             case 4:
@@ -2785,11 +2789,11 @@ public class Music2 {
                     else
                         PCMOUT((byte) 1, (byte) (b + 0x8), a);
                 }
-                work.soundWork.drmPanEnable[work.soundWork.getCurrentChip()][b] = 0; // パーン禁止
+                work.soundWork.drmPanEnable[work.soundWork.getCurrentChip()][b] = 0; // No panning
                 continue;
             }
 
-            work.soundWork.drmPanEnable[work.soundWork.getCurrentChip()][b] |= 1; // パーン許可
+            work.soundWork.drmPanEnable[work.soundWork.getCurrentChip()][b] |= 1; // pan is allowed
             work.soundWork.drmPanCounterWork[work.soundWork.getCurrentChip()][b] = work.soundWork.drmPanCounter[work.soundWork.getCurrentChip()][b];
 
             switch (a) {
@@ -2816,15 +2820,15 @@ public class Music2 {
             }
         }
 
-        // bit0～3 rythmType RTHCSB
-        // bit4～7 パン(1:右, 2:左, 3:中央 4:右オート 5:左オート 6:ランダム)を指定する。
+        // bit 0~3 rhythmType RTHCSB
+        // bit 4~7 Specify pan (1: right, 2: left, 3: center, 4: auto right, 5: auto left, 6: random).
     }
 
     public void restoreSTEREO_AMD98_ADPCM() {
         outDummy();
         byte a = work.pg.panMode;
         if (a < 4) {
-            work.pg.panEnable = 0; // パーン禁止
+            work.pg.panEnable = 0; // No panning
             a = work.pg.panValue;
             work.soundWork.getPcmLr()[work.soundWork.getCurrentChip()] = a;
             if (work.soundWork.getCurrentChip() < 2)
@@ -2834,7 +2838,7 @@ public class Music2 {
             return;
         }
 
-        work.pg.panEnable |= 1; // パーン許可
+        work.pg.panEnable |= 1; // pan is allowed
         work.pg.panCounterWork = work.pg.panCounter;
 
         switch (a) {
@@ -2866,7 +2870,7 @@ public class Music2 {
         if ((work.pg.panEnable & 1) == 0) return;
         if ((--work.pg.panCounterWork) != 0) return;
 
-        work.pg.panCounterWork = work.pg.panCounter; // カウンター再設定
+        work.pg.panCounterWork = work.pg.panCounter; // Counter reset
 
         if (work.pg.panMode == 4 || work.pg.panMode == 5) {
             // left / right
@@ -2900,7 +2904,7 @@ public class Music2 {
             if (work.soundWork.getSsgF1() != 0) {
                 return;
             } else if (work.soundWork.getPcmFlg() == 0) {
-                c = (byte) (((a >> 2) & 0x3f) | (a << 6)); // 右ローテート2回(左6回のほうがC#的にはシンプル)
+                c = (byte) (((a >> 2) & 0x3f) | (a << 6)); // Rotate right twice (rotate left six times is simpler in C#)
                 d = work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()];
                 d = (byte) ((d & 0b0011_1111) | c);
                 work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()] = d;
@@ -2918,7 +2922,7 @@ public class Music2 {
 
             if (work.cd.getCurrentPageNo() == work.pg.getPageNo()) {
                 PSGOUT(a, c);
-                //Debug.printf("%x", c&0xc0);
+                //logger.log(Level.TRACE, "%x".formatted(c&0xc0));
             }
 
             return;
@@ -2981,7 +2985,7 @@ public class Music2 {
         }
     }
 
-    /** ﾌﾗｸﾞｾｯﾄ */
+    /** Flag setting */
     public void FLGSET() {
         byte a = (byte) (work.pg.mData[work.hl++].dat & 0xff);
         work.soundWork.setFLGADR(a);
@@ -3006,7 +3010,7 @@ public class Music2 {
         byte c = (byte) (work.pg.mData[work.hl++].dat & 0xff);
         if (c == 0x00) {
             byte sw = (byte) (work.pg.mData[work.hl++].dat & 0xff);
-            if (work.soundWork.getCurrentChip() != 4) // OPM以外であれば効果音モードを設定
+            if (work.soundWork.getCurrentChip() != 4) // If not OPM, set sound effect mode
             {
                 if (sw == 0) TO_NML();
                 else TO_EFC();
@@ -3033,7 +3037,7 @@ public class Music2 {
             }
 
             work.pg.volume += n;
-            // パラメータ表示向け
+            // For parameter display
             args = new ArrayList<>();
             args.add(work.pg.volume);
             outDummy(MMLType.Volume, args);
@@ -3067,7 +3071,7 @@ public class Music2 {
             if (((inst >> i) & 1) != 0) {
                 byte b = (byte) ((byte) ((a & 0x3f) | ((a & 0x40) != 0 ? 0xc0 : 0)) + (work.soundWork.drmvol[work.soundWork.getCurrentChip()][i] & 0x3f));
 
-                // パラメータ表示向け
+                // For parameter display
                 List<Object> args = new ArrayList<>();
                 args.add((int) b);
                 outDummy(MMLType.Volume, args);
@@ -3103,7 +3107,7 @@ public class Music2 {
         work.pg.keyOffFlag = false;
     }
 
-    /** ﾘﾋﾟｰﾄ ｽｷｯﾌﾟ */
+    /** repeat skip */
     public void RSKIP() {
         byte e = (byte) (work.pg.mData[work.hl++].dat & 0xff);
         byte d = (byte) (work.pg.mData[work.hl++].dat & 0xff);
@@ -3113,7 +3117,7 @@ public class Music2 {
         hl += e + d * 0x100;
 
         byte a = (byte) (work.pg.mData[hl].dat & 0xff);
-        a--; // LOOP ｶｳﾝﾀ = 1 ?
+        a--; // LOOP counter = 1 ?
         if (a == 0) {
             hl += 4; // HL = JUMP ADR
             work.hl = hl;
@@ -3127,7 +3131,7 @@ public class Music2 {
         if (work.soundWork.getSsgF1() == 0 || (work.soundWork.getSsgF1() != 0 && !work.isDotNET))
             fmCom2[a].run();
         else
-            psgCom2[a].run(); // kuma: DotNET専用テーブルです
+            psgCom2[a].run(); // kuma: This is a table for DotNET only.
     }
 
     public void NTMEAN() {
@@ -3139,7 +3143,7 @@ public class Music2 {
         work.soundWork.setPvMode(a);
     }
 
-    /** ﾘﾊﾞｰﾌﾞ */
+    /** Reverb */
     public void REVERVE() {
         byte a = (byte) (work.pg.mData[work.hl++].dat & 0xff);
         work.pg.reverbVol = a;
@@ -3200,7 +3204,7 @@ public class Music2 {
         }
     }
 
-    /** ｴﾝﾍﾞﾛｰﾌﾟ ﾊﾟﾗﾒｰﾀ ｾｯﾄ */
+    /** Envelope parameter setting */
     public void ENVPST() {
         for (int i = 0; i < 6; i++) {
             work.pg.softEnvelopeParam[i] = work.pg.mData[work.hl++].dat;
@@ -3278,7 +3282,7 @@ public class Music2 {
         work.soundWork.pregBf[work.soundWork.getCurrentChip()][5] = e;
     }
 
-    /** ﾉｲｽﾞ ｼｭｳﾊｽｳ */
+    /** Noise Frequency */
     public void NOISEW() {
         work.pg.setBackupNoiseFrq((byte) (work.pg.mData[work.hl++].dat & 0xff));
         if (work.pg.getPageNo() != work.cd.getCurrentPageNo()) return;
@@ -3319,7 +3323,7 @@ public class Music2 {
         }
     }
 
-    // ** LFO ﾙｰﾁﾝ */
+    /** LFO routine */
     public void PLLFO() {
         if (!checkCh3SpecialMode() && work.pg.getPageNo() != work.cd.getCurrentPageNo()) return;
 
@@ -3331,7 +3335,7 @@ public class Music2 {
         hl--;
         byte a = (byte) (work.pg.mData[hl].dat & 0xff);
         if ((a & 0xff) == 0xf0) {
-            return; // ｲｾﾞﾝ ﾉ ﾃﾞｰﾀ ｶﾞ '&' ﾅﾗ RET
+            return; // If the previous data is '&', RET
         }
         if (!work.pg.lfoContFlg) {
             // LFO INITIARIZE
@@ -3341,24 +3345,24 @@ public class Music2 {
             work.pg.lfoContFlg = true; // SET CONTINUE FLAG
         }
 // CTLFO:
-        if (work.pg.lfoDelayWork == 0) // delayが完了していたら次の処理へ
+        if (work.pg.lfoDelayWork == 0) // If the delay is complete, proceed to the next step.
         {
             CTLFO1();
             return;
         }
-        work.pg.lfoDelayWork--; // delayのカウントダウン
+        work.pg.lfoDelayWork--; // Delay countdown
     }
 
     public void CTLFO1() {
-        work.pg.lfoCounterWork--; // ｶｳﾝﾀ
+        work.pg.lfoCounterWork--; // Counter
         if (work.pg.lfoCounterWork != 0) {
             return;
         }
-        work.pg.lfoCounterWork = work.pg.lfoCounter; // ｶｳﾝﾀ ｻｲ ｾｯﾃｲ
+        work.pg.lfoCounterWork = work.pg.lfoCounter; // Counter reset
         if (work.pg.lfoPeakWork == 0) //  GET PEAK LEVEL COUNTER(P.L.C)
         {
-            work.pg.lfoDeltaWork = -work.pg.lfoDeltaWork; // WAVE ﾊﾝﾃﾝ
-            work.pg.lfoPeakWork = work.pg.lfoPeak; //  P.L.C ｻｲ ｾｯﾃｲ
+            work.pg.lfoDeltaWork = -work.pg.lfoDeltaWork; // WAVE Inversion
+            work.pg.lfoPeakWork = work.pg.lfoPeak; //  P.L.C reset
         }
         // PLLFO1:
         work.pg.lfoPeakWork--; // P.L.C.-1
@@ -3387,28 +3391,28 @@ public class Music2 {
     public void PLSKI2(int hl) {
         if (work.soundWork.getSsgF1() != 0 && work.pg.getSsgTremoloFlg()) {
             work.pg.addSSGTremoloVol(hl);
-            // Debug.printf(Work.pg.SSGTremoloVol);
+// logger.log(Level.TRACE, Work.pg.SSGTremoloVol);
             return;
         }
 
         if (work.soundWork.getSsgF1() == 0) {
-            // KUMA:FMの時はリミットチェック処理
+            // KUMA: Limit check processing when in FM
 
             int[] num = new int[1];
             short dlt = (short) (short) hl;
-            //Debug.printf("b:%d num:%x -> +%d", blk, num, dlt);
+//logger.log(Level.TRACE, "b:%d num:%x -> +%d".formatted(blk, num, dlt));
 
             num[0] = work.pg.fnum & 0x7ff;
             int[] blk = new int[] {work.pg.fnum >> 11};
             num[0] += dlt;
-            getFNum(/*ref*/ blk, /*ref*/ num);
-            //Debug.printf(" -> b:%d num:%x",blk,num);
+            getFNum(/* ref */ blk, /* ref */ num);
+//logger.log(Level.TRACE, " -> b:%d num:%x".formatted(blk,num));
             hl = (blk[0] << 11) | num[0];
         } else {
-            // KUMA:SSGの時は既存の処理
+            // KUMA: Existing processing for SSG
 
             int de = work.pg.fnum; // GET FNUM1
-            // get b/fnum2
+            // get b/fNum2
             hl += de; //  HL= NEW F-NUMBER
             hl = (short) hl;
         }
@@ -3424,8 +3428,7 @@ public class Music2 {
         // FOR SSG LFO
         byte a = (byte) work.pg.beforeCode; // GET KEY CODE&octave
         a >>= 4;
-        if (a != 0) // octave=1?
-        {
+        if (a != 0) { // octave=1?
             byte b = a;
 //SNUMGETL:
             do {
@@ -3442,7 +3445,7 @@ public class Music2 {
         PSGOUT(d, e);
     }
 
-    private void getFNum(/*ref*/ int[] blk, /*ref*/ int[] num) {
+    private void getFNum(/* ref */ int[] blk, /* ref */ int[] num) {
         int NoteC = 0x26a;
         while (num[0] < NoteC) {
             if (blk[0] == 0) {
@@ -3529,14 +3532,14 @@ public class Music2 {
         note = (byte) (note < 3 ? note : (note < 6 ? (note + 1) : (note < 9 ? (note + 2) : (note + 3))));
 
         byte e = (byte) ((oct << 4) | (note & 0xff)); // oct:bit6-4 note :bit3-0
-        byte d = 0x28; // KC のアドレス
+        byte d = 0x28; // KC address
         d += (byte) work.pg.channelNumber;
         PSGOUT(d, e);
-        //Debug.printf(Level.FINEST, "PLLFO2opm:d:%02x e:%02x", d, e);
-        d += 8; // KF のアドレス
+//logger.log(Level.TRACE, "PLLFO2opm:d:%02x e:%02x".formatted(d, e));
+        d += 8; // KF address
         e = (byte) ((hl & 0x3f) << 2); // KF (bit:7-2)
         PSGOUT(d, e);
-        //Debug.printf(Level.FINEST, "PLLFO2opm:d:%02x e:%02x", d, e);
+//logger.log(Level.TRACE, "PLLFO2opm:d:%02x e:%02x".formatted(d, e));
     }
 
     public void LFOP6(int hl) {
@@ -3577,7 +3580,7 @@ public class Music2 {
         hl--;
         byte a = (byte) (work.pg.mData[hl].dat & 0xff);
         if ((a & 0xff) == 0xf0) {
-            return; // ｲｾﾞﾝ ﾉ ﾃﾞｰﾀ ｶﾞ '&' ﾅﾗ ret
+            return; // If the previous data is '&', RET
         }
 
         if (!work.pg.lfoContFlg) {
@@ -3589,26 +3592,26 @@ public class Music2 {
         }
 
 //CTLFO:
-        if (work.pg.lfoDelayWork == 0) { // delay が完了していたら次の処理へ
+        if (work.pg.lfoDelayWork == 0) { // If the delay is complete, proceed to the next step.
             prcCTLFO1();
             return;
         }
-        work.pg.lfoDelayWork--; // delay のカウントダウン
+        work.pg.lfoDelayWork--; // Delay countdown
     }
 
     public void prcCTLFO1() {
-        work.pg.lfoCounterWork--; // ｶｳﾝﾀ
+        work.pg.lfoCounterWork--; // counter
         if (work.pg.lfoCounterWork != 0) {
             return;
         }
 
-        work.pg.lfoCounterWork = work.pg.lfoCounter; // ｶｳﾝﾀ ｻｲ ｾｯﾃｲ
+        work.pg.lfoCounterWork = work.pg.lfoCounter; // Counter reset
         if (work.pg.lfoPeakWork == 0) { // get peak level counter(p.l.c)
-            work.pg.lfoDeltaWork = -work.pg.lfoDeltaWork; // WAVE ﾊﾝﾃﾝ
-            work.pg.lfoPeakWork = work.pg.lfoPeak; // P.L.C ｻｲ ｾｯﾃｲ
+            work.pg.lfoDeltaWork = -work.pg.lfoDeltaWork; // WAVE inversion
+            work.pg.lfoPeakWork = work.pg.lfoPeak; // P.L.C reset
         }
 
-// PLLFO1:
+//PLLFO1:
         work.pg.lfoPeakWork--; // p.l.c.-1
         int hl = work.pg.lfoDeltaWork;
         prcPLS2(hl);
@@ -3622,39 +3625,38 @@ public class Music2 {
 
         hl += work.soundWork.getDeltN()[work.soundWork.getCurrentChip()];
         work.soundWork.getDeltN()[work.soundWork.getCurrentChip()] = hl;
-
     }
 
     public void prcPLSKI2(int hl) {
         if (work.soundWork.getSsgF1() != 0 && work.pg.getSsgTremoloFlg()) {
             work.pg.addSSGTremoloVol(hl);
-//            Debug.printf(Work.pg.SSGTremoloVol);
+//logger.log(Level.TRACE, Work.pg.SSGTremoloVol);
             return;
         }
 
         if (work.soundWork.getSsgF1() == 0) {
-            // KUMA:FMの時はリミットチェック処理
+            // KUMA: Limit check processing when in FM
 
             int[] num = new int[1];
-            short dlt = (short) hl;
-//            Debug.printf("b:{0} num:%x -> +{2}", blk, num, dlt);
+            short dlt = (short) (hl & 0xffff);
+//logger.log(Level.TRACE, "b:%d num:%x -> +%d".formatted(blk, num, dlt));
 
             if (work.soundWork.getCurrentChip() != 4) {
                 num[0] = work.pg.fnum & 0x7ff;
                 int[] blk = new int[] {work.pg.fnum >> 11};
                 num[0] += dlt;
                 getFNum(/*ref*/ blk, /*ref*/ num);
-//                Debug.printf(" -> b:{0} num:%x",blk,num);
+//logger.log(Level.TRACE, " -> b:%d num:%x".formatted(blk, num));
                 hl = (blk[0] << 11) | num[0];
             } else {
-                num[0] = addDetuneToFNumOpm((short) work.pg.fnum, dlt);
+                num[0] = addDetuneToFNumOpm((short) (work.pg.fnum & 0xffff), dlt);
                 hl = num[0];
             }
         } else {
-            // KUMA: SSGの時は既存の処理
+            // KUMA: Existing processing for SSG
 
             int de = work.pg.fnum; // GET FNUM1
-            // get b/fnum2
+            // get b/fNum2
             hl += de; // HL= NEW F-NUMBER
             hl = (short) hl;
         }
@@ -3685,7 +3687,7 @@ public class Music2 {
         hl--;
         byte a = (byte) (work.pg.mData[hl].dat & 0xff);
         if ((a & 0xff) == 0xf0) {
-            return; // ｲｾﾞﾝ ﾉ ﾃﾞｰﾀ ｶﾞ '&' ﾅﾗ RET
+            return; // If the previous data is '&', RET
         }
 
         if (!work.pg.portaContFlg) {
@@ -3721,15 +3723,15 @@ public class Music2 {
         boolean isNeg = work.pg.portaEdNote < work.pg.portaStNote;
         int noteDisatance = Math.abs((stOct * 12 + stNote) - (edOct * 12 + edNote));
 
-        // 音程変化範囲 * 経過クロック / ポルタメント総クロック = 開始音程からどの程度音程が変化したか
+        // Pitch change range * elapsed clock / total portamento clock = how much the pitch has changed from the starting pitch
         double noteDelta = noteDisatance * work.pg.portaWorkClock / (double) work.pg.portaTotalClock;
 
-        // 整数部と小数部に分離
+        // Separate into integer and decimal parts
         int iNoteDelta = (int) noteDelta;
         iNoteDelta = isNeg ? -iNoteDelta : iNoteDelta;
         noteDelta -= iNoteDelta;
 
-        // 音程からfNumを取得
+        // Get fNum from pitch
         int a = iNoteDelta + (stNote + stOct * 12);
         int b = (a + 12) % 12;
         int n = (a + (isNeg ? 11 : 1)) % 12;
@@ -3751,27 +3753,27 @@ public class Music2 {
             nxFnum = work.soundWork.FNUMBopm[0][n] + nxOct * 0x300;
         }
 
-        // 小数部からfnumを算出
-        double d = isNeg ? ((bsFnum - nxFnum) * (1.0 - (noteDelta - (int) noteDelta))) : ((nxFnum - bsFnum) * noteDelta);
+        // Calculate fNum from the decimal point
+        double d = isNeg ? ((bsFnum - nxFnum) * (1.0 - (noteDelta - noteDelta))) : ((nxFnum - bsFnum) * noteDelta);
         d += isNeg ? nxFnum : bsFnum;
 
         if (work.pg.portaWorkClock == 0) work.pg.portaBeforeFNum = isNeg ? bsFnum : (int) d;
-        int delta = (int) d - (int) work.pg.portaBeforeFNum;
+        int delta = (int) (d - work.pg.portaBeforeFNum);
         work.pg.portaBeforeFNum = (int) d;
 
-        //Debug.printf("%s %d %s", isNeg, d, nxFnum);
+//logger.log(Level.TRACE, "%s %d %s".formatted(isNeg, d, nxFnum));
 
         int[] num = new int[1];
-        short dlt = (short) delta;
+        short dlt = (short) (delta & 0xffff);
 
         if (work.soundWork.getCurrentChip() != 4) {
             num[0] = work.pg.fnum & 0x7ff;
             int[] blk = new int[] {work.pg.fnum >> 11};
             num[0] += dlt;
-            getFNum(/*ref*/ blk, /*ref*/ num);
+            getFNum(/* ref */ blk, /* ref */ num);
             delta = (blk[0] << 11) | num[0];
         } else {
-            num[0] = addDetuneToFNumOpm((short) work.pg.fnum, dlt);
+            num[0] = addDetuneToFNumOpm((short) (work.pg.fnum & 0xffff), dlt);
             delta = num[0];
         }
 
@@ -3792,15 +3794,15 @@ public class Music2 {
         boolean isNeg = work.pg.portaEdNote < work.pg.portaStNote;
         int noteDisatance = Math.abs((stOct * 12 + stNote) - (edOct * 12 + edNote));
 
-        // 音程変化範囲 * 経過クロック / ポルタメント総クロック = 開始音程からどの程度音程が変化したか
+        // Pitch change range * elapsed clock / total portamento clock = how much the pitch has changed from the starting pitch
         double noteDelta = noteDisatance * work.pg.portaWorkClock / (double) work.pg.portaTotalClock;
 
-        // 整数部と小数部に分離
+        // Separate into integer and decimal parts
         int iNoteDelta = (int) noteDelta;
         iNoteDelta = isNeg ? -iNoteDelta : iNoteDelta;
         noteDelta -= iNoteDelta;
 
-        // 音程からfnumを取得
+        // Get fNum from pitch
         int a = iNoteDelta + (stNote + stOct * 12);
         int b = (a + 12) % 12;
         int n = (a + (isNeg ? 11 : 1)) % 12;
@@ -3821,15 +3823,15 @@ public class Music2 {
             else nxFnum = work.soundWork.SNUMB[1][n] << (bsOct - nxOct);
         }
 
-        // 小数部からfNumを算出
-        double d = isNeg ? ((bsFnum - nxFnum) * (1.0 - (noteDelta - (int) noteDelta))) : ((nxFnum - bsFnum) * noteDelta);
+        // Calculate fNum from the decimal point
+        double d = isNeg ? ((bsFnum - nxFnum) * (1.0 - (noteDelta - noteDelta))) : ((nxFnum - bsFnum) * noteDelta);
         d += isNeg ? nxFnum : bsFnum;
 
         if (work.pg.portaWorkClock == 0) work.pg.portaBeforeFNum = isNeg ? bsFnum : (int) d;
-        int delta = (int) d - (int) work.pg.portaBeforeFNum;
+        int delta = (int) (d - work.pg.portaBeforeFNum);
         work.pg.portaBeforeFNum = (int) d;
 
-        //Debug.printf("%s %d %d", isNeg, d, nxFnum);
+        //logger.log(Level.TRACE, "%s %d %d".formatted(isNeg, d, nxFnum));
 
         delta += work.pg.fnum;
         work.pg.beforeCode = bsOct << 4;
@@ -3858,15 +3860,15 @@ public class Music2 {
             ;
         }
 
-        // 音程変化範囲 * 経過クロック / ポルタメント総クロック = 開始音程からどの程度音程が変化したか
+        // Pitch change range * elapsed clock / total portamento clock = how much the pitch has changed from the starting pitch
         double noteDelta = noteDisatance * work.pg.portaWorkClock / (double) work.pg.portaTotalClock;
 
-        // 整数部と小数部に分離
+        // Separate into integer and decimal parts
         int iNoteDelta = (int) noteDelta;
         noteDelta -= iNoteDelta;
         iNoteDelta = isNeg ? -iNoteDelta : iNoteDelta;
 
-        // 音程からfnumを取得
+        // Get fNum from pitch
         int a = iNoteDelta + stNote;
         int b = a % 12;
         b += b < 0 ? 12 : 0;
@@ -3892,7 +3894,7 @@ public class Music2 {
             nxFnum = work.soundWork.PCMNMB[1][n] >> nxOct;
         }
 
-        // 小数部からfNumを算出
+        // Calculate fNum from the decimal point
         double d = isNeg ? ((bsFnum - nxFnum) * (1.0 - noteDelta)) : ((nxFnum - bsFnum) * noteDelta);
         d += isNeg ? nxFnum : bsFnum;
 
@@ -3900,7 +3902,7 @@ public class Music2 {
         int delta = (int) d - (int) work.pg.portaBeforeFNum;
         work.pg.portaBeforeFNum = (int) d;
 
-        //Debug.printf("%s %d  %d  %d  %d", isNeg, d, nxFnum, bsOct, nxOct);
+        //logger.log(Level.TRACE, "%s %d  %d  %d  %d".formatted(isNeg, d, nxFnum, bsOct, nxOct));
 
         delta += work.pg.fnum;
         work.pg.beforeCode = bsOct << 4;
@@ -3958,7 +3960,6 @@ public class Music2 {
         LFOP5(work.pg.fnum);
     }
 
-
     public void prcSoftEnvelope() {
         if ((work.pg.softEnvelopeFlag & 0x80) == 0) return;
         SOFENVex();
@@ -3966,7 +3967,7 @@ public class Music2 {
 
     // SSG:
 
-    /** SSG ｵﾝｹﾞﾝｴﾝｿｳ ﾙｰﾁﾝ */
+    /** SSG sound source performance routine */
     public void SSGSUB() {
         // Work.cd = Work.soundWork.chData[Work.idx];
         // Work.pg = Work.cd.pgDat.get(0);
@@ -3988,7 +3989,7 @@ public class Music2 {
 //            return; // ret
         } else {
 //SSUB0:
-            work.pg.keyOffFlag = false; // set tie flag (たぶんキーオフをリセット)
+            work.pg.keyOffFlag = false; // set tie flag (Maybe reset the key off)
             SSSUB0();
         }
     }
@@ -4005,7 +4006,7 @@ public class Music2 {
 
         if (work.pg.getSsgTremoloFlg()) {
             work.aReg = (byte) Math.max(Math.min((work.aReg + work.pg.getSsgTremoloVol()), 15), 0);
-            //Debug.printf("%d", Work.pg.SSGTremoloVol);
+            //logger.log(Level.TRACE, "%d".formatted(Work.pg.SSGTremoloVol));
         }
 
         byte e = work.aReg;
@@ -4023,7 +4024,7 @@ public class Music2 {
         work.hl = work.pg.dataAddressWork;
         if (work.pg.mData[work.hl].dat == 0xfd) { // count OVER?
 //SSUB1:
-            work.pg.keyOffFlag = false; // set tie flag(たぶんキーオフをリセット)
+            work.pg.keyOffFlag = false; // set tie flag(Maybe reset the key off)
             work.hl++;
             SSSUBB();
             return;
@@ -4033,7 +4034,7 @@ public class Music2 {
         SSSUBB();
     }
 
-    /** KEY OFF ｼﾞ ﾉ RR ｼｮﾘ */
+    /** RR processing when KEY OFF */
     public void SSSUBA() {
         // HARD ENV.KEY OFF
         if (work.pg.hardEnveFlg) {
@@ -4051,7 +4052,7 @@ public class Music2 {
 
 //SSUBAC:
         if ((work.pg.volume & 0x80) == 0) {
-            SSSUB3((byte) 0); // ﾘﾘｰｽ ｼﾞｬﾅｹﾚﾊﾞ SSSUB3
+            SSSUB3((byte) 0); // if not releasing SSSUB3
             return;
         }
         work.pg.volume &= 0b1000_1111; // STATE 4 (ﾘﾘｰｽ)
@@ -4082,7 +4083,7 @@ public class Music2 {
                 nrFlg = true;
             }
 
-            // 演奏情報退避
+            // Evacuate performance information
             work.crntMmlDatum = work.pg.mData[work.hl];
 
 //SSSUB1:
@@ -4114,7 +4115,7 @@ public class Music2 {
         byte b, c;
         if (!work.pg.keyOffFlag) {
             c = a;
-            b = (byte) work.pg.beforeCode;
+            b = (byte) (work.pg.beforeCode & 0xff);
             a -= b;
             if (a == 0) {
                 SETPT(); // if now code=before code then setpt
@@ -4130,13 +4131,13 @@ public class Music2 {
         // Mem.stack.Push(Z80.HL);
 
         if (work.cd.getKeyOnCh() != -1 && work.cd.getKeyOnCh() != work.pg.getPageNo()) {
-            SETPT(); // KUMA:演奏位置の更新
+            SETPT(); // KUMA: Update playing position
             return;
         }
         work.cd.setKeyOnCh(work.pg.getPageNo());
         if (work.cd.getCurrentPageNo() != work.pg.getPageNo()) {
             work.cd.setCurrentPageNo(work.pg.getPageNo());
-            // 復帰処理
+            // Restroing
             restoreNOISE();
             restoreNOISEW();
             restoreHRDENV();
@@ -4150,7 +4151,7 @@ public class Music2 {
         int hl = work.soundWork.SNUMB[work.soundWork.getCurrentChip() / 2][e]; // GET FNUM2
         int de = work.pg.detune; // get detune data
         hl += de; // detune plus
-        hl = (short) hl;
+        hl = (short) (hl & 0xffff);
         work.pg.fnum = hl; // save for lfo
         b >>= 4; // octave=1?
         if (b != 0) {
@@ -4158,11 +4159,11 @@ public class Music2 {
             do {
                 hl >>= 1;
                 b--;
-            } while (b != 0); // octave data ﾉ ｹｯﾃｲ
-            //  1 ﾅﾗ SSSUB4 ﾍ
+            } while (b != 0); // determin octave data
+            //  if 1 then SSSUB4
         }
 
-        // KUMA:FNUMのセット
+        // KUMA: sets FNUM
         // SSSUB4:
         e = (byte) hl;
         byte d = (byte) work.pg.channelNumber;
@@ -4178,10 +4179,10 @@ public class Music2 {
 
         if (!work.pg.keyOffFlag) { // goto SSSUBF;
             SOFENV();
-            //            goto SSSUB9;
+            //goto SSSUB9;
         } else {
             //SSSUBF:
-            // KEYON ｻﾚﾀﾄｷ ﾉ ｼｮﾘ
+            // Processing when KEYON
 
             if (work.pg.hardEnveFlg) {
                 // HARD ENV. KEY ON
@@ -4199,15 +4200,15 @@ public class Music2 {
                 work.pg.volume = a;
 
                 a = (byte) work.pg.softEnvelopeParam[0]; //  ENVE INIT
-                work.pg.softEnvelopeCounter = a; // KUMA:ALがcounterの初期値として使用される
+                work.pg.softEnvelopeCounter = a; // KUMA: AL is used as the initial value of the counter.
                 work.pg.lfoContFlg = false; // RESET LFO CONTINE FLAG
                 SOFEV7();
 
 //SSSUBH:
                 c = (byte) work.pg.lfoPeak;
                 c >>= 1;
-                work.pg.lfoPeakWork = c; //  LFO PEAK LEVEL ｻｲ ｾｯﾃｲ
-                work.pg.lfoDelayWork = work.pg.lfoDelay; //  LFO DELAY ﾉ ｻｲｾｯﾃｲ
+                work.pg.lfoPeakWork = c; //  LFO PEAK LEVEL reset
+                work.pg.lfoDelayWork = work.pg.lfoDelay; //  LFO DELAY reset
             }
         }
 //SSSUB9:
@@ -4223,73 +4224,73 @@ public class Music2 {
 
     /** SOFT ENVEROPE PROCESS */
     public void SOFENV() {
-        if ((work.pg.volume & 0x10) != 0) { // CHECK ATTACK FLAG goto SOFEV2; // KUMA:decay flagのチェックへゴー
+        if ((work.pg.volume & 0x10) != 0) { // CHECK ATTACK FLAG goto SOFEV2; // KUMA: Go to check the decay flag
 
             byte a = (byte) work.pg.softEnvelopeCounter; // KUMA:get counter
             byte d = (byte) work.pg.softEnvelopeParam[1]; // KUMA:get AR
-            boolean carry = ((a & 0xff) + (d & 0xff) > 0xff); // KUMA:counter + AR が255を超えたか？
+            boolean carry = ((a & 0xff) + (d & 0xff) > 0xff); // KUMA: Did counter + AR exceed 255?
             a += d;
             if (carry) { // goto SOFEV1;
-                a = (byte) 0xff; // KUMA: counterが 上限を突破したので, counter を 255 に修正
+                a = (byte) 0xff; // KUMA: The counter exceeded the upper limit, so the counter was changed to 255.
             }
 //SOFEV1:
-            // KUMA:counterとflagの更新
-            work.pg.softEnvelopeCounter = a; // KUMA: counter = counter + AR(毎クロック,AR分だけcounterが増える)
+            // KUMA: Updating counter and flag
+            work.pg.softEnvelopeCounter = a; // KUMA: counter = counter + AR (Every clock, the counter increases by the AR.)
             if ((a & 0xff) - 0xff != 0) {
-                SOFEV7(); // KUMA:counterが255に達していないならSOFEV7へ
+                SOFEV7(); // KUMA: If counter has not reached 255, go to SOFEV7
                 return;
             }
-            a = (byte) work.pg.volume; // KUMA:current volume & flagsを取得
-            a ^= 0b0011_0000; // KUMA:attack flag:off  decay flag:on をxorで実現(上手い)
-            work.pg.volume = a; // TO STATE 2 (DECAY) // KUMA:current volume & flagsを更新
+            a = (byte) work.pg.volume; // KUMA: Get current volume & flags
+            a ^= 0b0011_0000; // KUMA: Attack flag: off decay flag: on realized with xor (nice)
+            work.pg.volume = a; // TO STATE 2 (DECAY) // KUMA: Update current volume & flags
             SOFEV7();
 //            return;
 //SOFEV2:
-        } else if ((work.pg.volume & 0x20) == 0) { // KUMA: Check decay flag // goto SOFEV4; // KUMA:sustain flagのチェックへ
+        } else if ((work.pg.volume & 0x20) == 0) { // KUMA: Check decay flag // goto SOFEV4; // KUMA: Check the sustain flag
             byte a = (byte) work.pg.softEnvelopeCounter; // KUMA:get counter
             byte d = (byte) work.pg.softEnvelopeParam[2]; // GET DECAY // KUMA:get DR
             byte e = (byte) work.pg.softEnvelopeParam[3]; // GET SUSTAIN // KUMA:get SR
-            boolean carry = ((a - d) < 0); // KUMA:counter = counter - DR 結果、counterが0未満の場合はSOFEV8へ
+            boolean carry = ((a - d) < 0); // KUMA: If the result of "counter = counter - DR" is less than 0, go to SOFEV8.
             a -= d;
             if (carry // goto SOFEV8; TODO recheck
-                    || (a - e < 0)) { // KUMA:counter-SR は0以上の場合はSOFEV3へ goto SOFEV3;
+                    || (a - e < 0)) { // KUMA: If counter-SR is 0 or more, goto SOFEV3
 //SOFEV8:
                 a = e; // KUMA: counter = SR
             }
 //SOFEV3:
-            work.pg.softEnvelopeCounter = a; // KUMA:counter=counter-DR(毎クロック,DR分だけcounterが減る)
+            work.pg.softEnvelopeCounter = a; // KUMA:counter = counter - DR (Every clock, the counter decreases by the DR.)
             if ((a - e) != 0) {
-                SOFEV7(); // KUMA: counterがSRに到達していないならSOFEV7へ
+                SOFEV7(); // KUMA: If counter has not reached SR, go to SOFEV7
                 return;
             }
-            a = (byte) work.pg.volume; // KUMA:current volume & flagsを取得
+            a = (byte) work.pg.volume; // KUMA: Get current volume & flags
             a ^= 0b0110_0000; // KUMA:dcay flag:off  sustain flag:on
-            work.pg.volume = a; // TO STATE 3 (SUSTAIN) // KUMA:current volume & flagsを更新
+            work.pg.volume = a; // TO STATE 3 (SUSTAIN) // KUMA: Update current volume & flags
             SOFEV7();
 //            return;
         } else {
 //SOFEV4:
             if ((work.pg.volume & 0x40) == 0) // KUMA: Check sustain flag
             {
-                SOFEV9(); // KUMA:release 処理へ
+                SOFEV9(); // KUMA: goto Release process
                 return;
             }
-            byte a = (byte) work.pg.softEnvelopeCounter; // KUMA:get counter
+            byte a = (byte) work.pg.softEnvelopeCounter; // KUMA: get counter
             byte d = (byte) work.pg.softEnvelopeParam[4]; // GET SUSTAIN LEVEL // KUMA:get SL
-            boolean carry = ((a - d) < 0); // KUMA:counter = counter - SL 結果、counterが0以上の場合はSOFEV5へ
+            boolean carry = ((a - d) < 0); // KUMA: If the result of "counter = counter - SL" is 0 or more, go to SOFEV5.
             a -= d;
             if (carry) { // goto SOFEV5;
                 a = 0; // KUMA: counter=0
             }
 //SOFEV5:
-            work.pg.softEnvelopeCounter = a; // KUMA:counter=counter-SL(毎クロック,SL分だけcounterが減る)
+            work.pg.softEnvelopeCounter = a; // KUMA:counter = counter - SL (Every clock, the counter decreases by SL.)
             if (a != 0) {
                 SOFEV7();
                 return;
             }
-            a = (byte) work.pg.volume; // KUMA:current volume & flagsを取得
-            a &= 0b1000_1111; // KUMA:エンベロープで使用した進捗に関わるフラグをリセット
-            work.pg.volume = a; // END OF ENVE // KUMA:KEYON中にSLにきて更にcounterが0になったらエンベロープ処理は終了する
+            a = (byte) work.pg.volume; // KUMA: Get current volume & flags
+            a &= (byte) 0b1000_1111; // KUMA: Resets progress flags used in envelopes
+            work.pg.volume = a; // END OF ENVE // KUMA: If SL is reached during KEYON and the counter reaches 0, envelope processing ends.
             SOFEV7();
         }
     }
@@ -4297,13 +4298,13 @@ public class Music2 {
     public void SOFEV9() {
         byte a = (byte) work.pg.softEnvelopeCounter; // KUMA:get counter
         byte d = (byte) work.pg.softEnvelopeParam[5]; // GET REREASE // KUMA:get RR
-        boolean carry = ((a - d) < 0); // KUMA:RRでcounterを減算
+        boolean carry = ((a - d) < 0); // KUMA: Decrement counter with RR
         a -= d;
         if (carry) { // goto SOFEVA;
             a = 0;
         }
 //SOFEVA:
-        work.pg.softEnvelopeCounter = a; // KUMA:counterを更新
+        work.pg.softEnvelopeCounter = a; // KUMA: Update counter
         SOFEV7();
     }
 
@@ -4314,13 +4315,13 @@ public class Music2 {
         byte a = (byte) work.pg.volume; // GET volume
         a &= 0b0000_1111;
         a++;
-        byte b = a; // 繰り返す回数 volume+1回
+        byte b = a; // Repeat count: volume+1 times
 //SOFEV6:
         do {
             hl += e;
             b--;
         } while (b != 0);
-        a = (byte) (hl >> 8); // AにはVOLUME+1を最大値としたcounter/256の割合分の値が入る
+        a = (byte) (hl >> 8); // A will contain the value of counter/256, with VOLUME+1 as the maximum value.
         work.aReg = a;
         if (work.pg.keyOffFlag) {
             return;
@@ -4336,95 +4337,95 @@ public class Music2 {
     }
 
     public void SOFENVex() {
-        if ((work.pg.softEnvelopeFlag & 0x10) != 0) { // CHECK ATTACK FLAG goto SOFEV2; // KUMA:decay flagのチェックへゴー
+        if ((work.pg.softEnvelopeFlag & 0x10) != 0) { // CHECK ATTACK FLAG goto SOFEV2; // KUMA: Go to check the decay flag
 
             byte a = (byte) work.pg.softEnvelopeCounter;  // KUMA:get counter
             byte d = (byte) work.pg.softEnvelopeParam[1];  // KUMA:get AR
-            boolean carry = ((a & 0xff) + (d & 0xff) > 0xff); // KUMA:counter + AR が255を超えたか？
+            boolean carry = ((a & 0xff) + (d & 0xff) > 0xff); // KUMA: Did counter + AR exceed 255?
             a += d;
             if (carry) { // goto SOFEV1;
-                a = (byte) 0xff; // KUMA:counterが上限を突破したので,counterを255に修正
+                a = (byte) 0xff; // KUMA: The counter exceeded the upper limit, so the counter was changed to 255.
             }
 //SOFEV1:
-            // KUMA:counterとflagの更新
-            work.pg.softEnvelopeCounter = a; // KUMA: counter = counter + AR(毎クロック,AR分だけcounterが増える)
+            // KUMA: Updating counter and flag
+            work.pg.softEnvelopeCounter = a; // KUMA: counter = counter + AR (Every clock, the counter increases by the AR.)
             if (((a & 0xff) - 0xff) != 0) {
-                SOFEV7ex(); // KUMA:counterが255に達していないならSOFEV7へ
+                SOFEV7ex(); // KUMA: If counter has not reached 255, go to SOFEV7
                 return;
             }
-            a = (byte) work.pg.softEnvelopeFlag; // KUMA:current volume & flagsを取得
-            a ^= 0b0011_0000; // KUMA:attack flag:off  decay flag:on をxorで実現(上手い)
-            work.pg.softEnvelopeFlag = a; // TO STATE 2 (DECAY) // KUMA:current volume & flagsを更新
+            a = (byte) work.pg.softEnvelopeFlag; // KUMA: Get current volume & flags
+            a ^= 0b0011_0000; // KUMA: Attack flag: off decay flag: on realized with xor (nice)
+            work.pg.softEnvelopeFlag = a; // TO STATE 2 (DECAY) // KUMA: Update current volume & flags
             SOFEV7ex();
 //            return;
 //SOFEV2:
-        } else if ((work.pg.softEnvelopeFlag & 0x20) == 0) { // KUMA: Check decay flag goto SOFEV4; // KUMA:sustain flagのチェックへ
+        } else if ((work.pg.softEnvelopeFlag & 0x20) == 0) { // KUMA: Check decay flag goto SOFEV4; // KUMA: Check the sustain flag
             byte a = (byte) work.pg.softEnvelopeCounter; // KUMA:get counter
             byte d = (byte) work.pg.softEnvelopeParam[2]; // GET DECAY // KUMA:get DR
             byte e = (byte) work.pg.softEnvelopeParam[3]; // GET SUSTAIN // KUMA:get SR
-            boolean carry = ((a - d) < 0); // KUMA:counter = counter - DR 結果、counterが0未満の場合はSOFEV8へ
+            boolean carry = ((a - d) < 0); // KUMA: If the result of "counter = counter - DR" is less than 0, go to SOFEV8.
             a -= d;
             if (carry || // ) { goto SOFEV8;
-                    (a - e < 0)) { // KUMA:counter-SR は0以上の場合はSOFEV3へ goto SOFEV3;
+                    (a - e < 0)) { // KUMA: If counter-SR is 0 or more, goto SOFEV3
 //SOFEV8:
                 a = e; // KUMA: counter = SR
             }
 //SOFEV3:
-            work.pg.softEnvelopeCounter = a; // KUMA:counter=counter-DR(毎クロック,DR分だけcounterが減る)
+            work.pg.softEnvelopeCounter = a; // KUMA: counter = counter -DR (Every clock, the counter decreases by the DR.)
             if ((a - e) != 0) {
-                SOFEV7ex(); // KUMA: counterがSRに到達していないならSOFEV7へ
+                SOFEV7ex(); // KUMA: If counter has not reached SR, go to SOFEV7
                 return;
             }
-            a = (byte) work.pg.softEnvelopeFlag; // KUMA:current volume & flagsを取得
+            a = (byte) work.pg.softEnvelopeFlag; // KUMA:Get current volume & flags
             a ^= 0b0110_0000; // KUMA:dcay flag:off  sustain flag:on
-            work.pg.softEnvelopeFlag = a; // TO STATE 3 (SUSTAIN) // KUMA:current volume & flagsを更新
+            work.pg.softEnvelopeFlag = a; // TO STATE 3 (SUSTAIN) // KUMA:Update current volume & flags
             SOFEV7ex();
 //            return;
 //SOFEV4:
         } else {
             if ((work.pg.softEnvelopeFlag & 0x40) == 0) { // KUMA: Check sustain flag
-                SOFEV9ex(); // KUMA:release 処理へ
+                SOFEV9ex(); // KUMA: to Release process
                 return;
             }
 
-            byte a = (byte) work.pg.softEnvelopeCounter; // KUMA:get counter
-            byte d = (byte) work.pg.softEnvelopeParam[4]; // GET SUSTAIN LEVEL // KUMA:get SL
-            boolean carry = ((a - d) < 0); // KUMA:counter = counter - SL 結果、counterが0以上の場合はSOFEV5へ
+            byte a = (byte) work.pg.softEnvelopeCounter; // KUMA: get counter
+            byte d = (byte) work.pg.softEnvelopeParam[4]; // GET SUSTAIN LEVEL // KUMA: get SL
+            boolean carry = ((a - d) < 0); // KUMA: If the result of "counter = counter - SL" is 0 or more, go to SOFEV5.
             a -= d;
             if (carry) { // goto SOFEV5;
                 a = 0; // KUMA: counter=0
             }
 //SOFEV5:
-            work.pg.softEnvelopeCounter = a; // KUMA:counter=counter-SL(毎クロック,SL分だけcounterが減る)
+            work.pg.softEnvelopeCounter = a; // KUMA: counter = counter - SL(Every clock, the counter decreases by SL.)
             if (a != 0) {
                 SOFEV7ex();
                 return;
             }
-            a = (byte) work.pg.softEnvelopeFlag; // KUMA:current volume & flagsを取得
-            a &= 0b1000_1111; // KUMA:エンベロープで使用した進捗に関わるフラグをリセット
-            work.pg.softEnvelopeFlag = a; // END OF ENVE // KUMA:KEYON中にSLにきて更にcounterが0になったらエンベロープ処理は終了する
+            a = (byte) work.pg.softEnvelopeFlag; // KUMA:Get current volume & flags
+            a &= (byte) 0b1000_1111; // KUMA: Resets progress flags used in envelopes
+            work.pg.softEnvelopeFlag = a; // END OF ENVE // KUMA: If SL is reached during KEYON and the counter reaches 0, envelope processing ends.
             SOFEV7ex();
         }
     }
 
     public void SOFEV9ex() {
-        byte a = (byte) work.pg.softEnvelopeCounter; // KUMA:get counter
-        byte d = (byte) work.pg.softEnvelopeParam[5]; // GET REREASE // KUMA:get RR
-        boolean carry = ((a - d) < 0); // KUMA:RRでcounterを減算
+        byte a = (byte) work.pg.softEnvelopeCounter; // KUMA: get counter
+        byte d = (byte) work.pg.softEnvelopeParam[5]; // GET REREASE // KUMA: get RR
+        boolean carry = ((a - d) < 0); // KUMA: Decrement counter with RR
         a -= d;
         if (carry) { // goto SOFEVA;
             a = 0;
         }
 //SOFEVA:
-        work.pg.softEnvelopeCounter = a; // KUMA:counterを更新
+        work.pg.softEnvelopeCounter = a; // KUMA: Update counter
         SOFEV7ex();
     }
 
     public void SOFEV7ex() {
-        byte e = (byte) work.pg.softEnvelopeCounter; // KUMA:get counter
-        int a = (byte) work.pg.volume; // GET volume
+        byte e = (byte) (work.pg.softEnvelopeCounter & 0xff); // KUMA:get counter
+        int a = (byte) (work.pg.volume & 0xff); // GET volume
         a++;
-        a = (byte) ((e * a) >> 8); // AにはVOLUME+1を最大値としたcounter/256の割合分の値が入る
+        a = (byte) ((e * a) >> 8); // A will contain the value of counter/256, with VOLUME+1 as the maximum value.
         work.aReg = (byte) a;
         if (work.pg.keyOffFlag) return;
         if (!work.pg.reverbFlg) return;
@@ -4501,7 +4502,6 @@ public class Music2 {
         work.pg.volume = 16;
     }
 
-
     public void ENVPOD() {
         work.pg.setBackupHardEnvFine((byte) (work.pg.mData[work.hl++].dat & 0xff));
         work.pg.setBackupHardEnvCoarse((byte) (work.pg.mData[work.hl++].dat & 0xff));
@@ -4522,7 +4522,6 @@ public class Music2 {
         e = work.pg.getBackupHardEnvCoarse();
         d = 0x0c;
         PSGOUT(d, e);
-
     }
 
     private void SetKeyOnDelay() {
@@ -4572,7 +4571,7 @@ public class Music2 {
             if (work.pg.kdWork[0] == 0) work.pg.keyOnSlot += 0x10;
             if (work.pg.kdWork[1] == 0) work.pg.keyOnSlot += 0x20;
             if (work.pg.kdWork[2] == 0) work.pg.keyOnSlot += 0x40;
-            if (work.pg.kdWork[3] == 0) work.pg.keyOnSlot += 0x80;
+            if (work.pg.kdWork[3] == 0) work.pg.keyOnSlot += (byte) 0x80;
             a += work.pg.keyOnSlot;
         }
 

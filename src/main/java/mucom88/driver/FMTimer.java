@@ -1,19 +1,20 @@
 package mucom88.driver;
 
 public class FMTimer {
-    /** タイマーAのオーバーフロー設定値 */
+
+    /** Timer A overflow setting */
     public int timerA;
-    /** タイマーAのカウンター値 */
+    /** Timer A counter value */
     protected double timerACounter;
-    /** タイマーBのオーバーフロー設定値 */
+    /** Timer B overflow setting */
     public int timerB;
-    /** タイマーBのカウンター値 */
+    /** Timer B counter value */
     protected double timerBCounter;
-    /** タイマー制御レジスタ (下位4ビット+7ビット) */
+    /** Timer control register (lower 4 bits + 7 bits) */
     public int timerReg;
     public double step;
 
-    /** ステータスレジスタ (下位2ビット) */
+    /** Status register (lowest 2 bits) */
     int statReg;
 
     public int getStatReg() {
@@ -26,7 +27,7 @@ public class FMTimer {
     }
 
     public void timer() {
-        if ((timerReg & 0x01) != 0) { // timerA 動作中
+        if ((timerReg & 0x01) != 0) { // TimerA is running
             timerACounter += step;
             if (timerACounter >= (1024 - timerA)) {
                 statReg |= ((timerReg >> 2) & 0x01);
@@ -35,7 +36,7 @@ public class FMTimer {
             }
         }
 
-        if ((timerReg & 0x02) != 0) { // timerB 動作中
+        if ((timerReg & 0x02) != 0) { // TimerB is running
             timerBCounter += step;
             if (timerBCounter >= timerB) {
                 statReg |= ((timerReg >> 2) & 0x02);

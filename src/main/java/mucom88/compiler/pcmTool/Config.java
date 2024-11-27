@@ -1,12 +1,17 @@
 package mucom88.compiler.pcmTool;
 
-import java.util.logging.Level;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 import dotnet4j.util.compat.StringUtilities;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 public class Config {
+
+    private static final Logger logger = getLogger(Config.class.getName());
+
     mucom88.compiler.pcmTool.FormatType FormatType = mucom88.compiler.pcmTool.FormatType.mucom88;
 
     public mucom88.compiler.pcmTool.FormatType getFormatType() {
@@ -36,12 +41,12 @@ public class Config {
             case "OPNB-A" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
             case "OPNBB" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
             case "OPNBA" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
-            default -> Debug.printf(Level.SEVERE, "Unknown format type.[%s]", value);
+            default -> logger.log(Level.ERROR, "Unknown format type.[%s]".formatted(value));
             }
             break;
 
         default:
-            Debug.printf(Level.SEVERE, "Unknown command[%s].", contents);
+            logger.log(Level.ERROR, "Unknown command[%s].".formatted(contents));
             break;
         }
     }

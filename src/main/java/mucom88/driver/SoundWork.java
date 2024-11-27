@@ -8,7 +8,7 @@ import musicDriverInterface.MmlDatum;
 
 
 /**
- * オリジナルに存在するワークはここに定義する
+ * The work present in the original is defined here.
  */
 public class SoundWork {
 
@@ -82,7 +82,7 @@ public class SoundWork {
 
     public byte[][] pregBf = null;
     public byte[] initPm = null;
-    public short[][] detdat = new short[][] {
+    public short[][] detdat = {
             null, null, null, null
     };
     public byte[][] drmvol = new byte[][] {
@@ -162,7 +162,7 @@ public class SoundWork {
         pvMode = value;
     }
 
-    private int muTop = 5;
+    private final int muTop = 5;
 
     public int getMuTop() {
         return muTop;
@@ -209,7 +209,7 @@ public class SoundWork {
     public byte[] PLSET1_VAL = new byte[5];
     public byte[] PLSET2_VAL = new byte[5];
 
-    private int[] pcmLr = new int[6];
+    private final int[] pcmLr = new int[6];
 
     public int[] getPcmLr() {
         return pcmLr;
@@ -275,7 +275,7 @@ public class SoundWork {
         rhythm = value;
     }
 
-    private int[] deltN = new int[4];
+    private final int[] deltN = new int[4];
 
     public int[] getDeltN() {
         return deltN;
@@ -327,13 +327,13 @@ public class SoundWork {
         pOut = value;
     }
 
-    private int[] STTADR = new int[4];
+    private final int[] STTADR = new int[4];
 
     public int[] getSTTADR() {
         return STTADR;
     }
 
-    private int[] ENDADR = new int[4];
+    private final int[] ENDADR = new int[4];
 
     public int[] getENDADR() {
         return ENDADR;
@@ -345,7 +345,7 @@ public class SoundWork {
         return TOTALV;
     }
 
-    private int OTODAT = 1;
+    private final int OTODAT = 1;
 
     public int getOTODAT() {
         return OTODAT;
@@ -416,7 +416,7 @@ public class SoundWork {
         currentCh = value;
     }
 
-    private int[][] PCMaSTTADR = new int[][] {
+    private final int[][] PCMaSTTADR = new int[][] {
             new int[6], new int[6]
     };
 
@@ -635,7 +635,7 @@ public class SoundWork {
                 }
         };
         PCMNMB = new short[][] {
-                // OPNA (7987200Hz) note:Aを8kHz(基準?)で再生
+                // OPNA (7987200Hz) note:A is played at 8kHz (standard?)
                 //  0x7BFE+200 = 0x7CC6
                 //  0x7CC6 >> 5 =0x3E6(998)
                 //  998 = 7987200Hz / 8000Hz
@@ -723,7 +723,7 @@ public class SoundWork {
             fmVolMode = value;
         }
 
-        private byte[] fmVolUserTable = new byte[20];
+        private final byte[] fmVolUserTable = new byte[20];
 
         public byte[] getFmVolUserTable() {
             return fmVolUserTable;
@@ -759,28 +759,28 @@ public class SoundWork {
              * bit 7 = soft envelope flag
              */
             public int softEnvelopeFlag = 0;
-            /** DB0 ｱﾙｺﾞﾘｽﾞﾑ No. 7(FM) */
+            /** DB0 Algorithm No. 7(FM) */
             public int algo = 0;
             public int feedback = 0;
             /** DB8 VOL.REG.No. 7 */
             public int volReg = 0;
-            /** DB 0 ﾁｬﾝﾈﾙ ﾅﾝﾊﾞｰ 8 */
+            /** DB 0 Channel Number 8 */
             public int channelNumber = 0;
-            /** DW0 ﾃﾞﾁｭｰﾝ DATA9,10 */
+            /** DW0 Detune DATA9,10 */
             public int detune = 0;
-            /** DB0  for TLLFO11 */
+            /** DB0 for TLLFO11 */
             public int TLlfo = 0;
             /** DB0 SOFT ENVE COUNTER11 */
             public int softEnvelopeCounter = 0;
-            /** DB0 for ﾘﾊﾞｰﾌﾞ12 */
+            /** DB0 for Reverb 12 */
             public int reverb = 0;
-            /** DS5 SOFT ENVE DUMMY13-17  */
+//            /** DS5 SOFT ENVE DUMMY 13-17  */
 //            public int[] softEnvelopeDummy = new int[5];
             /** SOFT ENVE12-17 KUMA: 12:AL 13:AR 14:DR 15:SR 16:SL 17:RR */
             public int[] softEnvelopeParam = new int[6];
             /** rev vol? 17 */
             public int reverbVol = 0;
-            /** DB0 qｵﾝﾀｲｽﾞ18 */
+            /** DB0 Quantize 18 */
             public int quantize = 0;
             /** DB0 LFO DELAY19 */
             public int lfoDelay = 0;
@@ -790,7 +790,7 @@ public class SoundWork {
             public int lfoCounter = 0;
             /** DB0 WORK22 */
             public int lfoCounterWork = 0;
-            /** DW0 LFO ﾍﾝｶﾘｮｳ 2BYTE23,24 */
+            /** DW0 LFO Amount of change 2BYTE23,24 */
             public int lfoDelta = 0;
             /** DW0 WORK25,26 */
             public int lfoDeltaWork = 0;
@@ -812,7 +812,7 @@ public class SoundWork {
             public boolean tieFlg = false;
             /** 3=MUTE FLAG */
             public boolean muteFlg = false;
-            /** KUMA:外部から操作されるmuteフラグ */
+            /** @since KUMA Externally controlled mute flag */
             public boolean silentFlg = false;
             /** 2=LFO 1SHOT FLAG */
             public boolean lfo1shotFlg = false;
@@ -831,20 +831,20 @@ public class SoundWork {
             public boolean reverbMode = false;
             /** 0-3=hardware Envelope value */
             public byte hardEnvelopValue = 0;
-            /** DW0 ﾘﾀｰﾝｱﾄﾞﾚｽ34,35 */
+            /** DW0 return address 34,35 */
             public int returnAddress = 0;
-            /** DB0,0 36,37 (ｱｷ) */
+            /** DB0,0 36,37 (reserved) */
             public int reserve = 0;
 
-            /** DB ? ;パーン 38 */
+            /** DB ? ;pan 38 */
             public byte panEnable = 0;
-            /** DB ? ;パーン モード 39 */
+            /** DB ? ;pan mode 39 */
             public byte panMode = 0;
-            /** DB ? ;パーン カウンター 40 */
+            /** DB ? ;pan counter 40 */
             public byte panCounterWork = 0;
-            /** DB ? ;パーン カウンター 41 */
+            /** DB ? ;pan counter 41 */
             public byte panCounter = 0;
-            /** DB ? ;パーン 値 42 */
+            /** DB ? ;pan value 42 */
             public byte panValue = 3;
 
             private boolean musicEnd;
@@ -908,11 +908,11 @@ public class SoundWork {
             }
 
             public boolean keyOnDelayFlag = false;
-            /** keyOnSlot制御向け */
+            /** for keyOnSlot control */
             public byte keyOnSlot = (byte) 0xf0;
             public byte[] kd = new byte[4];
             public byte[] kdWork = new byte[4];
-            /** ページが使用するスロット(bit) */
+            /** Slots used by the page(bit) */
             public byte useSlot = 0x0f;
 
             private byte backupMIXPort = 0x38;
@@ -991,13 +991,13 @@ public class SoundWork {
                     0, 0, 0, 0
             };
 
-            // portamento処理
+            // portamento processing
 
             // Work
             public boolean portaFlg = false;
             public boolean portaContFlg = false;
             public int portaWorkClock = 0;
-            // 設定値
+            // Setting Value
             public int portaStNote = 0;
             public int portaEdNote = 0;
             public int portaTotalClock = 0;

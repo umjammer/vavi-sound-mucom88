@@ -3,6 +3,8 @@ package mucom88.driver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +12,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 import dotnet4j.io.File;
 import dotnet4j.io.FileAccess;
@@ -27,16 +28,19 @@ import mucom88.common.MubException;
 import musicDriverInterface.ChipAction;
 import musicDriverInterface.ChipDatum;
 import musicDriverInterface.GD3Tag;
+import musicDriverInterface.IDriver;
 import musicDriverInterface.MmlDatum;
 import musicDriverInterface.Tag;
-import musicDriverInterface.IDriver;
-import vavi.util.Debug;
+import vavi.util.ByteUtil;
 import vavi.util.serdes.Serdes;
 
 import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
+import static java.lang.System.getLogger;
 
 
 public class Driver implements IDriver {
+
+    private static final Logger logger = getLogger(Driver.class.getName());
 
     public static final int cOPNAMasterClock = 7987200;
     public static final int cOPNBMasterClock = 8000000;
@@ -48,7 +52,7 @@ public class Driver implements IDriver {
 
     private MubHeader header = null;
     private List<Tuple<String, String>> tags = null;
-    private String[] pcmType = new String[6];
+    private final String[] pcmType = new String[6];
     private Consumer<ChipDatum> writeOPNAP;
     private Consumer<ChipDatum> writeOPNAS;
     private Consumer<ChipDatum> writeOPNBP;
@@ -59,8 +63,8 @@ public class Driver implements IDriver {
     private TriConsumer<byte[], Integer, Integer> writeOPNBAdpcmAS;
     private TriConsumer<byte[], Integer, Integer> writeOPNBAdpcmBS;
     private BiConsumer<Long, Integer> waitSendOPNA;
-    private String[] fnVoiceDat = {"", "", "", ""};
-    private String[] fnPcm = {"", "", "", "", "", ""};
+    private final String[] fnVoiceDat = {"", "", "", ""};
+    private final String[] fnPcm = {"", "", "", "", "", ""};
 
     private int renderingFreq = 44100;
 
@@ -187,7 +191,7 @@ public class Driver implements IDriver {
         writeOPNBAdpcmBS = lstChipWriteAdpcm.get(3);
         waitSendOPNA = chipWaitSend.get(0);
 
-        // PCMを送信する
+        // Transmit PCM
         if (pcm != null) {
             if (isLoadADPCM) {
                 for (int i = 0; i < 2; i++) {
@@ -205,22 +209,22 @@ public class Driver implements IDriver {
                 if (pcm[2] != null) {
                     buf.clear();
                     for (int i = pcmStartPos[2]; i < pcm[2].length; i++) buf.add(pcm[2][i]);
-                    writeOPNBPAdpcmB(toByteArray(buf));
+                    writeOPNBPAdpcmB(ByteUtil.toByteArray(buf));
                 }
                 if (pcm[3] != null) {
                     buf.clear();
                     for (int i = pcmStartPos[3]; i < pcm[3].length; i++) buf.add(pcm[3][i]);
-                    writeOPNBPAdpcmB(toByteArray(buf));
+                    writeOPNBPAdpcmB(ByteUtil.toByteArray(buf));
                 }
                 if (pcm[4] != null) {
                     buf.clear();
                     for (int i = pcmStartPos[4]; i < pcm[4].length; i++) buf.add(pcm[4][i]);
-                    writeOPNBPAdpcmA(toByteArray(buf));
+                    writeOPNBPAdpcmA(ByteUtil.toByteArray(buf));
                 }
                 if (pcm[5] != null) {
                     buf.clear();
                     for (int i = pcmStartPos[5]; i < pcm[5].length; i++) buf.add(pcm[5][i]);
-                    writeOPNBPAdpcmA(toByteArray(buf));
+                    writeOPNBPAdpcmA(ByteUtil.toByteArray(buf));
                 }
             }
         }
@@ -248,7 +252,7 @@ public class Driver implements IDriver {
             pcmData.add(new ArrayList<>());
             List<Byte> one = pcmData.get(i);
             for (int p = (work.pcmTables[v][i].getItem2()[0] << 2); p < (work.pcmTables[v][i].getItem2()[1] << 2) + 16; p++) {
-                one.add(pcm[v][p + 0x400]); // 0x400 ヘッダのサイズ
+                one.add(pcm[v][p + 0x400]); // 0x400 header size
             }
         }
 
@@ -264,7 +268,7 @@ public class Driver implements IDriver {
             tblPtr += length != 0 ? 0x100 : 0;
             work.pcmTables[v][i] = new Tuple<>(work.pcmTables[v][i].getItem1(), new short[] {stAdr, edAdr, 0, work.pcmTables[v][i].getItem2()[3]});
         }
-        pcm[v] = toByteArray(dest);
+        pcm[v] = ByteUtil.toByteArray(dest);
     }
 
     private boolean isDotNETFromTAG() {
@@ -294,7 +298,7 @@ public class Driver implements IDriver {
         return false;
     }
 
-    private Function<String, Stream> createAppendFileReaderCallback(String dir) {
+    private static Function<String, Stream> createAppendFileReaderCallback(String dir) {
         return fileName -> {
             if (!StringUtilities.isNullOrEmpty(dir)) {
                 var path = Path.combine(dir, fileName);
@@ -356,14 +360,14 @@ public class Driver implements IDriver {
             for (int i = 0; i < cnt; i++) {
                 List<Byte> b = new ArrayList<>();
                 while (pcm[id][p] != 0x0) b.add(pcm[id][p++]);
-                String item1 = new String(toByteArray(b), Common.fileEncoding);
+                String item1 = new String(ByteUtil.toByteArray(b), Common.fileEncoding);
                 p++;
                 p++;
                 short[] item2 = new short[4];
-                item2[0] = (short) (pcm[id][p + 2] | (pcm[id][p + 3] * 0x100));
-                item2[1] = (short) (pcm[id][p + 4] | (pcm[id][p + 5] * 0x100));
+                item2[0] = (short) ((pcm[id][p + 2] & 0xff) | ((pcm[id][p + 3] & 0xff) * 0x100));
+                item2[1] = (short) ((pcm[id][p + 4] & 0xff) | ((pcm[id][p + 5] & 0xff) * 0x100));
                 item2[2] = (short) 0;
-                item2[3] = (short) (pcm[id][p + 0] | (pcm[id][p + 1] * 0x100));
+                item2[3] = (short) ((pcm[id][p + 0] & 0xff) | ((pcm[id][p + 1] & 0xff) * 0x100));
                 Tuple<String, short[]> pd = new Tuple<>(item1, item2);
                 pcmTable.add(pd);
                 p += 6;
@@ -373,22 +377,22 @@ public class Driver implements IDriver {
         default: // mucom88
             pcmType[id] = "";
             for (int i = 0; i < maxPcm; i++) {
-                adr = pcm[id][infTable + 28] | (pcm[id][infTable + 29] * 0x100); // >>2済み開始アドレス
-                whl = pcm[id][infTable + 30] | (pcm[id][infTable + 31] * 0x100); // 生レングス
+                adr = (pcm[id][infTable + 28] & 0xff) | ((pcm[id][infTable + 29] & 0xff) * 0x100); // Start Address which is ">>2"
+                whl = (pcm[id][infTable + 30] & 0xff) | ((pcm[id][infTable + 31] & 0xff) * 0x100); // raw length
                 eadr = adr + (whl >> 2); // !
                 if (pcm[id][i * 32] != 0) {
                     short[] item2 = new short[4];
                     item2[0] = (short) adr;
                     item2[1] = (short) eadr;
                     item2[2] = (short) 0;
-                    item2[3] = (short) (pcm[id][infTable + 26] | (pcm[id][infTable + 27] * 0x100));
+                    item2[3] = (short) ((pcm[id][infTable + 26] & 0xff) | ((pcm[id][infTable + 27] & 0xff) * 0x100));
                     System.arraycopy(pcm[id], i * 32, pcmName, 0, 16);
                     pcmName[16] = 0;
                     String item1 = new String(pcmName, Common.fileEncoding);
 
                     Tuple<String, short[]> pd = new Tuple<>(item1, item2);
                     pcmTable.add(pd);
-                    //Debug.printf("#PCM%d $%04x $%04x %s", i + 1, adr, eadr, new String(pcmName, Charset.forName("shift_jis")));
+                    //logger.log(Level.TRACE, "shift_jis");
                 }
                 infTable += 32;
             }
@@ -426,11 +430,11 @@ public class Driver implements IDriver {
                 new ChipDatum(0x1, 0x0d, 0xff)
         );
 
-        // データ転送
+        // Data Transfer
         int infoSize = pcmStartPos[id];
         for (int i = 0; i < pcm[id].length - infoSize; i++) {
             dat.add(new ChipDatum(0x1, 0x08, pcm[id][infoSize + i]));
-            //Debug.printf("#PCMDATA adr:%04x dat:%02x", (infoSize + i) >> 2, pcmdata[infoSize + i]);
+            //logger.log(Level.TRACE, "#PCMDATA adr:%04x dat:%02x".formatted((infoSize + i) >> 2, pcmdata[infoSize + i]));
         }
         dat.add(new ChipDatum(0x1, 0x00, 0x00));
         dat.add(new ChipDatum(0x1, 0x10, 0x80));
@@ -460,20 +464,20 @@ public class Driver implements IDriver {
             }
             work.timerOPNA1 = new OPNATimer(renderingFreq, opnaMasterClock);
             work.timerOPNA2 = new OPNATimer(renderingFreq, opnaMasterClock);
-            Debug.printf(Level.FINEST, "OPNA MasterClock %d", opnaMasterClock);
+logger.log(Level.TRACE, "OPNA MasterClock %d".formatted(opnaMasterClock));
             work.timerOPNB1 = new OPNATimer(renderingFreq, opnbMasterClock);
             work.timerOPNB2 = new OPNATimer(renderingFreq, opnbMasterClock);
-            Debug.printf(Level.FINEST, "OPNB MasterClock %d", opnbMasterClock);
+logger.log(Level.TRACE, "OPNB MasterClock %d".formatted(opnbMasterClock));
             work.timerOPM = new OPMTimer(renderingFreq, opmMasterClock);
-            Debug.printf(Level.FINEST, "OPM  MasterClock %d", opmMasterClock);
-            Debug.printf(Level.FINEST, "Start rendering.");
+logger.log(Level.TRACE, "OPM  MasterClock %d".formatted(opmMasterClock));
+logger.log(Level.TRACE, "Start rendering.");
         }
     }
 
     public void stopRendering() {
         synchronized (work.systemInterrupt) {
             if (work.getStatus() > 0) work.setStatus(0);
-            Debug.printf(Level.FINEST, "Stop rendering.");
+logger.log(Level.TRACE, "Stop rendering.");
         }
     }
 
@@ -574,28 +578,28 @@ public class Driver implements IDriver {
     //
 
     public void startMusic(int musicNumber) {
-        Debug.printf(Level.FINEST, "演奏開始");
+        logger.log(Level.TRACE, "Start Playing");
         music2.MSTART(musicNumber);
         music2.skipCount(header.jumpCount);
     }
 
     public void stopMusic() {
-        Debug.printf(Level.FINEST, "演奏停止");
+        logger.log(Level.TRACE, "Stop Playing");
         music2.MSTOP();
     }
 
     public void fadeOut() {
-        Debug.printf(Level.FINEST, "フェードアウト");
+        logger.log(Level.TRACE, "Fadeout");
         music2.FDO();
     }
 
     public Object getWork() {
-        Debug.printf(Level.FINEST, "ワークエリア取得");
+        logger.log(Level.TRACE, "Get Work Area");
         return music2.RETW();
     }
 
     public void shotEffect() {
-        Debug.printf(Level.FINEST, "効果音");
+        logger.log(Level.TRACE, "Sound effects");
         music2.EFC();
     }
 
@@ -643,7 +647,7 @@ public class Driver implements IDriver {
                 return mdsound.Common.readAllBytes(vd);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             return null;
         }
     }
@@ -665,7 +669,7 @@ public class Driver implements IDriver {
                 return mdsound.Common.readAllBytes(pd);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             return null;
         }
     }
@@ -676,11 +680,11 @@ public class Driver implements IDriver {
     }
 
     public GD3Tag getGD3TagInfo(byte[] srcBuf) {
-        int tagData = Common.getLE32(srcBuf, 0x000c);
-        int tagsize = Common.getLE32(srcBuf, 0x0010);
+        int tagData = ByteUtil.readLeInt(srcBuf, 0x000c);
+        int tagsize = ByteUtil.readLeInt(srcBuf, 0x0010);
         if (srcBuf[0] == 'm' && srcBuf[1] == 'u' && srcBuf[2] == 'P' && srcBuf[3] == 'b') {
-            tagData = Common.getLE32(srcBuf, 0x0012);
-            tagsize = Common.getLE32(srcBuf, 0x0016);
+            tagData = ByteUtil.readLeInt(srcBuf, 0x0012);
+            tagsize = ByteUtil.readLeInt(srcBuf, 0x0016);
         }
 
         if (tagData == 0) return null;
@@ -690,7 +694,7 @@ public class Driver implements IDriver {
             lb.add(srcBuf[tagData + i]);
         }
 
-        List<Tuple<String, String>> tags = getTagsByteArray(toByteArray(lb));
+        List<Tuple<String, String>> tags = getTagsByteArray(ByteUtil.toByteArray(lb));
         GD3Tag gt = new GD3Tag();
 
         for (Tuple<String, String> tag : tags) {
@@ -725,7 +729,7 @@ public class Driver implements IDriver {
         return gt;
     }
 
-    private List<Tuple<String, String>> getTagsByteArray(byte[] buf) {
+    private static List<Tuple<String, String>> getTagsByteArray(byte[] buf) {
         var text = Arrays.stream(new String(buf, Common.fileEncoding).split("\r\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
 
@@ -742,14 +746,14 @@ public class Driver implements IDriver {
                     tags.add(item);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
         return tags;
     }
 
-    private void addItemAry(GD3Tag gt, Tag tag, String item) {
+    private static void addItemAry(GD3Tag gt, Tag tag, String item) {
         if (!gt.items.containsKey(tag))
             gt.items.put(tag, new String[] {item});
         else {
@@ -764,7 +768,7 @@ public class Driver implements IDriver {
         try {
             return work.nowLoopCounter;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             return -1;
         }
     }
@@ -776,7 +780,6 @@ public class Driver implements IDriver {
             } else if (cmd.equals("SetMute")) {
                 setMuteFlag((int) param[1], (int) param[2], (int) param[3], (boolean) param[4]);
             }
-
         }
     }
 

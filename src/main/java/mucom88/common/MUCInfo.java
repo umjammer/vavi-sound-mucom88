@@ -9,9 +9,11 @@ import java.util.Map;
 import dotnet4j.io.Path;
 import dotnet4j.util.compat.Tuple;
 import musicDriverInterface.MmlDatum;
+import musicDriverInterface.common.AutoExtendList;
 
 
 public class MUCInfo {
+
     private String title;
 
     public String getTitle() {
@@ -153,7 +155,7 @@ public class MUCInfo {
     }
 
     /**
-     * mml中で定義した音色データ
+     * Voice data defined in mml
      */
     private byte[] mmlVoiceData;
 
@@ -166,7 +168,7 @@ public class MUCInfo {
     }
 
     /**
-     * ファイルから読み込んだプリセットの音色データ
+     * Preset sound data loaded from a file
      */
     private byte[] voiceData;
 
@@ -189,7 +191,7 @@ public class MUCInfo {
     }
 
     /**
-     * SSG波形データ
+     * SSG waveform data
      */
     private Map<Integer, byte[]> ssgVoice = new HashMap<>();
 
@@ -250,7 +252,7 @@ public class MUCInfo {
         fnDst = value;
     }
 
-    // KUMA:作業向けメモリ
+    // KUMA Memory for Work
     private List<MmlDatum> bufDst; // AutoExtendList
 
     public List<MmlDatum> getBufDst() {
@@ -262,7 +264,7 @@ public class MUCInfo {
         bufDst = value;
     }
 
-    // KUMA:ページ毎のメモリ
+    // KUMA Memory per page
     private List<MmlDatum>[][][] bufPage; // AutoExtendList
 
     public List<MmlDatum>[][][] getBufPage() {
@@ -273,7 +275,7 @@ public class MUCInfo {
         bufPage = value;
     }
 
-    // KUMA:音色用のメモリ(ページ機能使用時のみ)
+    // KUMA Memory for tones (only when using page function)
     private List<MmlDatum> bufUseVoice; // AutoExtendList
 
     public List<MmlDatum> getBufUseVoice() {
@@ -378,9 +380,8 @@ public class MUCInfo {
     }
 
     /**
-     * mml全体で実際に使用した音色番号
-     * 関連項目:
-     * orig:DEFVOICE
+     * The tone numbers actually used throughout the mml
+     * @see "orig:DEFVOICE"
      */
     private List<Integer> bufDefVoice; // AutoExtendList
 
@@ -461,7 +462,7 @@ public class MUCInfo {
 
     private DriverType driverType = DriverType.normal;
 
-    // mucomDotNET独自機能を使用したか否か
+    // Whether or not mucomDotNET's unique features were used
     public DriverType getDriverType() {
         return driverType;
     }
@@ -640,7 +641,7 @@ new Exception("ssgExtend: " + ssgExtend).printStackTrace();
         workPath = "";
         fnDst = "";
 
-        // バッファの作成
+        // Creating a Buffer
         bufPage = new List[5][][];
         for (int i = 0; i < 5; i++) {
             bufPage[i] = new List[11][];
@@ -662,8 +663,8 @@ new Exception("ssgExtend: " + ssgExtend).printStackTrace();
         bufTitle = new AutoExtendList<>(Integer.TYPE);
         mmlVoiceDataWork = new AutoExtendList<>(Byte.TYPE);
 
-        driverType = DriverType.DotNet;//.normal;
-        //needNormalMucom = false;
+        driverType = DriverType.DotNet; // .normal;
+//        needNormalMucom = false;
         isIDE = false;
         isExtendFormat = false;
         carrierCorrection = false;

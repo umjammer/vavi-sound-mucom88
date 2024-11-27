@@ -78,7 +78,7 @@ class Program {
             if (tags != null) {
                 for (Tuple<String, String> tag : tags) {
                     if (tag.getItem1().isEmpty()) continue;
-                    Debug.printf(Level.INFO, String.format("%-16s : %s", tag.getItem1(), tag.getItem2()));
+                    Debug.printf(Level.INFO, "%-16s : %s", tag.getItem1(), tag.getItem2());
                 }
             }
 
@@ -109,7 +109,7 @@ class Program {
                 driver.render();
                 writer.incrementWaitCOunter();
 
-                //ステータスが0(終了)又は0未満(エラー)の場合はループを抜けて終了
+                // ステータスが0(終了)又は0未満(エラー)の場合はループを抜けて終了
                 if (driver.getStatus() <= 0) {
                     break;
                 }
@@ -132,7 +132,7 @@ class Program {
 
         while (args != null &&
                 args.length > 0 &&
-                args[i].length() > 0 &&
+                !args[i].isEmpty() &&
                 args[i] != null &&
                 args[i].charAt(0) == '-') {
             String op = args[i].substring(1).toUpperCase();
@@ -163,7 +163,7 @@ class Program {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, String.format("! r%d c%d", md.linePos.row, md.linePos.col));
+                Debug.printf(Level.FINEST, "! r%d c%d", md.linePos.row, md.linePos.col);
             }
         }
         if (dat.address == -1) return;
@@ -208,12 +208,12 @@ class Program {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, String.format("! OPNA i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
+                Debug.printf(Level.FINEST, "! OPNA i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
             }
         }
         if (dat.address == -1) return;
 
-        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
+        Debug.printf(Level.FINEST, "Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
 
         writer.writeYM2608(chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
     }
@@ -222,12 +222,12 @@ class Program {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, String.format("! OPNB i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
+                Debug.printf(Level.FINEST, "! OPNB i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
             }
         }
         if (dat.address == -1) return;
 
-        Debug.printf(Level.FINEST, String.format("Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
+        Debug.printf(Level.FINEST, "Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
 
         writer.writeYM2610(chipId, (byte) dat.port, (byte) dat.address, (byte) dat.data);
     }
@@ -244,12 +244,12 @@ class Program {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, String.format("! OPM i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
+                Debug.printf(Level.FINEST, "! OPM i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
             }
         }
         if (dat.address == -1) return;
 
-        Debug.printf(Level.FINEST, String.format("Out OPM Chip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
+        Debug.printf(Level.FINEST, "Out OPM Chip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
 
         writer.writeYM2151(chipId, (byte) dat.address, (byte) dat.data);
     }

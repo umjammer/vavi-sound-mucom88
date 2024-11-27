@@ -50,14 +50,14 @@ public class AdpcmMaker {
                 lin = CutComment(lin).trim();
                 if (StringUtilities.isNullOrEmpty(lin)) continue;
 
-                fileManager.Add(lin);
+                fileManager.add(lin);
             }
             return make(config, fileManager);
         }
     }
 
-    private String CutComment(String lin) {
-        String ret = "";
+    private static String CutComment(String lin) {
+        StringBuilder ret = new StringBuilder();
         boolean strFlg = false;
 
         for (int i = 0; i < lin.length(); i++) {
@@ -66,10 +66,10 @@ public class AdpcmMaker {
 
             if (ch == ';' && !strFlg) break;
             if (ch == '"' && (strFlg && chn != '"')) strFlg = !strFlg;
-            ret += ch;
+            ret.append(ch);
         }
 
-        return ret;
+        return ret.toString();
     }
 
     private Config GetConfig() {
@@ -95,7 +95,7 @@ public class AdpcmMaker {
             if (lin.charAt(0) != '@') continue;
             if (lin.length() > 1) continue;
 
-            filemanager.Add(lin.substring(1));
+            filemanager.add(lin.substring(1));
         }
 
         return filemanager;
@@ -104,13 +104,13 @@ public class AdpcmMaker {
     private byte[] make(Config config, PCMFileManager fileManager) {
         List<Byte> dst = new ArrayList<>();
         dst = MakeHeader(config, fileManager, dst);
-        List<Byte> raw = fileManager.GetRawData();
+        List<Byte> raw = fileManager.getRawData();
         if (raw != null) dst.addAll(raw);
 
         return toByteArray(dst);
     }
 
-    private List<Byte> MakeHeader(Config config, PCMFileManager fileManager, List<Byte> dst) {
+    private static List<Byte> MakeHeader(Config config, PCMFileManager fileManager, List<Byte> dst) {
         switch (config.FormatType) {
         case mucom88:
             dst.addAll(MakeHeader_mucom88(fileManager));
@@ -129,35 +129,35 @@ public class AdpcmMaker {
         return dst;
     }
 
-    private List<Byte> MakeHeader_mucom88(PCMFileManager fileManager) {
+    private static List<Byte> MakeHeader_mucom88(PCMFileManager fileManager) {
         List<Byte> head = new ArrayList<>();
         int ptr = 0;
         for (int i = 0; i < 32; i++) {
-            head.addAll(fileManager.GetName(i, 16)); // instrument name 16byte
-            head.addAll(Arrays.asList((byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0));//dummy 10byte(limit/sample rate/volume etc.)
-            head.add((byte) (fileManager.GetVolume(i)));
-            head.add((byte) (fileManager.GetVolume(i) >> 8));
-            int length = fileManager.GetLengthAddress(i);
+            head.addAll(fileManager.getName(i, 16)); // instrument name 16byte
+            head.addAll(Arrays.asList((byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0)); // dummy 10byte(limit/sample rate/volume etc.)
+            head.add((byte) (fileManager.getVolume(i) & 0xff));
+            head.add((byte) ((fileManager.getVolume(i) & 0xff) >> 8));
+            int length = fileManager.getLengthAddress(i);
             if (length < 1) {
                 head.add((byte) 0);
                 head.add((byte) 0);
                 head.add((byte) 0);
                 head.add((byte) 0);
             } else {
-                short stAdr = (short) (ptr >> 2);
+                int stAdr = ptr >> 2;
                 ptr += length - 1;
-                short edAdr = (short) length; // (short) ptr;// (ptr >> 2);
+                int edAdr = length; // (short) ptr;// (ptr >> 2);
                 ptr++;
-                head.add((byte) (stAdr));
-                head.add((byte) (stAdr >> 8));
-                head.add((byte) (edAdr));
-                head.add((byte) (edAdr >> 8));
+                head.add((byte) (stAdr & 0xff));
+                head.add((byte) ((stAdr & 0xff) >> 8));
+                head.add((byte) (edAdr & 0xff));
+                head.add((byte) ((edAdr & 0xff) >> 8));
             }
         }
         return head;
     }
 
-    private List<Byte> MakeHeader_mucomDotNET_OPNA_ADPCM(PCMFileManager fileManager) {
+    private static List<Byte> MakeHeader_mucomDotNET_OPNA_ADPCM(PCMFileManager fileManager) {
         List<Byte> head = new ArrayList<>();
         int ptr = 0;
 
@@ -166,36 +166,36 @@ public class AdpcmMaker {
         head.add((byte) 'a');
         head.add((byte) ' ');
 
-        int num = fileManager.GetCount();
-        head.add((byte) num);
-        head.add((byte) (num >> 8));
+        int num = fileManager.getCount();
+        head.add((byte) (num & 0xff));
+        head.add((byte) ((num & 0xff) >> 8));
 
         for (int i = 0; i <= num; i++) {
-            head.addAll(fileManager.GetName(i)); // instrument name 16byte
+            head.addAll(fileManager.getName(i)); // instrument name 16byte
             head.add((byte) 3);
-            head.add((byte) (fileManager.GetVolume(i)));
-            head.add((byte) (fileManager.GetVolume(i) >> 8));
-            int length = fileManager.GetLengthAddress(i);
+            head.add((byte) (fileManager.getVolume(i) & 0xff));
+            head.add((byte) ((fileManager.getVolume(i) & 0xff) >> 8));
+            int length = fileManager.getLengthAddress(i);
             if (length < 1) {
                 head.add((byte) 0);
                 head.add((byte) 0);
                 head.add((byte) 0);
                 head.add((byte) 0);
             } else {
-                short stAdr = (short) (ptr >> 2);
+                int stAdr = ptr >> 2;
                 ptr += length - 1;
-                short edAdr = (short) (ptr >> 2);
+                int edAdr = ptr >> 2;
                 ptr++;
-                head.add((byte) (stAdr));
-                head.add((byte) (stAdr >> 8));
-                head.add((byte) (edAdr));
-                head.add((byte) (edAdr >> 8));
+                head.add((byte) (stAdr & 0xff));
+                head.add((byte) ((stAdr & 0xff) >> 8));
+                head.add((byte) (edAdr & 0xff));
+                head.add((byte) ((edAdr & 0xff) >> 8));
             }
         }
         return head;
     }
 
-    private List<Byte> MakeHeader_mucomDotNET_OPNB_ADPCMB(PCMFileManager fileManager) {
+    private static List<Byte> MakeHeader_mucomDotNET_OPNB_ADPCMB(PCMFileManager fileManager) {
         List<Byte> head = new ArrayList<>();
         int ptr = 0;
 
@@ -204,16 +204,16 @@ public class AdpcmMaker {
         head.add((byte) 'b');
         head.add((byte) 'b');
 
-        int num = fileManager.GetCount();
+        int num = fileManager.getCount();
         head.add((byte) num);
         head.add((byte) (num >> 8));
 
         for (int i = 0; i <= num; i++) {
-            head.addAll(fileManager.GetName(i)); // instrument name 16byte
+            head.addAll(fileManager.getName(i)); // instrument name 16byte
             head.add((byte) 3);
-            head.add((byte) (fileManager.GetVolume(i)));
-            head.add((byte) (fileManager.GetVolume(i) >> 8));
-            int length = fileManager.GetLengthAddress(i);
+            head.add((byte) (fileManager.getVolume(i)));
+            head.add((byte) (fileManager.getVolume(i) >> 8));
+            int length = fileManager.getLengthAddress(i);
             if (length < 1) {
                 head.add((byte) 0);
                 head.add((byte) 0);
@@ -233,7 +233,7 @@ public class AdpcmMaker {
         return head;
     }
 
-    private List<Byte> MakeHeader_mucomDotNET_OPNB_ADPCMA(PCMFileManager fileManager) {
+    private static List<Byte> MakeHeader_mucomDotNET_OPNB_ADPCMA(PCMFileManager fileManager) {
         List<Byte> head = new ArrayList<>();
         int ptr = 0;
 
@@ -242,16 +242,16 @@ public class AdpcmMaker {
         head.add((byte) 'b');
         head.add((byte) 'a');
 
-        int num = fileManager.GetCount();
+        int num = fileManager.getCount();
         head.add((byte) num);
         head.add((byte) (num >> 8));
 
         for (int i = 0; i <= num; i++) {
-            head.addAll(fileManager.GetName(i)); // instrument name 16byte
+            head.addAll(fileManager.getName(i)); // instrument name 16byte
             head.add((byte) 3);
-            head.add((byte) (fileManager.GetVolume(i)));
-            head.add((byte) (fileManager.GetVolume(i) >> 8));
-            int length = fileManager.GetLengthAddress(i);
+            head.add((byte) (fileManager.getVolume(i)));
+            head.add((byte) (fileManager.getVolume(i) >> 8));
+            int length = fileManager.getLengthAddress(i);
             if (length < 1) {
                 head.add((byte) 0);
                 head.add((byte) 0);

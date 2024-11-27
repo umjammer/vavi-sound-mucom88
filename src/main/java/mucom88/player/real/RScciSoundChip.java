@@ -1,11 +1,13 @@
 package mucom88.player.real;
 
+import java.lang.System.Logger;
 import java.util.logging.Level;
 
 import mucom88.player.RSoundChip;
 import mucom88.player.SChipType;
 import mucom88.player.real.RC86ctlSoundChip.EnmRealChipType;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -15,6 +17,9 @@ import vavi.util.Debug;
  * @version 0.00 2022-07-02 nsano initial version <br>
  */
 public class RScciSoundChip extends RSoundChip {
+
+    private static final Logger logger = getLogger(RScciSoundChip.class.getName());
+
     public NScci.NScci scci = null;
     private NSoundChip realChip = null;
 
@@ -29,7 +34,7 @@ public class RScciSoundChip extends RSoundChip {
         realChip = nsc;
         dClock = (int) nsc.getSoundChipClock();
 
-        //chipの種類ごとに初期化コマンドを送りたい場合
+        // If you want to send initialization commands for each chip type
         switch (nsc.getSoundChipType()) {
         case (int) EnmRealChipType.YM2608:
             //setRegister(0x2d, 00);
@@ -55,29 +60,29 @@ public class RScciSoundChip extends RSoundChip {
     }
 
     /**
-     * マスタークロックの設定
-     * <param name="mClock">設定したい値
-     * <returns>実際設定された値</returns>
+     * Master Clock Settings
+     * @param mClock The value you want to set
+     * @return The actual value set
      */
     @Override
     public int SetMasterClock(int mClock) {
-        // SCCIはクロックの変更不可
+        // SCCI cannot change the clock
 
         return (int) realChip.getSoundChipClock();
     }
 
     @Override
     public void setSSGVolume(int vol) {
-        // SCCIはSSG音量の変更不可
+        // SCCI cannot change SSG volume
     }
 
     @Override
     public void OPNAWaitSend(long elapsed, int size) {
-        //サイズと経過時間から、追加でウエイトする。
-        int m = Math.max((int) (size / 20 - elapsed), 0);//20 閾値(magic number)
+        // Add additional weight based on size and elapsed time.
+        int m = Math.max((int) (size / 20 - elapsed), 0); // 20 Threshold (magic number)
         try { Thread.sleep(m); } catch (InterruptedException e) {}
 
-        //ポートも一応見る
+        // Check the port as well
         int n = nc86ctl.getNumberOfChip();
         for (int i = 0; i < n; i++) {
             NIRealChip rc = nc86ctl.getChipInterface(i);
@@ -101,7 +106,7 @@ public class RScciSoundChip extends RSoundChip {
         if (iCount == 0) {
             nc86ctl.deinitialize();
             nc86ctl = null;
-            Debug.printf(Level.SEVERE, "Not found G.I.M.I.C.");
+            logger.log(Level.ERROR, "Not found G.I.M.I.C.");
             return null;
         }
         for (int i = 0; i < iCount; i++) {
@@ -117,7 +122,7 @@ public class RScciSoundChip extends RSoundChip {
                 try {
                     o = Integer.parseInt(seri);
                 } catch (NumberFormatException e) {
-                    Debug.println(Level.WARNING, e);
+                    logger.log(Level.WARNING, e);
                     o = -1;
                     ct = null;
                     continue;
@@ -132,7 +137,7 @@ public class RScciSoundChip extends RSoundChip {
         if (ct == null) {
             nc86ctl.deinitialize();
             nc86ctl = null;
-            Debug.printf(Level.SEVERE, "Not found G.I.M.I.C.(OPNA module)");
+            logger.log(Level.ERROR, "Not found G.I.M.I.C.(OPNA module)");
         } else {
             rsc = new RC86ctlSoundChip(-1, ct.getBusID(), ct.getSoundChip());
             rsc.c86ctl = nc86ctl;
@@ -144,7 +149,7 @@ public class RScciSoundChip extends RSoundChip {
         return rsc;
     }
 
-    protected void finalize() {
+    protected void close() {
         if (nc86ctl != null) {
             nc86ctl.deinitialize();
             nc86ctl = null;

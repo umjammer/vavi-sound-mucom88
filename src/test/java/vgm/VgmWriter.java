@@ -68,9 +68,7 @@ public class VgmWriter {
             totalSample += waitCounter;
 
             //waitコマンド出力
-            Debug.printf(Level.FINEST
-                    , String.format("wait:%d", waitCounter)
-            );
+            Debug.printf(Level.FINEST, "wait:%d", waitCounter);
 
             if (waitCounter <= 882 * 3) {
                 while (waitCounter > 882) {
@@ -93,9 +91,7 @@ public class VgmWriter {
             waitCounter = 0;
         }
 
-        Debug.printf(Level.FINEST
-                , String.format("p:%d a:%d d:%d", port, address, data)
-        );
+        Debug.printf(Level.FINEST, "p:%d a:%d d:%d", port, address, data);
 
         dest.writeByte((byte) ((v == 0 ? 0x56 : 0xa6) + (port & 1)));
         dest.writeByte(address);
@@ -112,9 +108,7 @@ public class VgmWriter {
             totalSample += waitCounter;
 
             //waitコマンド出力
-            Debug.printf(Level.FINEST
-                    , String.format("wait:%d", waitCounter)
-            );
+            Debug.printf(Level.FINEST, "wait:%d", waitCounter);
 
             if (waitCounter <= 882 * 3) {
                 while (waitCounter > 882) {
@@ -137,9 +131,7 @@ public class VgmWriter {
             waitCounter = 0;
         }
 
-        Debug.printf(Level.FINEST
-                , String.format("p:%d a:%d d:%d", port, address, data)
-        );
+        Debug.printf(Level.FINEST, "p:%d a:%d d:%d", port, address, data);
 
         dest.writeByte((byte) ((v == 0 ? 0x58 : 0xa8) + (port & 1)));
         dest.writeByte(address);
@@ -155,9 +147,7 @@ public class VgmWriter {
             totalSample += waitCounter;
 
             //waitコマンド出力
-            Debug.printf(Level.FINEST
-                    , String.format("wait:%d", waitCounter)
-            );
+            Debug.printf(Level.FINEST, "wait:%d", waitCounter);
 
             if (waitCounter <= 882 * 3) {
                 while (waitCounter > 882) {
@@ -180,7 +170,7 @@ public class VgmWriter {
             waitCounter = 0;
         }
 
-        Debug.printf(Level.FINEST, String.format("a:%d d:%d", address, data));
+        Debug.printf(Level.FINEST, "a:%d d:%d", address, data);
 
         dest.writeByte((byte) (v == 0 ? 0x54 : 0xa4));
         dest.writeByte(address);
@@ -438,10 +428,10 @@ public class VgmWriter {
             for (int j = 0; j < partCount[i]; j++) {
                 pageLength[i][j] = new int[pageCount[i][j]];
                 for (int k = 0; k < pageCount[i][j]; k++) {
-                    pageLength[i][j][k] = buf[ptr]
-                            + buf[ptr + 1] * 0x100
-                            + buf[ptr + 2] * 0x10000
-                            + buf[ptr + 3] * 0x1000000;
+                    pageLength[i][j][k] = (buf[ptr] & 0xff)
+                            + (buf[ptr + 1] & 0xff) * 0x100
+                            + (buf[ptr + 2] & 0xff) * 0x1_0000
+                            + (buf[ptr + 3] & 0xff) * 0x100_0000;
                     ptr += 8;
                 }
             }

@@ -7,13 +7,20 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import console.Program;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 import vavix.util.Checksum;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,17 +28,37 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
- * Test001.
+ * TestCase.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2022-07-05 nsano initial version <br>
  */
-class Test001 {
+@PropsEntity(url = "file:local.properties")
+public class TestCase {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
+
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
+
+    @Property
+    String file;
 
     static Path outDir;
 
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+
+Debug.println("volume: " + volume);
+    }
+
     @BeforeAll
-    static void setup() throws IOException {
+    static void setupAll() throws IOException {
         outDir = Path.of("tmp/out");
         if (!Files.exists(outDir)) {
             Files.createDirectories(outDir);
@@ -48,9 +75,9 @@ class Test001 {
         return Files.list(Path.of("src/test/resources/test/")).filter(p -> p.toString().endsWith(".muc")).map(Arguments::arguments);
     }
 
-    /** compile .muc at method source to .mub into "tmp/out" */
     @ParameterizedTest
     @MethodSource("sources")
+    @DisplayName("compile .muc at method source to .mub into tmp/out")
     void test1(Path p) throws Exception {
         Path out = outDir.resolve(Program.getCompledFilename(p));
         Program.main(new String[] {
@@ -74,10 +101,16 @@ class Test001 {
         return Files.list(Path.of("src/test/resources/test/")).filter(p -> p.toString().endsWith(".mub")).map(Arguments::arguments);
     }
 
-    /** play .mub at method source */
     @ParameterizedTest
     @MethodSource("sources22")
+    @DisplayName("play .mub at method source")
     void test2(Path p) throws Exception {
         mucom88.player.Program.main(new String[] {p.toString()});
+    }
+
+    @Test
+    @DisplayName("play .mub")
+    void test3() throws Exception {
+        mucom88.player.Program.main(new String[] {file});
     }
 }

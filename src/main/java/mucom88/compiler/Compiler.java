@@ -1,13 +1,14 @@
 package mucom88.compiler;
 
 import java.awt.Point;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
@@ -22,10 +23,13 @@ import musicDriverInterface.GD3Tag;
 import musicDriverInterface.MmlDatum;
 import musicDriverInterface.Tag;
 import musicDriverInterface.ICompiler;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 public class Compiler implements ICompiler {
+
+    private static final Logger logger = getLogger(Compiler.class.getName());
 
     static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
 
@@ -37,7 +41,7 @@ public class Compiler implements ICompiler {
     private Expand expand = null;
     private SMon smon = null;
     private byte[] voice;
-    private byte[][] pcmData = new byte[6][];
+    private final byte[][] pcmData = new byte[6][];
     private final List<Tuple<Integer, String>> basSrc = new ArrayList<>();
     private final List<MmlDatum> dat = new ArrayList<>();
 
@@ -90,7 +94,7 @@ public class Compiler implements ICompiler {
                 voice = mdsound.Common.readAllBytes(vd);
             }
 
-            String[] pcmDefaultFilenames = new String[] {
+            String[] pcmDefaultFilenames = {
                     "mucompcm.bin",
                     "mucompcm_2nd.bin",
                     "mucompcm_3rd_B.bin",
@@ -100,7 +104,7 @@ public class Compiler implements ICompiler {
             };
 
             for (int i = 0; i < 6; i++) {
-                if (mucInfo.getPcmAt()[i].size() > 0) {
+                if (!mucInfo.getPcmAt()[i].isEmpty()) {
                     pcmData[i] = getPackedPCM(i, mucInfo.getPcmAt()[i], appendFileReaderCallback);
                 }
 
@@ -122,20 +126,20 @@ public class Compiler implements ICompiler {
             //work.compilerInfo.jumpRow = -1;
             //work.compilerInfo.jumpCol = -1;
 
-            // MUCOM88 初期化
+            // MUCOM88 Initialization
             int ret = muc88.compile(); // vector 0xeea8
 
-            // コンパイルエラー発生時は 0 以外が返る
+            // If a compilation error occurs, a value other than 0 is returned.
             if (ret != 0) {
                 int errLine = muc88.getErrorLine();
-Debug.println(Level.FINE, "errLine: " + errLine);
+logger.log(Level.DEBUG, "errLine: " + errLine);
                 work.compilerInfo.errorList.add(
                         new Tuple3<>(
                                 mucInfo.getRow(),
                                 mucInfo.getCol(),
-                                String.format(rb.getString("E0100"), mucInfo.getRow(), mucInfo.getCol())
+                                rb.getString("E0100").formatted(mucInfo.getRow(), mucInfo.getCol())
                         ));
-                Debug.printf(Level.SEVERE, rb.getString("E0100"), mucInfo.getRow(), mucInfo.getCol());
+                logger.log(Level.ERROR, rb.getString("E0100"), mucInfo.getRow(), mucInfo.getCol());
                 return null;
             }
 
@@ -144,15 +148,14 @@ Debug.println(Level.FINE, "errLine: " + errLine);
                 return dat.toArray(MmlDatum[]::new);
             }
         } catch (MucException me) {
-me.printStackTrace();
             if (work.compilerInfo == null) work.compilerInfo = new CompilerInfo();
             work.compilerInfo.errorList.add(new Tuple3<>(-1, -1, me.getMessage()));
-            Debug.printf(Level.SEVERE, me.getMessage());
+            logger.log(Level.ERROR, me.getMessage(), me);
         } catch (Exception e) {
-e.printStackTrace();
+logger.log(Level.ERROR, e.getMessage(), e);
             if (work.compilerInfo == null) work.compilerInfo = new CompilerInfo();
             work.compilerInfo.errorList.add(new Tuple3<>(-1, -1, e.getMessage()));
-            Debug.printf(Level.SEVERE, String.format(rb.getString("E0000"), e.getMessage(), Arrays.toString(e.getStackTrace())));
+            logger.log(Level.ERROR, rb.getString("E0000").formatted(e.getMessage(), Arrays.toString(e.getStackTrace())));
         }
 
         return null;
@@ -353,8 +356,7 @@ e.printStackTrace();
         return work.compilerInfo;
     }
 
-
-    private MUCOMFileType checkFileType(byte[] buf) {
+    private static MUCOMFileType checkFileType(byte[] buf) {
         if (buf == null || buf.length < 4) {
             return MUCOMFileType.unknown;
         }
@@ -372,11 +374,11 @@ e.printStackTrace();
     private List<Tuple<String, String>> tags = new ArrayList<>();
 
     /**
-     * mucからタグのリストを抽出する
-     * @param buf muc(バイト配列、実態はsjisのテキスト)
-     * @return tupleのリスト。
-     * item1がタグ名。トリム、小文字化済み。
-     * item2が値。トリム済み。
+     * Extract a list of tags from a muc
+     * @param buf muc (Byte array, the actual is sjis text)
+     * @return tuple list
+     *         item1 is the tag name, trimmed and lowercased.
+     *         item2 is the value, trimmed.
      */
     private List<Tuple<String, String>> getTagsFromMUC(byte[] buf) {
         var text = Arrays.stream(new String(buf, Common.fileEncoding).split("\r\n"))
@@ -396,7 +398,7 @@ e.printStackTrace();
                     tags.add(item);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
@@ -448,14 +450,14 @@ e.printStackTrace();
                             work.lCnt[i][j][0] = work.tCnt[i][j][0] - (work.lCnt[i][j][0] - 1);
                         }
                         if (work.tCnt[i][j][0] > maxCount) maxCount = work.tCnt[i][j][0];
-                        tCount.append(String.format("%s:%05d ", Work.getTrackCharacterFromChipValue(i, j), work.tCnt[i][j][0]));
+                        tCount.append("%s:%05d ".formatted(Work.getTrackCharacterFromChipValue(i, j), work.tCnt[i][j][0]));
                         work.compilerInfo.totalCount.add(work.tCnt[i][j][0]);
-                        lCount.append(String.format("%s:%05d ", Work.getTrackCharacterFromChipValue(i, j), work.lCnt[i][j][0]));
+                        lCount.append("%s:%05d ".formatted(Work.getTrackCharacterFromChipValue(i, j), work.lCnt[i][j][0]));
                         work.compilerInfo.loopCount.add(work.lCnt[i][j][0]);
-                        bCount.append(String.format("%s:$%04x ", Work.getTrackCharacterFromChipValue(i, j), work.getBufCount()[i][j][0]));
+                        bCount.append("%s:$%04x ".formatted(Work.getTrackCharacterFromChipValue(i, j), work.getBufCount()[i][j][0]));
                         work.compilerInfo.bufferCount.add(work.getBufCount()[i][j][0]);
                         if (work.getBufCount()[i][j][0] > 0xffff) {
-                            throw new MucException(String.format(rb.getString("E0700"), Work.getTrackCharacterFromChipValue(i, j), Arrays.deepToString(work.getBufCount()[i])));
+                            throw new MucException(rb.getString("E0700").formatted(Work.getTrackCharacterFromChipValue(i, j), Arrays.deepToString(work.getBufCount()[i])));
                         }
                     } else {
                         work.compilerInfo.formatType = "mupb";
@@ -468,9 +470,9 @@ e.printStackTrace();
                             work.compilerInfo.totalCount.add(work.tCnt[i][j][pg]);
                             work.compilerInfo.loopCount.add(work.lCnt[i][j][pg]);
                             if (work.getBufCount()[i][j][pg] > 1) {
-                                tc.append(String.format("%s%s:%05d ", Work.getTrackCharacterFromChipValue(i, j), pg, work.tCnt[i][j][pg]));
-                                lc.append(String.format("%s%s:%05d ", Work.getTrackCharacterFromChipValue(i, j), pg, work.lCnt[i][j][pg]));
-                                bc.append(String.format("%s%s:$%04x ", Work.getTrackCharacterFromChipValue(i, j), pg, work.getBufCount()[i][j][pg]));
+                                tc.append("%s%s:%05d ".formatted(Work.getTrackCharacterFromChipValue(i, j), pg, work.tCnt[i][j][pg]));
+                                lc.append("%s%s:%05d ".formatted(Work.getTrackCharacterFromChipValue(i, j), pg, work.lCnt[i][j][pg]));
+                                bc.append("%s%s:$%04x ".formatted(Work.getTrackCharacterFromChipValue(i, j), pg, work.getBufCount()[i][j][pg]));
                                 bufferLength = work.getBufCount()[i][j][pg];
                                 n++;
                                 if (n == 10) {
@@ -485,8 +487,8 @@ e.printStackTrace();
                         for (int pg = 0; pg < 10; pg++) {
                             work.compilerInfo.bufferCount.add(work.getBufCount()[i][j][pg]);
                             if (work.getBufCount()[i][j][pg] > 0xffff) {
-                                throw new MucException(String.format(rb.getString("E0700")
-                                        , Work.getTrackCharacterFromChipValue(i, j) + String.valueOf(pg)
+                                throw new MucException(rb.getString("E0700").formatted(
+                                        Work.getTrackCharacterFromChipValue(i, j) + String.valueOf(pg)
                                         , Arrays.toString(work.getBufCount()[i][j])));
                             }
                         }
@@ -539,10 +541,10 @@ e.printStackTrace();
             return saveMusic(length, pcmFlag, isExtendFormat);
         } catch (MucException me) {
             work.compilerInfo.errorList.add(new Tuple3<>(-1, -1, me.getMessage()));
-            Debug.printf(Level.SEVERE, me.getMessage());
+            logger.log(Level.ERROR, me.getMessage());
             return -1;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             return -1;
         }
     }
@@ -556,7 +558,7 @@ e.printStackTrace();
      */
     private int saveMusic(int length, int option, boolean isExtendFormat) {
 
-Debug.println("isExtendFormat: " + isExtendFormat);
+logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         if (isExtendFormat) {
             return saveMusicExtendFormat(length, option);
         }
@@ -654,8 +656,8 @@ Debug.println("isExtendFormat: " + isExtendFormat);
         work.compilerInfo.jumpRow = -1;
         work.compilerInfo.jumpCol = -1;
         if (work.getJpLine() >= 0) {
-            Debug.printf("#Jump count [%s]. channelNumber[%s]", work.jClock, work.getJChCom().get(0));
-            Debug.printf("#Jump line [row:%s col:%s].", work.getJpLine(), work.getJpCol());
+            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().get(0)));
+            logger.log(Level.DEBUG, "#Jump line [row:%s col:%s].".formatted(work.getJpLine(), work.getJpCol()));
             work.compilerInfo.jumpRow = work.getJpLine();
             work.compilerInfo.jumpCol = work.getJpCol();
         }
@@ -695,10 +697,10 @@ Debug.println("isExtendFormat: " + isExtendFormat);
 
         if (tags != null) {
             for (Tuple<String, String> tag : tags) {
-                if (tag.getItem1() != null && tag.getItem1().length() > 0 && tag.getItem1().charAt(0) == '*') continue;
+                if (tag.getItem1() != null && !tag.getItem1().isEmpty() && tag.getItem1().charAt(0) == '*') continue;
                 if (StringUtilities.isNullOrEmpty(tag.getItem1()) && !StringUtilities.isNullOrEmpty(tag.getItem2()) && tag.getItem2().trim().charAt(0) == '*')
                     continue;
-                byte[] b = String.format("#%s %s\n", tag.getItem1(), tag.getItem2()).getBytes(Common.fileEncoding);
+                byte[] b = "#%s %s\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(Common.fileEncoding);
                 footSize += b.length;
                 for (byte bd : b) dat.add(new MmlDatum(bd & 0xff));
             }
@@ -776,7 +778,7 @@ Debug.println("isExtendFormat: " + isExtendFormat);
 
         int instSets = 0;
         for (int i = 0; i < Work.MAXChips; i++) instSets += work.otoNum[i];
-        if (mucInfo.getSsgVoice().size() > 0) instSets = 2;
+        if (!mucInfo.getSsgVoice().isEmpty()) instSets = 2;
         else instSets = instSets > 0 ? 1 : 0;
 
         dat.add(new MmlDatum(instSets)); // 使用するInstrumentセットの総数(0～)
@@ -824,8 +826,8 @@ Debug.println("isExtendFormat: " + isExtendFormat);
         work.compilerInfo.jumpRow = -1;
         work.compilerInfo.jumpCol = -1;
         if (work.getJpLine() >= 0) {
-            Debug.printf("#Jump count [%s]. channelNumber[%s]", work.jClock, work.getJChCom().get(0));
-            Debug.printf("#Jump line [row:%s col:%s].", work.getJpLine(), work.getJpCol());
+            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().get(0)));
+            logger.log(Level.DEBUG, "#Jump line [row:%s col:%s].".formatted(work.getJpLine(), work.getJpCol()));
             work.compilerInfo.jumpRow = work.getJpLine();
             work.compilerInfo.jumpCol = work.getJpCol();
         }
@@ -838,8 +840,8 @@ Debug.println("isExtendFormat: " + isExtendFormat);
 
         int pcmI = 0;
         for (int chipI = 0; chipI < Work.MAXChips; chipI++) {
-            dat.add(new MmlDatum(chipI >> 0)); // Chip Index
-            dat.add(new MmlDatum(chipI >> 8)); // 
+            dat.add(new MmlDatum((chipI & 0xff) >> 0)); // Chip Index
+            dat.add(new MmlDatum((chipI & 0xff) >> 8)); //
 
             int opmIdentifyNumber = 0x0000_0030;
             int opnaIdentifyNumber = 0x0000_0048;
@@ -1027,8 +1029,8 @@ Debug.println("isExtendFormat: " + isExtendFormat);
         if (tags != null) {
             int tagSize = 0;
             for (Tuple<String, String> tag : tags) {
-                if (tag.getItem1() != null && tag.getItem1().length() > 0 && tag.getItem1().charAt(0) == '*') continue;
-                byte[] b = String.format("#%s %s\n", tag.getItem1(), tag.getItem2()).getBytes(Common.fileEncoding);
+                if (tag.getItem1() != null && !tag.getItem1().isEmpty() && tag.getItem1().charAt(0) == '*') continue;
+                byte[] b = "#%s %s\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(Common.fileEncoding);
                 tagSize += b.length;
                 for (byte bd : b) dat.add(new MmlDatum(bd & 0xff));
             }
@@ -1067,7 +1069,7 @@ Debug.println("isExtendFormat: " + isExtendFormat);
                     int c = Integer.parseInt(p[1].substring(1));
                     this.skipPoint = new Point(c, r);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.log(Level.ERROR, e.getMessage(), e);
                 }
             }
         }
@@ -1121,7 +1123,7 @@ Debug.println("isExtendFormat: " + isExtendFormat);
         }
     }
 
-    private byte[] getPackedPCM(int i, java.util.List<String> list, Function<String, Stream> appendFileReaderCallback) {
+    private static byte[] getPackedPCM(int i, java.util.List<String> list, Function<String, Stream> appendFileReaderCallback) {
         AdpcmMaker adpcmMaker = new AdpcmMaker(i, list, appendFileReaderCallback);
         return adpcmMaker.make();
     }

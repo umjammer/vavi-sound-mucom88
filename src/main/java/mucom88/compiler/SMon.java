@@ -6,14 +6,14 @@ import mucom88.common.MUCInfo;
 
 
 public class SMon {
-    private MUCInfo mucInfo;
+    private final MUCInfo mucInfo;
 
     public SMon(MUCInfo mucInfo) {
         this.mucInfo = mucInfo;
     }
 
     public void CONVERT() {
-        // 9列x4行を4列９行に入れ替える
+        // Swap 9 columns x 4 rows to 4 columns x 9 rows
         byte[] vbuf = new byte[40];
         for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 9; col++) {
@@ -22,7 +22,7 @@ public class SMon {
             }
         }
         vbuf[36] = mucInfo.getMmlVoiceDataWork().get(37);
-        vbuf[38] = mucInfo.getMmlVoiceDataWork().get(38); // 次のOPEXにて37に移動するよ
+        vbuf[38] = mucInfo.getMmlVoiceDataWork().get(38); // move to 37 in the next OPEX.
 
         // OPEX()
         for (int col = 0; col < 10; col++) {
@@ -59,12 +59,12 @@ public class SMon {
         a = (vbuf[36] & 0x7) * 8 + (vbuf[37] & 0x7);
         mucInfo.getMmlVoiceDataWork().set(25, (byte) a);
 
-        ///OPEX() 要らないと思う
-        //for (int col = 0; col < 10; col++) {
-        //byte b = vbuf[col * 4 + 1];
-        //vbuf[col * 4 + 1] = vbuf[col * 4 + 2];
-        //vbuf[col * 4 + 2] = b;
-        //}
+//        // OPEX() // it's not necessary
+//        for (int col = 0; col < 10; col++) {
+//            byte b = vbuf[col * 4 + 1];
+//            vbuf[col * 4 + 1] = vbuf[col * 4 + 2];
+//            vbuf[col * 4 + 2] = b;
+//        }
     }
 
     public void converToPM(List<Byte> voi) {

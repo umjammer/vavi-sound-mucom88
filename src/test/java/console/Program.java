@@ -26,7 +26,7 @@ import vavi.util.serdes.Serdes;
 
 public class Program {
 
-    private static ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+    private static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
 
     private static String srcFile;
     private static boolean isXml = false;
@@ -99,7 +99,7 @@ Debug.println(Level.FINE, srcFile + " -> " + destFileName);
             } else {
                 String destFileName = dotnet4j.io.Path.combine(
                         dotnet4j.io.Path.getDirectoryName(dotnet4j.io.Path.getFullPath(srcFile)),
-                        String.format("%s.xml", dotnet4j.io.Path.getFileNameWithoutExtension(srcFile)));
+                        "%s.xml".formatted(dotnet4j.io.Path.getFileNameWithoutExtension(srcFile)));
                 if (destFile != null) {
                     destFileName = destFile;
                 }
@@ -146,7 +146,7 @@ Debug.println(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
         if (args.length < 1) return 0;
 
         int i = 0;
-        while (i < args.length && args[i].length() > 0 && args[i].charAt(0) == '-') {
+        while (i < args.length && !args[i].isEmpty() && args[i].charAt(0) == '-') {
             String op = args[i].substring(1).toUpperCase();
 
             if (op.equals("XML")) {

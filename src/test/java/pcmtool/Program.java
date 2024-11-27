@@ -42,7 +42,7 @@ class Program {
         int i = 0;
         if (args.length == 0) return i;
 
-        while (args[i] != null && args[i].length() > 0 && args[i].charAt(0) == '-') {
+        while (args[i] != null && !args[i].isEmpty() && args[i].charAt(0) == '-') {
             String op = args[i].substring(1).toUpperCase();
 
             i++;
@@ -62,7 +62,7 @@ class Program {
             byte[][] pcmdata = new byte[6][];
             for (int i = 0; i < 6; i++) {
                 pcmdata[i] = null;
-                if (ret[i].size() > 0) {
+                if (!ret[i].isEmpty()) {
                     pcmdata[i] = getPackedPCM(i, ret[i], Program::appendFileReaderCallback);
                 }
             }
@@ -79,7 +79,7 @@ class Program {
                 if (pcmdata[i] == null) continue;
                 String dstFn = Path.combine(Path.getDirectoryName(fn), Path.getFileNameWithoutExtension(fn) + addName[i]);
                 File.writeAllBytes(dstFn, pcmdata[i]);
-                Debug.printf(Level.INFO, String.format("Write:%s size:%d", dstFn, pcmdata[i].length));
+                Debug.printf(Level.INFO, "Write:%s size:%d".formatted(dstFn, pcmdata[i].length));
             }
         } catch (Exception ex) {
             Debug.printf(Level.SEVERE, "Fatal error.");

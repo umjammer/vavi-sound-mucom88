@@ -1,17 +1,24 @@
 package mucom88.player;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
 
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
+import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
+import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import dotnet4j.io.File;
-import dotnet4j.io.Path;
 import dotnet4j.util.compat.StopWatch;
 import dotnet4j.util.compat.StringUtilities;
 import dotnet4j.util.compat.Tuple;
+import mdsound.Instrument;
 import mdsound.MDSound;
 import mdsound.instrument.Ym2151Inst;
 import mdsound.instrument.Ym2608Inst;
@@ -24,12 +31,33 @@ import musicDriverInterface.ChipDatum;
 import musicDriverInterface.IDriver;
 import musicDriverInterface.MmlDatum;
 import vavi.util.ByteUtil;
-import vavi.util.Debug;
 
+import static java.lang.System.getLogger;
 import static vavi.sound.SoundUtil.volume;
 
 
 public class Program {
+
+    static class KeyboardHook {
+        static AtomicBoolean typed = new AtomicBoolean();
+        static {
+            try {
+                GlobalScreen.registerNativeHook();
+            } catch (NativeHookException e) {
+                throw new IllegalStateException("There was a problem registering the native hook.", e);
+            }
+            GlobalScreen.addNativeKeyListener(new NativeKeyListener() {
+                @Override
+                public void nativeKeyTyped(NativeKeyEvent nativeEvent) {
+                    typed.set(true);
+                }
+            });
+        }
+        static boolean kbhit() {
+            return typed.get();
+        }
+    }
+    private static final Logger logger = getLogger(Program.class.getName());
 
     private static SourceDataLine audioOutput = null;
     private static Thread threadMain = null;
@@ -54,9 +82,9 @@ public class Program {
 
     private static final int SamplingRate = 55467; // 44100;
     private static final int SamplingBuffer = 1024;
-    private static short[] frames = new short[SamplingBuffer * 4];
+    private static final short[] frames = new short[SamplingBuffer * 4];
     private static MDSound mds = null;
-    private static short[] emuRenderBuf = new short[2];
+    private static final short[] emuRenderBuf = new short[2];
     private static IDriver driver = null;
     private static int opmMasterClock = 3579545;
     private static final int opnaMasterClock = 7987200;
@@ -74,11 +102,11 @@ public class Program {
         int fnIndex = analyzeOption(args);
 
         if (args.length != fnIndex + 1) {
-            System.err.println("引数(.mubファイル)１個欲しいよぉ");
+            logger.log(Level.TRACE, "one argument is needed (.mub file)");
             System.exit(-1);
         }
         if (!File.exists(args[fnIndex])) {
-            System.err.println("ファイルが見つかりません");
+            logger.log(Level.TRACE, "file not found");
             System.exit(-1);
         }
 
@@ -105,6 +133,7 @@ public class Program {
             }
 
             List<MmlDatum> temp = new ArrayList<>();
+logger.log(Level.DEBUG, args[fnIndex]);
             byte[] srcBuf = File.readAllBytes(args[fnIndex]);
             for (byte b : srcBuf) temp.add(new MmlDatum(b & 0xff));
             MmlDatum[] buf = temp.toArray(MmlDatum[]::new);
@@ -117,7 +146,7 @@ public class Program {
             MDSound.Chip chip;
 
             for (int i = 0; i < 2; i++) {
-                Ym2608Inst ym2608 = new Ym2608Inst();
+                Ym2608Inst ym2608 = Instrument.getInstrument(Ym2608Inst.class);
                 chip = new MDSound.Chip();
                 chip.id = i;
                 chip.instrument = ym2608;
@@ -132,8 +161,8 @@ public class Program {
                 chips.add(chip);
             }
             for (int i = 0; i < 2; i++) {
-                Ym2610Inst ym2610 = new Ym2610Inst();
-                chip = new MDSound.Chip() ;
+                Ym2610Inst ym2610 = Instrument.getInstrument(Ym2610Inst.class);
+                chip = new MDSound.Chip();
                 chip.id = i;
                 chip.instrument = ym2610;
                 chip.samplingRate = SamplingRate;
@@ -149,7 +178,7 @@ public class Program {
             for (int i = 0; i < 1; i++) {
                 chip = new MDSound.Chip();
                 chip.id = i;
-                chip.instrument = new Ym2151Inst();
+                chip.instrument = Instrument.getInstrument(Ym2151Inst.class);
                 chip.samplingRate = SamplingRate;
                 chip.clock = opmMasterClock;
                 chip.volume = 0;
@@ -179,7 +208,7 @@ public class Program {
             if (tags != null) {
                 for (Tuple<String, String> tag : tags) {
                     if (tag.getItem1().isEmpty()) continue;
-                    Debug.printf("%-16s : %s", tag.getItem1(), tag.getItem2());
+                    logger.log(Level.DEBUG, "%-16s : %s".formatted(tag.getItem1(), tag.getItem2()));
                 }
             }
 
@@ -205,20 +234,20 @@ public class Program {
 
             driver.startMusic(0);
 
-            System.out.println("終了する場合は何かキーを押してください");
+            System.out.println("Press any key to exit");
 
             while (true) {
                 Thread.yield();
-                if (System.in.available() != 0) {
+                if (KeyboardHook.kbhit()) {
                     break;
                 }
 
                 emu();
 
-                // ステータスが 0 (終了)又は 0 未満(エラー)の場合はループを抜けて終了
+                // If the status is 0 (done) or less than 0 (error), exit the loop.
                 if (driver.getStatus() <= 0) {
                     if (driver.getStatus() == 0) {
-                        Thread.sleep((int) (latency * 2.0)); // 実際の音声が発音しきるまで latency * 2 の分だけ待つ
+                        Thread.sleep((int) (latency * 2.0)); // Wait for latency * 2 until the actual voice is fully pronounced
                     }
                     break;
                 }
@@ -227,10 +256,10 @@ public class Program {
             driver.stopMusic();
             driver.stopRendering();
         } catch (Exception ex) {
-            Debug.printf(Level.SEVERE, "演奏失敗");
-            Debug.printf(Level.SEVERE, "message:%s", ex.getMessage());
-//Debug.printf(Level.SEVERE, "stackTrace:%s", String.join("\n", Arrays.stream(ex.getStackTrace()).map(Object::toString).collect(Collectors.toList())));
-            ex.printStackTrace();
+            logger.log(Level.ERROR, "Failed to play");
+            logger.log(Level.ERROR, "message:%s".formatted(ex.getMessage()));
+//logger.log(Level.ERROR, "stackTrace:%s".formatted(Arrays.stream(ex.getStackTrace()).map(Object::toString).collect(Collectors.joining("\n"))));
+            logger.log(Level.ERROR, ex.getMessage(), ex);
         } finally {
             if (audioOutput != null) {
                 audioOutput.stop();
@@ -264,7 +293,7 @@ public class Program {
         loop = 0;
         isLoadADPCM = true;
 
-        while (i < args.length && args[i] != null && args[i].length() > 0 && args[i].charAt(0) == '-') {
+        while (i < args.length && args[i] != null && !args[i].isEmpty() && args[i].charAt(0) == '-') {
             String op = args[i].substring(1).toUpperCase();
             if (op.equals("D=EMU")) {
                 device = 0;
@@ -283,7 +312,7 @@ public class Program {
                 try {
                     loop = Integer.parseInt(op.substring(2));
                 } catch (NumberFormatException e) {
-                    Debug.println(Level.WARNING, e);
+                    logger.log(Level.WARNING, e);
                     loop = 0;
                 }
             }
@@ -307,12 +336,9 @@ public class Program {
     }
 
     public static String getApplicationFolder() {
-        String path = Path.getDirectoryName(System.getProperty("user.dir") + "/.config/quasi88/rom/");
-        if (!StringUtilities.isNullOrEmpty(path)) {
-            path += path.charAt(path.length() - 1) == java.io.File.separatorChar ? "" : java.io.File.separator;
-        }
-Debug.println("path: [" + path + "]");
-        return path;
+        Path path = Path.of(System.getProperty("mdsound.pcm.path", System.getProperty("user.dir")));
+logger.log(Level.DEBUG, "path: [" + path + "]");
+        return path.toString();
     }
 
     private static void emu() {
@@ -324,12 +350,12 @@ Debug.println("path: [" + path + "]");
 
                 ByteUtil.writeLeShort(emuRenderBuf[0], buffer, i * 4 + 0);
                 ByteUtil.writeLeShort(emuRenderBuf[1], buffer, i * 4 + 2);
-//Debug.printf("%04x, %04x", emuRenderBuf[0], emuRenderBuf[1]);
+//logger.log(Level.TRACE, "%04x, %04x".formatted(emuRenderBuf[0], emuRenderBuf[1]));
             }
 
             audioOutput.write(buffer, 0, buffer.length);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.log(Level.ERROR, ex.getMessage(), ex);
         }
     }
 
@@ -344,7 +370,7 @@ Debug.println("path: [" + path + "]");
 
                 double el1 = sw.getElapsedMilliseconds() / swFreq;
                 if (el1 - o < step) continue;
-                if (el1 - o >= step * SamplingRate / 100.0) { // 閾値10ms
+                if (el1 - o >= step * SamplingRate / 100.0) { // Threshold 10ms
                     do {
                         o += step;
                     } while (el1 - o >= step);
@@ -355,7 +381,7 @@ Debug.println("path: [" + path + "]");
                 doOneFrame();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         threadStopped = true;
     }
@@ -399,12 +425,12 @@ Debug.println("path: [" + path + "]");
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-Debug.printf(Level.FINEST, "! OPNA i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
+logger.log(Level.TRACE, "! OPNA i%d r%d c%d".formatted(chipId, md.linePos.row, md.linePos.col));
             }
         }
 
         if (dat.address == -1) return;
-Debug.printf(Level.FINEST, "Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
+logger.log(Level.TRACE, "Out ChipA:%d Port:%d adr:[%02x] val[%02x]".formatted(chipId, dat.port, dat.address, dat.data));
 
         switch (device) {
         case 0:
@@ -421,12 +447,12 @@ Debug.printf(Level.FINEST, "Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, 
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-Debug.printf(Level.FINEST, "! OPNB i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
+logger.log(Level.TRACE, "! OPNB i%d r%d c%d".formatted(chipId, md.linePos.row, md.linePos.col));
             }
         }
 
         if (dat.address == -1) return;
-Debug.printf(Level.FINEST, "Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
+logger.log(Level.TRACE, "Out ChipB:%d Port:%d adr:[%02x] val[%02x]".formatted(chipId, dat.port, dat.address, dat.data));
 
         switch (device) {
         case 0:
@@ -443,14 +469,14 @@ Debug.printf(Level.FINEST, "Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, 
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-Debug.printf(Level.FINEST, "! OPM i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
+logger.log(Level.TRACE, "! OPM i%d r%d c%d".formatted(chipId, md.linePos.row, md.linePos.col));
             }
         }
 
         if (dat.address == -1) return;
 
 if (dat.address == 0x27) {
- Debug.printf(Level.FINEST, "Out ChipOPM:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
+ logger.log(Level.TRACE, "Out ChipOPM:%d Port:%d adr:[%02x] val[%02x]".formatted(chipId, dat.port, dat.address, dat.data));
 }
         switch (device) {
         case 0:

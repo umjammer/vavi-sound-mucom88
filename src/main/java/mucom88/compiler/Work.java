@@ -10,7 +10,7 @@ import musicDriverInterface.CompilerInfo;
 public class Work {
 
     public static final int MAXChips = 5;
-    public static final int MAXCH = 11; // OPMは8ですけどね
+    public static final int MAXCH = 11; // The OPM is 8 though.
     public static final int MAXPG = 10;
 
     //
@@ -22,7 +22,7 @@ public class Work {
 
     public int pcmFlag = 0; // 10*4 w
     public int jClock = 0; // w
-    public int loopSp = 0; // w ﾙｰﾌﾟｽﾀｯｸ
+    public int loopSp = 0; // w loop stack
     public int mData = 0; // w
     public int datTbl = 0; // w
     public int octave = 0; // b
@@ -44,36 +44,36 @@ public class Work {
     public int vicAdr = 0; // w
     public static final String titleFmt = "[  MUCOM88 Ver:0.0  ]  Address:0000-0000(0000)         [ 00:00 ] MODE:NORMAL  ";
     public String title = "[  MUCOM88 Ver:0.0  ]  Address:0000-0000(0000)         [ 00:00 ] MODE:NORMAL  ";
-//    public byte fmvoiceCnt = 0; // 50
-    public byte[] lfoData = new byte[] {1, 0, 0, 0, 0, 0, 0};
-    public byte linCfg = 0;
+//    public int fmvoiceCnt = 0; // 50
+    public int[] lfoData = new int[] {1, 0, 0, 0, 0, 0, 0};
+    public int linCfg = 0;
     public int adrStc = 0;
-    public byte vpco = 1; // dummyで1としている
-    public byte octaveUDFlag = 0;
-    public byte volumeUDFlag = 0;
+    public int vpco = 1; // Set dummy to 1
+    public int octaveUDFlag = 0;
+    public int volumeUDFlag = 0;
     public boolean pcmInvert = false;
     public int repCount = 0;
     public int tvOfs = 0;
-    public int pointC = 0; // LOOPSTART ADR ｶﾞ ｾｯﾃｲｻﾚﾃｲﾙ ADR
-    public byte maCfg = 0; // 0>< AS MACRO PRC
+    public int pointC = 0; // ADR that is set LOOPSTART ADR
+    public int maCfg = 0; // 0>< AS MACRO PRC
 
     public int tst2Val = 0xc000;
 
     public int hexFg = 0;
 
-    private byte secCom;
+    private int secCom;
 
-    public byte getSecCom() {
+    public int getSecCom() {
         return secCom;
     }
 
-    public void setSecCom(byte value) {
+    public void setSecCom(int value) {
         secCom = value;
     }
 
-    private byte[] befTone = new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    private final int[] befTone = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    public byte[] getBeforeTone() {
+    public int[] getBeforeTone() {
         return befTone;
     }
 
@@ -95,21 +95,21 @@ public class Work {
         com = value;
     }
 
-    private byte bfDat;
+    private int bfDat;
 
-    public byte getBfDat() {
+    public int getBfDat() {
         return bfDat;
     }
-    public void setBfDat(byte value) {
+    public void setBfDat(int value) {
         bfDat = value;
     }
 
-    private byte vdDat;
+    private int vdDat;
 
-    public byte getVdDat() {
+    public int getVdDat() {
         return vdDat;
     }
-    public void setVdDat(byte value){
+    public void setVdDat(int value){
          vdDat = value;
     }
 
@@ -288,32 +288,36 @@ public class Work {
         partReplaceSw = value;
     }
 
-    public int muNum = 0; // b ｺﾝﾊﾟｲﾙﾁｭｳ ﾉ MUSICﾅﾝﾊﾞｰ
-    public int otoDat = 1; // w FMｵﾝｼｮｸ ｶﾞ ｶｸﾉｳｻﾚﾙ ｱﾄﾞﾚｽﾄｯﾌﾟ ｶﾞ ﾊｲｯﾃｲﾙ
+    public int muNum = 0; // b MUSIC number being compiled
+    public int otoDat = 1; // w Contains the address top where FM tones are stored
     public int ssgDat = 3; // w SSG...
-    public int muTop = 5; // w ﾐｭｰｼﾞｯｸ ﾃﾞｰﾀ(ｱﾄﾞﾚｽﾃｰﾌﾞﾙ ﾌｸﾑ) ｽﾀｰﾄ ｱﾄﾞﾚｽ
+    public int muTop = 5; // w Music data (including address table) Start address
     public CompilerInfo compilerInfo = null;
     public int quantize = 0;
     public int beforeQuantize = 0;
     public int pageNow = 0;
     public int backupMData = 0;
     public int lastMData = 0;
-    public int latestNote = 0; // 最後に解析したのが音符の場合は1、休符の場合は2、初期値は0
+    /**
+     * If the last analyzed note is a note, it is set to 1.
+     * If the last analyzed note is a rest, it is set to 2. The initial value is 0.
+     */
+    public int latestNote = 0;
 
-    public byte porSW = 0;
-    public byte porDelta = 0;
+    public int porSW = 0;
+    public int porDelta = 0;
     public int porTime = 0;
     public int porOldNote = -1;
-    public byte porPin = 0;
+    public int porPin = 0;
 
     /**
-     * 各チップのindex
+     * Index of each chip
      */
     public int chipIndex = 0;
 
     /**
-     * 各チップの割当チャンネル
-     * 曲全体のトラックはCOMNOWを参照
+     * Allocated channels for each chip
+     * For the full track list, see COMNOW
      */
     public int chipCh = 0;
 
@@ -352,7 +356,7 @@ public class Work {
         }
     }
 
-    // 各チップのトラック
+    // Track for each chip
     // ABCDEFGHIJK OPNA ...1
     // LMNOPQRSTUV OPNA ...2
     // abcdefghijk OPNB ...3
@@ -363,10 +367,10 @@ public class Work {
 
     public boolean setChipValueFromTrackCharacter(char ch) {
         int no = getTrackNo(ch);
-        if (no < 0) return false; // 知らない文字
+        if (no < 0) return false; // Unknown characters
         chipIndex = no / MAXCH;
         chipCh = no % MAXCH;
-        return true; // セットできた
+        return true; // It was set
     }
 
     public static char getTrackCharacterFromChipValue(int chipIndex, int CHIP_CH) {
@@ -384,7 +388,7 @@ public class Work {
     }
 
     /**
-     * トラックとして使用できる文字ではない
+     * Not a valid character for a track
      */
     public static boolean isNotTrackCharacter(char c) {
         return Tracks.indexOf(c) < 0;

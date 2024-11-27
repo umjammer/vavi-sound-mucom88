@@ -1,10 +1,12 @@
 package mucom88.player.real;
 
-import java.util.logging.Level;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 import mucom88.player.RSoundChip;
 import mucom88.player.SChipType;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -14,6 +16,9 @@ import vavi.util.Debug;
  * @version 0.00 2022-07-02 nsano initial version <br>
  */
 public class RC86ctlSoundChip extends RSoundChip {
+
+    private static final Logger logger = getLogger(RC86ctlSoundChip.class.getName());
+
     public Nc86ctl.Nc86ctl c86ctl = null;
     public Nc86ctl.NIRealChip realChip = null;
     public Nc86ctl.ChipType chiptype = ChipType.CHIP_UNKNOWN;
@@ -53,9 +58,9 @@ public class RC86ctlSoundChip extends RSoundChip {
     }
 
     /**
-     * マスタークロックの設定
-     * <param name="mClock">設定したい値
-     * <returns>実際設定された値</returns>
+     * Master Clock Settings
+     * @param mClock The value you want to set
+     * @return The actual value set
      */
     @Override
     public int SetMasterClock(int mClock) {
@@ -101,7 +106,7 @@ public class RC86ctlSoundChip extends RSoundChip {
         if (iCount == 0) {
             nScci.Dispose();
             nScci = null;
-            Debug.printf(Level.SEVERE, "Not found SCCI.");
+            logger.log(Level.ERROR, "Not found SCCI.");
             return null;
         }
         scciExit:
@@ -127,7 +132,7 @@ public class RC86ctlSoundChip extends RSoundChip {
         if (ct == null) {
             nScci.Dispose();
             nScci = null;
-            Debug.printf(Level.SEVERE, "Not found SCCI(OPNA module).");
+            logger.log(Level.ERROR, "Not found SCCI(OPNA module).");
             device = 0;
         } else {
             rssc = new RScciSoundChip(0, ct.getBusID(), ct.getSoundChip());
@@ -137,7 +142,7 @@ public class RC86ctlSoundChip extends RSoundChip {
         return rssc;
     }
 
-    protected void finalize() {
+    protected void close() {
         if (nScci != null) {
             nScci.Dispose();
             nScci = null;

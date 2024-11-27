@@ -8,6 +8,7 @@ import dotnet4j.io.File;
 import dotnet4j.io.Path;
 import dotnet4j.util.compat.StringUtilities;
 import dotnet4j.util.compat.Tuple;
+import mdsound.Instrument;
 import mdsound.MDSound;
 import mdsound.instrument.Ym2151Inst;
 import mdsound.instrument.Ym2608Inst;
@@ -26,9 +27,9 @@ class Program {
 
     private static final int SamplingRate = 55467; // 44100;
     private static final int samplingBuffer = 1024;
-    private static short[] frames = new short[samplingBuffer * 4];
+    private static final short[] frames = new short[samplingBuffer * 4];
     private static MDSound mds = null;
-    private static short[] emuRenderBuf = new short[2];
+    private static final short[] emuRenderBuf = new short[2];
     private static IDriver drv = null;
     private static int opmMasterClock = 3579545;
     private static final int opnaMasterClock = 7987200;
@@ -66,7 +67,7 @@ class Program {
             List<MDSound.Chip> chips = new ArrayList<>();
             MDSound.Chip chip;
 
-            Ym2608Inst ym2608 = new Ym2608Inst();
+            Ym2608Inst ym2608 = Instrument.getInstrument(Ym2608Inst.class);
             for (int i = 0; i < 2; i++) {
                 chip = new MDSound.Chip();
                 chip.id = i;
@@ -81,7 +82,7 @@ class Program {
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
-            Ym2610Inst ym2610 = new Ym2610Inst();
+            Ym2610Inst ym2610 = Instrument.getInstrument(Ym2610Inst.class);
             for (int i = 0; i < 2; i++) {
                 chip = new MDSound.Chip();
                 chip.id = i;
@@ -96,7 +97,7 @@ class Program {
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
-            Ym2151Inst ym2151 = new Ym2151Inst();
+            Ym2151Inst ym2151 = Instrument.getInstrument(Ym2151Inst.class);
             for (int i = 0; i < 1; i++) {
                 chip = new MDSound.Chip();
                 chip.id = i;
@@ -131,7 +132,7 @@ class Program {
             if (tags != null) {
                 for (Tuple<String, String> tag : tags) {
                     if (tag.getItem1().isEmpty()) continue;
-                    Debug.printf(Level.INFO, String.format("%-16s : %s", tag.getItem1(), tag.getItem2()));
+                    Debug.printf(Level.INFO, "%-16s : %s", tag.getItem1(), tag.getItem2());
                 }
             }
 
@@ -148,12 +149,12 @@ class Program {
             while (true) {
 
                 EmuCallback(frames, 0, samplingBuffer);
-                //ステータスが0(終了)又は0未満(エラー)の場合はループを抜けて終了
+                // ステータスが0(終了)又は0未満(エラー)の場合はループを抜けて終了
                 if (drv.getStatus() <= 0) {
                     break;
                 }
 
-                //Debug.printf(Level.FINEST, String.format("%d  %d",frames[0],frames[1]));
+//Debug.printf(Level.FINEST, String.format("%d  %d",frames[0],frames[1]));
                 ww.write(frames, 0, samplingBuffer);
             }
 
@@ -174,7 +175,7 @@ class Program {
 
         while (args != null
                 && args.length > 0
-                && args[i].length() > 0
+                && !args[i].isEmpty()
                 && args[i] != null
                 && args[i].charAt(0) == '-') {
             String op = args[i].substring(1).toUpperCase();
@@ -205,11 +206,11 @@ class Program {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, String.format("! r%d c%d", md.linePos.row, md.linePos.col));
+                Debug.printf(Level.FINEST, "! r%d c%d", md.linePos.row, md.linePos.col);
             }
         }
         if (dat.address == -1) return;
-        //Debug.printf(Level.FINEST, String.format("FM P%d Out:adr[%02x] val[%02x]", (int)dat.address, (int)dat.data,dat.port));
+        //Debug.printf(Level.FINEST, "FM P%d Out:adr[%02x] val[%02x]", (int)dat.address, (int)dat.data,dat.port);
         mds.write(Ym2608Inst.class, (byte) 0, dat.port, dat.address, dat.data);
     }
 
@@ -269,12 +270,12 @@ class Program {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, String.format("! OPNA i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
+                Debug.printf(Level.FINEST, "! OPNA i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
             }
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, String.format("Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
+        Debug.printf(Level.FINEST, "Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
 
         mds.write(Ym2608Inst.class, chipId, dat.port, dat.address, dat.data);
     }
@@ -283,12 +284,12 @@ class Program {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, String.format("! OPNB i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
+                Debug.printf(Level.FINEST, "! OPNB i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
             }
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, String.format("Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
+        Debug.printf(Level.FINEST, "Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
 
         mds.write(Ym2610Inst.class, chipId, dat.port, dat.address, dat.data);
     }
@@ -307,12 +308,12 @@ class Program {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, String.format("! OPM i%d r%d c%d", chipId, md.linePos.row, md.linePos.col));
+                Debug.printf(Level.FINEST, "! OPM i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
             }
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, String.format("Out OPMChip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data));
+        Debug.printf(Level.FINEST, "Out OPMChip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
 
         mds.write(Ym2151Inst.class, chipId, 0, dat.address, dat.data);
     }

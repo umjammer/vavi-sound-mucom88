@@ -10,9 +10,9 @@ import musicDriverInterface.ChipDatum;
 
 public class MucomChipAction implements ChipAction {
 
-    private Consumer<ChipDatum> write;
-    private TriConsumer<byte[], Integer, Integer> writePCMData;
-    private BiConsumer<Long, Integer> waitSend;
+    private final Consumer<ChipDatum> write;
+    private final TriConsumer<byte[], Integer, Integer> writePCMData;
+    private final BiConsumer<Long, Integer> waitSend;
 
     public MucomChipAction(Consumer<ChipDatum> write, TriConsumer<byte[], Integer, Integer> writePCMData, BiConsumer<Long, Integer> waitSend) {
         this.write = write;

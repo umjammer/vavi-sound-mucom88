@@ -1,30 +1,34 @@
 package mucom88.compiler;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 
 import dotnet4j.util.compat.Tuple;
 import mucom88.common.MUCInfo;
 import mucom88.common.MucException;
 import musicDriverInterface.MmlDatum;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 public class Msub {
 
+    private static final Logger logger = getLogger(Msub.class.getName());
+
     static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
 
-    private Work work;
+    private final Work work;
     private final MUCInfo mucInfo;
     public Muc88 muc88;
 
-    public byte[] scores = {
+    public int[] scores = {
             0, 0, 0, 0, 0, 0
     };
 
     // COMMANDs
-    public static final byte[] FCOMS = new byte[] {
+    public static final byte[] FCOMS = {
             0x6c,  // 'l' LIZM
             0x6f,  // 'o' octave
             0x44,  // 'D' DETUNE
@@ -62,20 +66,20 @@ public class Msub {
             0x48,  // 'H' HARD LFO
             0x54,  // 'T' TEMPO
             0x4a,  // 'J' TAG SET & JUMP TO TAG
-            0x3b,  // ';' ﾁｭｳﾔｸ ﾖｳ
-            0x52,  // 'R' ﾘﾊﾞｰﾌﾞ
+            0x3b,  // ';' for comment
+            0x52,  // 'R' Reverb
             0x2a,  // '*' MACRO
             0x3a,  // ':' RETURN
-            0x5e,  // '^' &ﾄ ｵﾅｼﾞ
-            0x7c,  // '|' ｼｮｳｾﾂ
-            0x7d,  // '}' ﾏｸﾛｴﾝﾄﾞ
-            0x7b,  // '{' ﾎﾟﾙﾀﾒﾝﾄｽﾀｰﾄ
+            0x5e,  // '^' same as the &
+            0x7c,  // '|' measure
+            0x7d,  // '}' macro end
+            0x7b,  // '{' Portamento Start
             0x23,  // '#' FLAG SET
-            0x5f,  // '_' 局地的ポルタメント
+            0x5f,  // '_' Local portamento
             0
     };
 
-    public int[] TONES = new int[] {
+    public int[] TONES = {
             0x63, 0, // 'c'
             0x64, 2, // 'd'
             0x65, 4, // 'e'
@@ -90,17 +94,17 @@ public class Msub {
         this.mucInfo = mucInfo;
     }
 
-    public int readData(Tuple<Integer, String> lin, /*ref*/ int[] srcCPtr) {
+    public int readData(Tuple<Integer, String> lin, /* ref */ int[] srcCPtr) {
         mucInfo.setErrSign(false);
 
-        Arrays.fill(scores, (byte) 0);
-        int digit = 5; // 5ｹﾀ ﾏﾃﾞ
+        Arrays.fill(scores, 0);
+        int digit = 5; // Up to 5 digits
 
         work.hexFg = 0;
         work.minUsf = 0;
 
 //READ0: FIRST CHECK
-        char ch;
+        int ch;
 
         do {
             if (lin.getItem2().length() == srcCPtr[0]) {
@@ -108,7 +112,7 @@ public class Msub {
                 mucInfo.setCarry(true); // NON DATA
                 return 0;
             }
-            ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0;
+            ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : 0;
             srcCPtr[0]++;
         } while (ch == ' ' || ch == '\t');
 
@@ -117,12 +121,12 @@ public class Msub {
             srcCPtr[0]++;
 //            goto READ7;
         } else if (ch == '-') {
-            ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0;
+            ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : 0;
             srcCPtr[0]++;
             if (ch < '0' || ch > '9') {
-//                goto READE;//0ｲｼﾞｮｳ ﾉ ｷｬﾗｸﾀﾅﾗ ﾂｷﾞ
-                work.setSecCom((byte) ch);
-Debug.println(Level.FINE, "not valid number: " + ch);
+//                goto READE; // If 0 or more characters, next
+                work.setSecCom(ch);
+logger.log(Level.DEBUG, "not valid number: " + ch);
                 mucInfo.setCarry(true); // NON DATA
                 return 0;
             }
@@ -130,9 +134,9 @@ Debug.println(Level.FINE, "not valid number: " + ch);
 //            goto READ7;
         } else {
             if (ch < '0' || ch > '9') {
-//                goto READE;//0ｲｼﾞｮｳ ﾉ ｷｬﾗｸﾀﾅﾗ ﾂｷﾞ
-Debug.println(Level.FINE, "not valid number: " + ch);
-                work.setSecCom((byte) ch);
+//                goto READE; // If 0 or more characters, next
+logger.log(Level.DEBUG, "not valid number: " + ch);
+                work.setSecCom(ch);
                 mucInfo.setCarry(true); // NON DATA
                 return 0;
             }
@@ -142,23 +146,23 @@ Debug.println(Level.FINE, "not valid number: " + ch);
         srcCPtr[0]--;
 READ1: {
         do {
-            ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0;
+            ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : 0;
 READF: {
             //z80.A = mem.ld_8(Z80.HL); // SECOND CHECK
             if (work.hexFg != 0) { // goto READC;
 
                 if (ch >= 'a' && ch <= 'f') {
-                    ch -= (char) 32;
+                    ch -= 32;
                 }
                 //READG:
                 if (ch >= 'A' && ch <= 'F') {
-                    ch -= (char) 7;
+                    ch -= 7;
                     break READF;
                 }
             }
 //READC:
             if (ch < '0' || ch > '9') {
-//                goto READ1;//9ｲｶﾅﾗ ﾂｷﾞ
+//                goto READ1; // If 9 or less, next
                 break READ1;
             }
 /*READF:*/}
@@ -168,7 +172,7 @@ READF: {
             scores[3] = scores[4];
             scores[4] = scores[5];
 
-            ch -= (char) 0x30; // A= 0 - 9
+            ch -= 0x30; // A= 0 - 9
             scores[4] = (byte) ch;
             srcCPtr[0]++; // NEXT TEXT
             digit--;
@@ -181,12 +185,12 @@ READF: {
         } while (digit > 0);
 
         ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0; // THIRD CHECK
-        if (ch >= '0' && ch <= '9') { // goto READ1; // 9ｲｶﾅﾗ ﾂｷﾞ
+        if (ch >= '0' && ch <= '9') { // goto READ1; // If 9 or less, next
 //READ8:
             mucInfo.setCarry(false);
             mucInfo.setErrSign(true); // ERROR SIGN
-Debug.println(Level.FINE, "over 7 digits");
-            return 0; // RET; 7ｹﾀｲｼﾞｮｳ ﾊ ｴﾗｰ
+logger.log(Level.DEBUG, "over 7 digits");
+            return 0; // RET; Anything over 7 digits is an error
         }
 /*READ1:*/}
         int a = 0;
@@ -216,14 +220,14 @@ Debug.println(Level.FINE, "over 7 digits");
 //        return 0;
     }
 
-    public boolean MCMP_DE(String strDE, Tuple<Integer, String> lin, /*ref*/ int[] srcCPtr) {
+    public boolean MCMP_DE(String strDE, Tuple<Integer, String> lin, /* ref */ int[] srcCPtr) {
         try {
             String trgDE = strDE.substring(0, strDE.indexOf("\0"));
-            if (trgDE.length() < 1) return false;
+            if (trgDE.isEmpty()) return false;
 
             byte[] bHL = new byte[trgDE.length()];
             for (int i = 0; i < trgDE.length(); i++) {
-                bHL[i] = (byte) (lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : 0);
+                bHL[i] = (byte) (lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) & 0xff : 0);
                 srcCPtr[0]++;
             }
             String trgHL = new String(bHL);
@@ -231,13 +235,13 @@ Debug.println(Level.FINE, "over 7 digits");
                 return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         return false;
     }
 
     public void MWRIT2(MmlDatum dat) {
-        //Debug.printf("%2x", dat.dat);
+        //logger.log(Level.TRACE, "%2x".formatted(dat.dat));
         mucInfo.getBufDst().set(work.mData++, dat);
 
         if (work.mData - work.getBufStartPtr() > 0xffff) {
@@ -248,9 +252,9 @@ Debug.println(Level.FINE, "over 7 digits");
     }
 
     public void MWRITE(MmlDatum cmdNo, MmlDatum cmdDat) {
-        //Debug.printf("%2x", cmdNo);
+        //logger.log(Level.TRACE, "%2x".formatted(cmdNo));
         mucInfo.getBufDst().set(work.mData++, cmdNo);
-        //Debug.printf("%2x", cmdDat);
+        //logger.log(Level.TRACE, "%2x".formatted(cmdDat));
         mucInfo.getBufDst().set(work.mData++, cmdDat);
 
         if (work.mData - work.getBufStartPtr() > 0xffff) {
@@ -260,11 +264,11 @@ Debug.println(Level.FINE, "over 7 digits");
         muc88.DispHex4(work.mData, 36);
     }
 
-    public int ERRT(Tuple<Integer, String> lin, /*ref*/ int[] ptr, String cmdMsg) {
+    public int ERRT(Tuple<Integer, String> lin, /* ref */ int[] ptr, String cmdMsg) {
         ptr[0]++;
-        int n = readData(lin, /*ref*/ ptr);
-        if (mucInfo.getCarry()) { // 数値読み取れなかった
-            throw new MucException(String.format(rb.getString("E0201"), cmdMsg), mucInfo.getRow(), mucInfo.getCol());
+        int n = readData(lin, /* ref */ ptr);
+        if (mucInfo.getCarry()) { // Could not read the value
+            throw new MucException(rb.getString("E0201").formatted(cmdMsg), mucInfo.getRow(), mucInfo.getCol());
         } else {
             if (mucInfo.getErrSign()) {
                 //ERRORIF();
@@ -275,17 +279,17 @@ Debug.println(Level.FINE, "over 7 digits");
         return n;
     }
 
-    public int FMCOMC(char c) {
+    public int FMCOMC(int c) {
         for (int i = 0; i < FCOMS.length; i++) {
             if (FCOMS[i] == 0) {
                 break;
             }
-            if (FCOMS[i] == c) {
-                //Debug.printf("%d", c);
+            if (FCOMS[i] == (byte) (c & 0xff)) {
+//logger.log(Level.TRACE, "%d".formatted(c));
                 return i + 1;
             }
         }
-        //Debug.printf("%d!", c);
+//logger.log(Level.TRACE, "%d!".formatted(c));
         return 0;
     }
 
@@ -293,12 +297,12 @@ Debug.println(Level.FINE, "over 7 digits");
      * @after error: {@link MUCInfo#getCarry()} true
      * @return 0: error
      */
-    public byte STTONE() {
-        char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
+    public int STTONE() {
+        int c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
                 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
-                : (char) 0;
+                : 0;
 
-        Debug.printf(Level.FINEST, String.valueOf(c));
+        logger.log(Level.TRACE, String.valueOf(c));
 
         for (int[] i = new int[1]; i[0] < 7; i[0]++) {
             if (c == TONES[i[0] * 2]) {
@@ -307,17 +311,17 @@ Debug.println(Level.FINE, "over 7 digits");
             }
         }
 
-Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES));
+logger.log(Level.DEBUG, "error: %d not in %s".formatted(c, Arrays.toString(TONES)));
         mucInfo.setCarry(true);
         return 0;
     }
 
-    private byte toNext(int[] n) {
+    private int toNext(int[] n) {
         n[0] = TONES[n[0] * 2 + 1];
         int[] o = new int[] {work.octave};
 
         mucInfo.incAndGetSrcCPtr();
-        char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
+        int c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
                 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
                 : (char) 0;
 
@@ -343,12 +347,12 @@ Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES))
             mucInfo.decSrcCPtr();
         }
 
-        siftKey(/*ref*/ o, /*ref*/ n);
+        siftKey(/* ref */ o, /* ref */ n);
         mucInfo.setCarry(false);
-        return (byte) ((((o[0] & 0xf) << 4) | (n[0] & 0xf)) & 0xff);
+        return (((o[0] & 0xf) << 4) | (n[0] & 0xf)) & 0xff;
     }
 
-    public void siftKey(/*ref*/ int[] oct,/*ref*/ int[] n) {
+    public void siftKey(/* ref */ int[] oct, /* ref */ int[] n) {
         int shift = work.siftDat + work.siftDa2;
         if (shift == 0) return;
 
@@ -360,12 +364,12 @@ Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES))
     }
 
     /**
-     * 音長のよみとり
+     * Reading note length
      * @return
      * 0...normal
      * -1...WARNING
      */
-    public int STLIZM(Tuple<Integer, String> lin,/*ref*/ int[] ptr,/*out*/ byte[] clk) {
+    public int STLIZM(Tuple<Integer, String> lin, /* ref */ int[] ptr, /* out */ int[] clk) {
         char c = ptr[0] < lin.getItem2().length()
                 ? lin.getItem2().charAt(ptr[0])
                 : (char) 0;
@@ -374,8 +378,8 @@ Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES))
 
         if (c == '%') {
             ptr[0]++;
-            n = readData(lin, /*ref*/ ptr);
-            if (mucInfo.getCarry()) { // 数値読み取れなかった
+            n = readData(lin, /* ref */ ptr);
+            if (mucInfo.getCarry()) { // Could not read the value
                 ptr[0]--;
                 throw new MucException(rb.getString("E0499"), lin.getItem1(), ptr[0]);
             }
@@ -383,7 +387,7 @@ Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES))
                 throw new MucException(rb.getString("E0500"), lin.getItem1(), ptr[0]);
             }
 
-            clk[0] = (byte) n;
+            clk[0] = n & 0xff;
             if (n < 0 || n > 255) {
                 return -1;
             }
@@ -391,13 +395,13 @@ Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES))
         }
 
         int w = 0;
-        n = readData(lin, /*ref*/ ptr);
+        n = readData(lin, /* ref */ ptr);
         if (n < 0 || n > 255) {
             w = -1;
         }
-        n = (byte) n;
+        n = n & 0xff;
 
-        if (mucInfo.getCarry()) // 数値読み取れなかった
+        if (mucInfo.getCarry()) // Could not read the value
         {
             ptr[0]--;
             n = work.count;
@@ -405,12 +409,12 @@ Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES))
             if (mucInfo.getErrSign()) {
                 throw new MucException(rb.getString("E0501"), lin.getItem1(), ptr[0]);
             }
-            if (work.clock < n) { // clock以上の細かい音符は指定できないようにしている
-                throw new MucException(String.format(rb.getString("E0502"), n), lin.getItem1(), ptr[0]);
-                // clock<E ﾃﾞ ERROR
+            if (work.clock < n) { // It is not possible to specify notes smaller than the clock.
+                throw new MucException(rb.getString("E0502").formatted(n), lin.getItem1(), ptr[0]);
+                // clock<E then ERROR
             }
 
-            n = work.clock / n; // clockに変換
+            n = work.clock / n; // Convert to clock
         }
 
         int a = n;
@@ -425,10 +429,10 @@ Debug.printf(Level.FINE, "error: %d not in %s", (int) c, Arrays.toString(TONES))
         } while (true);
 
         if (n > 255) {
-            throw new MucException(String.format(rb.getString("E0503"), n), lin.getItem1(), ptr[0]);
+            throw new MucException(rb.getString("E0503").formatted(n), lin.getItem1(), ptr[0]);
         }
 
-        clk[0] = (byte) n;
+        clk[0] = n;
         return w;
     }
 
