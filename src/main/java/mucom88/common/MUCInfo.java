@@ -538,7 +538,7 @@ public class MUCInfo {
     private boolean ssgExtend = false;
 
     public boolean getSSGExtend() {
-new Exception("ssgExtend: " + ssgExtend).printStackTrace();
+//new Exception("ssgExtend: " + ssgExtend).printStackTrace();
         return ssgExtend;
     }
 

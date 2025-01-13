@@ -13,8 +13,10 @@ import java.util.stream.Stream;
 import console.Program;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -75,6 +77,22 @@ Debug.println("volume: " + volume);
         return Files.list(Path.of("src/test/resources/test/")).filter(p -> p.toString().endsWith(".muc")).map(Arguments::arguments);
     }
 
+    @Test
+    @DisplayName("compile .muc at dir to .mub")
+    void test0() throws Exception {
+        Path dir = Path.of("tmp/iwamoo_mucom88muc_2018-2022/");
+        Files.list(dir)
+                .filter(p -> p.toString().endsWith(".muc"))
+                .forEach(p -> {
+                    Path out = dir.resolve(Program.getCompledFilename(p));
+                    Program.main(new String[] {
+                            p.toString(),
+                            out.toString()
+                    });
+                });
+    }
+
+    @Disabled("it's compiled by extended mode")
     @ParameterizedTest
     @MethodSource("sources")
     @DisplayName("compile .muc at method source to .mub into tmp/out")
@@ -104,12 +122,14 @@ Debug.println("volume: " + volume);
     @ParameterizedTest
     @MethodSource("sources22")
     @DisplayName("play .mub at method source")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test2(Path p) throws Exception {
         mucom88.player.Program.main(new String[] {p.toString()});
     }
 
     @Test
     @DisplayName("play .mub")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test3() throws Exception {
         mucom88.player.Program.main(new String[] {file});
     }

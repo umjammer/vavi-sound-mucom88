@@ -203,7 +203,7 @@ public class EncAdpcmA {
                 else src = 0;
             } else {
                 if (buffer.length > lpc)
-                    src = (buffer[lpc] - 128) << 8;
+                    src = ((buffer[lpc] - 128) & 0xff) << 8;
                 else src = 0;
             }
 

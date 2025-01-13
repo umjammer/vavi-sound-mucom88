@@ -6,6 +6,7 @@ import mucom88.common.MUCInfo;
 
 
 public class SMon {
+
     private final MUCInfo mucInfo;
 
     public SMon(MUCInfo mucInfo) {

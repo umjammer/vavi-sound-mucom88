@@ -80,39 +80,39 @@ public class SoundWork {
             )
     );
 
-    public byte[][] pregBf = null;
-    public byte[] initPm = null;
-    public short[][] detdat = {
+    public int[][] pregBf = null;
+    public int[] initPm = null;
+    public int[][] detdat = {
             null, null, null, null
     };
-    public byte[][] drmvol = new byte[][] {
+    public int[][] drmvol = new int[][] {
             null, null, null, null
     };
-    public byte[][] drmPanEnable = new byte[][] {
+    public int[][] drmPanEnable = new int[][] {
             null, null, null, null
     };
-    public byte[][] drmPanMode = new byte[][] {
+    public int[][] drmPanMode = new int[][] {
             null, null, null, null
     };
-    public byte[][] drmPanCounter = new byte[][] {
+    public int[][] drmPanCounter = new int[][] {
             null, null, null, null
     };
-    public byte[][] drmPanCounterWork = new byte[][] {
+    public int[][] drmPanCounterWork = new int[][] {
             null, null, null, null
     };
-    public byte[][] drmPanValue = new byte[][] {
+    public int[][] drmPanValue = new int[][] {
             null, null, null, null
     };
-    public byte[] opSel = null;
-    public byte[] TYPE1 = null;
-    public byte[] TYPE2 = null;
+    public int[] opSel = null;
+    public int[] TYPE1 = null;
+    public int[] TYPE2 = null;
     // DB 8
-    public byte DMY = 0;
-    public short[][] FNUMB = null;
-    public short[][] FNUMBopm = null;
-    public short[][] SNUMB = null;
-    public short[][] PCMNMB = null;
-    public byte[] SSGDAT = null;
+    public int DMY = 0;
+    public int[][] FNUMB = null;
+    public int[][] FNUMBopm = null;
+    public int[][] SNUMB = null;
+    public int[][] PCMNMB = null;
+    public int[] SSGDAT = null;
 
     private int musNum;
 
@@ -162,19 +162,19 @@ public class SoundWork {
         pvMode = value;
     }
 
-    private final int muTop = 5;
+    private int muTop = 5;
 
     public int getMuTop() {
         return muTop;
     }
 
-    private byte timerB;
+    private int timerB;
 
-    public byte getTimerB() {
+    public int getTimerB() {
         return timerB;
     }
 
-    public void setTimerB(byte value) {
+    public void setTimerB(int value) {
         timerB = value;
     }
 
@@ -206,8 +206,8 @@ public class SoundWork {
         return (PLSET1_VAL[chip] & 0x40) != 0;
     }
 
-    public byte[] PLSET1_VAL = new byte[5];
-    public byte[] PLSET2_VAL = new byte[5];
+    public int[] PLSET1_VAL = new int[5];
+    public int[] PLSET2_VAL = new int[5];
 
     private final int[] pcmLr = new int[6];
 
@@ -297,33 +297,33 @@ public class SoundWork {
         return fmSub8Val;
     }
 
-    private byte fPortVal = (byte) 0xa4;
+    private int fPortVal = 0xa4;
 
-    public byte getFPortVal() {
+    public int getFPortVal() {
         return fPortVal;
     }
 
-    public void setFPortVal(byte value) {
+    public void setFPortVal(int value) {
         fPortVal = value;
     }
 
-    private byte pcmNum;
+    private int pcmNum;
 
-    public byte getPcmNum() {
+    public int getPcmNum() {
         return pcmNum;
     }
 
-    public void setPcmNum(byte value) {
+    public void setPcmNum(int value) {
         pcmNum = value;
     }
 
-    private byte pOut;
+    private int pOut;
 
-    public byte getPOut() {
+    public int getPOut() {
         return pOut;
     }
 
-    public void setPOut(byte value) {
+    public void setPOut(int value) {
         pOut = value;
     }
 
@@ -339,9 +339,9 @@ public class SoundWork {
         return ENDADR;
     }
 
-    private byte TOTALV;
+    private int TOTALV;
 
-    public byte getTOTALV() {
+    public int getTOTALV() {
         return TOTALV;
     }
 
@@ -351,19 +351,19 @@ public class SoundWork {
         return OTODAT;
     }
 
-    private byte LFOP6_VAL;
+    private int LFOP6_VAL;
 
-    public byte getLFOP6_VAL() {
+    public int getLFOP6_VAL() {
         return LFOP6_VAL;
     }
 
-    private byte FLGADR;
+    private int FLGADR;
 
-    public byte getFLGADR() {
+    public int getFLGADR() {
         return FLGADR;
     }
 
-    public void setFLGADR(byte value) {
+    public void setFLGADR(int value) {
         FLGADR = value;
     }
 
@@ -377,13 +377,13 @@ public class SoundWork {
         NEWFNM = value;
     }
 
-    private short RANDUM = 0;
+    private long RANDUM = 0;
 
-    public short getRANDUM() {
+    public long getRANDUM() {
         return RANDUM;
     }
 
-    public void setRANDUM(short value) {
+    public void setRANDUM(long value) {
         RANDUM = value;
     }
 
@@ -433,19 +433,19 @@ public class SoundWork {
     }
 
     /** PMS/AMS/LR DATA */
-    public byte[] PALDAT = new byte[] {
-            (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0,
-            (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0,
-            (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0,
+    public int[] PALDAT = new int[] {
+            0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0,
+            0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0,
+            0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // DUMMY
-            (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0,
-            (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0,
-            (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0, (byte) 0xC0
+            0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0,
+            0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0,
+            0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0
     };
 
-    // ﾎﾞﾘｭｰﾑ ﾃﾞｰﾀ
+    // volume data
 
-    public static final byte[] FMVDAT = new byte[] { // ﾎﾞﾘｭｰﾑ ﾃﾞｰﾀ(FM)
+    public static final int[] FMVDAT = new int[] { // volume data (FM)
             0x36, 0x33, 0x30, 0x2D,
             0x2A, 0x28, 0x25, 0x22, //  0,  1,  2,  3
             0x20, 0x1D, 0x1A, 0x18, //  4,  5,  6,  7
@@ -453,12 +453,12 @@ public class SoundWork {
             0x0a, 0x08, 0x05, 0x02  // 12, 13, 14, 15
     };
 
-    public static final byte[] CRYDAT = new byte[] { // ｷｬﾘｱ / ﾓｼﾞｭﾚｰﾀ ﾉ ﾃﾞｰﾀ
+    public static final int[] CRYDAT = new int[] { // carrier / modulator data
             0x08,
-            0x08, // ｶｸ ﾋﾞｯﾄ ｶﾞ ｷｬﾘｱ/ﾓｼﾞｭﾚｰﾀ ｦ ｱﾗﾜｽ
+            0x08, // each bits represent carrier / modulator
             0x08, //
-            0x08, // Bit=1 ｶﾞ ｷｬﾘｱ
-            0x0C, //     0 ｶﾞ ﾓｼﾞｭﾚｰﾀ
+            0x08, // Bit=1 carrier
+            0x0C, //     0 modulator
             0x0E, //
             0x0E, // Bit0=OP 1 , Bit1=OP 2 ... etc
             0x0F
@@ -565,84 +565,84 @@ public class SoundWork {
         }
 
 
-        pregBf = new byte[][] {
-                new byte[9], new byte[9], new byte[9], new byte[9]
+        pregBf = new int[][] {
+                new int[9], new int[9], new int[9], new int[9]
         };
-        initPm = new byte[] {0, 0, 0, 0, 0, 56, 0, 0, 0};
+        initPm = new int[] {0, 0, 0, 0, 0, 56, 0, 0, 0};
         for (int i = 0; i < 4; i++) {
-            detdat[i] = new short[] {
+            detdat[i] = new int[] {
                     0, 0, 0, 0
             };
-            drmvol[i] = new byte[] {
-                    (byte) 0xc0, (byte) 0xc0, (byte) 0xc0, (byte) 0xc0, (byte) 0xc0, (byte) 0xc0
+            drmvol[i] = new int[] {
+                    0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0
             };
-            drmPanCounter[i] = new byte[] {
+            drmPanCounter[i] = new int[] {
                     0, 0, 0, 0, 0, 0
             };
-            drmPanCounterWork[i] = new byte[] {
+            drmPanCounterWork[i] = new int[] {
                     0, 0, 0, 0, 0, 0
             };
-            drmPanEnable[i] = new byte[] {
+            drmPanEnable[i] = new int[] {
                     0, 0, 0, 0, 0, 0
             };
-            drmPanMode[i] = new byte[] {
+            drmPanMode[i] = new int[] {
                     0, 0, 0, 0, 0, 0
             };
-            drmPanValue[i] = new byte[] {
+            drmPanValue[i] = new int[] {
                     0, 0, 0, 0, 0, 0
             };
         }
-        opSel = new byte[] {
-                (byte) 0xa6, (byte) 0xac, (byte) 0xad, (byte) 0xae
+        opSel = new int[] {
+                0xa6, 0xac, 0xad, 0xae
         };
         DMY = 8;
-        TYPE1 = new byte[] {0x032, 0x044, 0x046};
-        TYPE2 = new byte[] {(byte) 0x0AA, (byte) 0x0A8, (byte) 0x0AC};
-        FNUMB = new short[][] {
-                new short[] {
+        TYPE1 = new int[] {0x032, 0x044, 0x046};
+        TYPE2 = new int[] {0x0AA, 0x0A8, 0x0AC};
+        FNUMB = new int[][] {
+                new int[] {
                         0x026A, 0x028F, 0x02B6, 0x02DF,
                         0x030B, 0x0339, 0x036A, 0x039E,
                         0x03D5, 0x0410, 0x044E, 0x048F
                 },
-                new short[] {
+                new int[] {
                         0x0269, 0x028E, 0x02b4, 0x02De,
                         0x0309, 0x0337, 0x0368, 0x039c,
                         0x03d3, 0x040e, 0x044b, 0x048d
                 }
         };
-        FNUMBopm = new short[][] {
-                new short[] {
+        FNUMBopm = new int[][] {
+                new int[] {
                         0x0000, 0x0040, 0x0080, 0x00c0,
                         0x0100, 0x0140, 0x0180, 0x01c0,
                         0x0200, 0x0240, 0x0280, 0x02c0
                 },
-                new short[] {
+                new int[] {
                         0x0000 - 59 - 64, 0x0040 - 59 - 64, 0x0080 - 59 - 64, 0x00c0 - 59 - 64,
                         0x0100 - 59 - 64, 0x0140 - 59 - 64, 0x0180 - 59 - 64, 0x01c0 - 59 - 64,
                         0x0200 - 59 - 64, 0x0240 - 59 - 64, 0x0280 - 59 - 64, 0x02c0 - 59 - 64
                 }
         };
-        SNUMB = new short[][] {
-                new short[] {
+        SNUMB = new int[][] {
+                new int[] {
                         0x0EE8, 0x0E12, 0x0D48, 0x0C89,
                         0x0BD5, 0x0B2B, 0x0A8A, 0x09F3,
                         0x0964, 0x08DD, 0x085E, 0x07E6
                 },
-                new short[] {
+                new int[] {
                         0x0EEe, 0x0E18, 0x0D4d, 0x0C8e,
                         0x0BDa, 0x0B30, 0x0A8f, 0x09F7,
                         0x0968, 0x08e1, 0x0861, 0x07E9
                 }
         };
-        PCMNMB = new short[][] {
+        PCMNMB = new int[][] {
                 // OPNA (7987200Hz) note:A is played at 8kHz (standard?)
                 //  0x7BFE+200 = 0x7CC6
                 //  0x7CC6 >> 5 =0x3E6(998)
                 //  998 = 7987200Hz / 8000Hz
-                new short[] {
+                new int[] {
                         0x49BA + 200, 0x4E1C + 200, 0x52C1 + 200, 0x57AD + 200,
                         0x5CE4 + 200, 0x626A + 200, 0x6844 + 200, 0x6E77 + 200,
-                        0x7509 + 200, 0x7BFE + 200, (short) (0x835E + 200), (short) (0x8B2D + 200)
+                        0x7509 + 200, 0x7BFE + 200, 0x835E + 200, 0x8B2D + 200
                 },
                 // OPNB (8000000Hz)
                 // C :8000000/8000*(261.626/440)*32=19027.3454545454(0x4A53)
@@ -657,30 +657,30 @@ public class SoundWork {
                 // A :8000000/8000*(440.000/440)*32=32000           (0x7D00)
                 // A#:8000000/8000*(466.164/440)*32=33902.8363636364(0x846F)
                 // B :8000000/8000*(493.883/440)*32=35918.7636363636(0x8C4F)
-                new short[] {
+                new int[] {
                         0x4A53, 0x4EBF, 0x536D, 0x5863,
                         0x5DA5, 0x6336, 0x691D, 0x6F5D,
-                        0x75FC, 0x7D00, (short) 0x846F, (short) 0x8C4F
+                        0x75FC, 0x7D00, 0x846F, 0x8C4F
                 }
         };
 
-        SSGDAT = new byte[] {
-                (byte) 255, (byte) 255, (byte) 255, (byte) 255, 0, (byte) 255, // E
-                (byte) 255, (byte) 255, (byte) 255, (byte) 200, 0, 10,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 200, 1, 10,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 190, 0, 10,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 190, 1, 10,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 170, 0, 10,
-                40, 70, 14, (byte) 190, 0, 15,
-                120, 030, (byte) 255, (byte) 255, 0, 10,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 225, 8, 15,
-                (byte) 255, (byte) 255, (byte) 255, 1, (byte) 255, (byte) 255,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 200, 8, (byte) 255,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 220, 20, 8,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 255, 0, 10,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 255, 0, 10,
-                120, 80, (byte) 255, (byte) 255, 0, (byte) 255,
-                (byte) 255, (byte) 255, (byte) 255, (byte) 220, 0, (byte) 255 // 6*16
+        SSGDAT = new int[] {
+                255, 255, 255, 255, 0, 255, // E
+                255, 255, 255, 200, 0, 10,
+                255, 255, 255, 200, 1, 10,
+                255, 255, 255, 190, 0, 10,
+                255, 255, 255, 190, 1, 10,
+                255, 255, 255, 170, 0, 10,
+                40, 70, 14, 190, 0, 15,
+                120, 030, 255, 255, 0, 10,
+                255, 255, 255, 225, 8, 15,
+                255, 255, 255, 1, 255, 255,
+                255, 255, 255, 200, 8, 255,
+                255, 255, 255, 220, 20, 8,
+                255, 255, 255, 255, 0, 10,
+                255, 255, 255, 255, 0, 10,
+                120, 80, 255, 255, 0, 255,
+                255, 255, 255, 220, 0, 255 // 6*16
         };
     }
 
@@ -713,38 +713,38 @@ public class SoundWork {
             return ch3KeyOn;
         }
 
-        private byte fmVolMode = 0;
+        private int fmVolMode = 0;
 
-        public byte getFmVolMode() {
+        public int getFmVolMode() {
             return fmVolMode;
         }
 
-        public void setFmVolMode(byte value) {
+        public void setFmVolMode(int value) {
             fmVolMode = value;
         }
 
-        private final byte[] fmVolUserTable = new byte[20];
+        private final int[] fmVolUserTable = new int[20];
 
-        public byte[] getFmVolUserTable() {
+        public int[] getFmVolUserTable() {
             return fmVolUserTable;
         }
 
-        private byte[] currentFMVolTable;
+        private int[] currentFMVolTable;
 
-        public byte[] getCurrentFMVolTable() {
+        public int[] getCurrentFMVolTable() {
             return currentFMVolTable;
         }
 
-        public void setCurrentFMVolTable(byte[] value) {
+        public void setCurrentFMVolTable(int[] value) {
             currentFMVolTable = value;
         }
 
         public static class PGDAT {
             public MmlDatum[] mData = null;
 
-            /** DB1 LENGTH ｶｳﾝﾀｰ IX+ 0 */
+            /** DB1 LENGTH counter IX+ 0 */
             public int lengthCounter = 1;
-            /** DB24 ｵﾝｼｮｸ ﾅﾝﾊﾞｰ1 */
+            /** DB24 tone number ｰ1 */
             public int instrumentNumber = 24;
             /** DW0 DATA ADDRES WORK2,3 */
             public int dataAddressWork = 0;
@@ -830,22 +830,22 @@ public class SoundWork {
             /** 4=REVERVE MODE */
             public boolean reverbMode = false;
             /** 0-3=hardware Envelope value */
-            public byte hardEnvelopValue = 0;
+            public int hardEnvelopValue = 0;
             /** DW0 return address 34,35 */
             public int returnAddress = 0;
             /** DB0,0 36,37 (reserved) */
             public int reserve = 0;
 
             /** DB ? ;pan 38 */
-            public byte panEnable = 0;
+            public int panEnable = 0;
             /** DB ? ;pan mode 39 */
-            public byte panMode = 0;
+            public int panMode = 0;
             /** DB ? ;pan counter 40 */
-            public byte panCounterWork = 0;
+            public int panCounterWork = 0;
             /** DB ? ;pan counter 41 */
-            public byte panCounter = 0;
+            public int panCounter = 0;
             /** DB ? ;pan value 42 */
-            public byte panValue = 3;
+            public int panValue = 3;
 
             private boolean musicEnd;
 
@@ -857,9 +857,9 @@ public class SoundWork {
                 musicEnd = value;
             }
 
-            public byte tlLfoSlot;
+            public int tlLfoSlot;
 
-            public byte getTlLfoSlot() {
+            public int getTlLfoSlot() {
                 return tlLfoSlot;
             }
 
@@ -909,71 +909,71 @@ public class SoundWork {
 
             public boolean keyOnDelayFlag = false;
             /** for keyOnSlot control */
-            public byte keyOnSlot = (byte) 0xf0;
-            public byte[] kd = new byte[4];
-            public byte[] kdWork = new byte[4];
+            public int keyOnSlot = 0xf0;
+            public int[] kd = new int[4];
+            public int[] kdWork = new int[4];
             /** Slots used by the page(bit) */
-            public byte useSlot = 0x0f;
+            public int useSlot = 0x0f;
 
-            private byte backupMIXPort = 0x38;
+            private int backupMIXPort = 0x38;
 
-            public byte getBackupMIXPort() {
+            public int getBackupMIXPort() {
                 return backupMIXPort;
             }
 
-            public void setBackupMIXPort(byte value) {
+            public void setBackupMIXPort(int value) {
                 backupMIXPort = value;
             }
 
-            private byte backupNoiseFrq = 0;
+            private int backupNoiseFrq = 0;
 
-            public byte getBackupNoiseFrq() {
+            public int getBackupNoiseFrq() {
                 return backupNoiseFrq;
             }
 
-            public void setBackupNoiseFrq(byte value) {
+            public void setBackupNoiseFrq(int value) {
                 backupNoiseFrq = value;
             }
 
-            private byte backupHardEnv = 0;
+            private int backupHardEnv = 0;
 
-            public byte getBackupHardEnv() {
+            public int getBackupHardEnv() {
                 return backupHardEnv;
             }
 
-            public void setBackupHardEnv(byte value) {
+            public void setBackupHardEnv(int value) {
                 backupHardEnv = value;
             }
 
-            private byte backupHardEnvFine = 0;
+            private int backupHardEnvFine = 0;
 
-            public byte getBackupHardEnvFine() {
+            public int getBackupHardEnvFine() {
                 return backupHardEnvFine;
             }
 
-            public void setBackupHardEnvFine(byte value) {
+            public void setBackupHardEnvFine(int value) {
                 backupHardEnvFine = value;
             }
 
-            private byte backupHardEnvCoarse = 0;
+            private int backupHardEnvCoarse = 0;
 
-            public byte getBackupHardEnvCoarse() {
+            public int getBackupHardEnvCoarse() {
                 return backupHardEnvCoarse;
             }
 
-            public void setBackupHardEnvCoarse(byte value) {
+            public void setBackupHardEnvCoarse(int value) {
                 backupHardEnvCoarse = value;
             }
 
-            private byte[] tlDirectTable = new byte[] {
-                    (byte) 255, (byte) 255, (byte) 255, (byte) 255
+            private int[] tlDirectTable = new int[] {
+                    255, 255, 255, 255
             };
 
-            public byte[] getTlDirectTable() {
+            public int[] getTlDirectTable() {
                 return tlDirectTable;
             }
 
-            public void setTlDirectTable(byte[] value) {
+            public void setTlDirectTable(int[] value) {
                 tlDirectTable = value;
             }
 
@@ -987,7 +987,7 @@ public class SoundWork {
                 ssgWfNum = value;
             }
 
-            public byte[] vTl = new byte[] {
+            public int[] vTl = new int[] {
                     0, 0, 0, 0
             };
 

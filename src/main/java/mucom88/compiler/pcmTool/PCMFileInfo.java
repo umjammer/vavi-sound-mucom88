@@ -221,7 +221,7 @@ public class PCMFileInfo {
                         return null;
                     }
 
-                    int channels = (buf[p + 2]) + (buf[p + 3] & 0xff) * 0x100;
+                    int channels = (buf[p + 2] & 0xff) + (buf[p + 3] & 0xff) * 0x100;
                     if (channels != 1) {
                         logger.log(Level.ERROR, "isn't Mono.");
                         return null;

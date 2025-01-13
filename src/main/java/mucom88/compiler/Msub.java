@@ -28,7 +28,7 @@ public class Msub {
     };
 
     // COMMANDs
-    public static final byte[] FCOMS = {
+    public static final int[] FCOMS = {
             0x6c,  // 'l' LIZM
             0x6f,  // 'o' octave
             0x44,  // 'D' DETUNE
@@ -135,7 +135,7 @@ logger.log(Level.DEBUG, "not valid number: " + ch);
         } else {
             if (ch < '0' || ch > '9') {
 //                goto READE; // If 0 or more characters, next
-logger.log(Level.DEBUG, "not valid number: " + ch);
+logger.log(Level.DEBUG, "not valid number: " + ch + ", " + lin.getItem2() + ", " + srcCPtr[0]);
                 work.setSecCom(ch);
                 mucInfo.setCarry(true); // NON DATA
                 return 0;
@@ -184,7 +184,7 @@ READF: {
 
         } while (digit > 0);
 
-        ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : (char) 0; // THIRD CHECK
+        ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : 0; // THIRD CHECK
         if (ch >= '0' && ch <= '9') { // goto READ1; // If 9 or less, next
 //READ8:
             mucInfo.setCarry(false);
@@ -268,6 +268,7 @@ logger.log(Level.DEBUG, "over 7 digits");
         ptr[0]++;
         int n = readData(lin, /* ref */ ptr);
         if (mucInfo.getCarry()) { // Could not read the value
+logger.log(Level.DEBUG, lin.getItem2());
             throw new MucException(rb.getString("E0201").formatted(cmdMsg), mucInfo.getRow(), mucInfo.getCol());
         } else {
             if (mucInfo.getErrSign()) {
@@ -284,7 +285,7 @@ logger.log(Level.DEBUG, "over 7 digits");
             if (FCOMS[i] == 0) {
                 break;
             }
-            if (FCOMS[i] == (byte) (c & 0xff)) {
+            if (FCOMS[i] == c) {
 //logger.log(Level.TRACE, "%d".formatted(c));
                 return i + 1;
             }

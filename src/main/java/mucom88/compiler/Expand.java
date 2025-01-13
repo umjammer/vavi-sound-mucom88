@@ -81,7 +81,7 @@ public class Expand {
                 fvfg = 'M';
             }
 
-            int n = msub.readData(mucInfo.getBasSrc().get(i), /*ref*/ srcCPtr);
+            int n = msub.readData(mucInfo.getBasSrc().get(i), /* ref */ srcCPtr);
             if (mucInfo.getCarry() || mucInfo.getErrSign()) {
                 muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
             }
@@ -96,12 +96,12 @@ public class Expand {
                     i++;
                     srcCPtr[0] = 1;
                     for (int col = 0; col < 4; col++) {
-                        byte v = (byte) (msub.readData(mucInfo.getBasSrc().get(i), /* ref */ srcCPtr) & 0xff);
+                        int v = msub.readData(mucInfo.getBasSrc().get(i), /* ref */ srcCPtr);
                         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
                             muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
                         srcCPtr[0]++; // SKIP','
-                        mucInfo.getMmlVoiceDataWork().set(fmlib1++, v);
+                        mucInfo.getMmlVoiceDataWork().set(fmlib1++, (byte) (v & 0xff));
                     }
                 }
 
@@ -133,12 +133,12 @@ public class Expand {
                     i++;
                     srcCPtr[0] = 1;
                     for (int col = 0; col < 10; col++) {
-                        byte v = (byte) msub.readData(mucInfo.getBasSrc().get(i), /* ref */ srcCPtr);
+                        int v = msub.readData(mucInfo.getBasSrc().get(i), /* ref */ srcCPtr);
                         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
                             muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
                         srcCPtr[0]++; // skip ','
-                        voi.add(v);
+                        voi.add((byte) (v & 0xff));
                     }
                 }
 

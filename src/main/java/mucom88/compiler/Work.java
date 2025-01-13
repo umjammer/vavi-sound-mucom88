@@ -365,7 +365,7 @@ public class Work {
 
     public static final String Tracks = "ABCDEFGHIJKLMNOPQRSTUVabcdefghijklmnopqrstuvWXYZwxyz";
 
-    public boolean setChipValueFromTrackCharacter(char ch) {
+    public boolean setChipValueFromTrackCharacter(int ch) {
         int no = getTrackNo(ch);
         if (no < 0) return false; // Unknown characters
         chipIndex = no / MAXCH;
@@ -379,7 +379,7 @@ public class Work {
         return Tracks.charAt(no);
     }
 
-    public static int getTrackNo(char ch) {
+    public static int getTrackNo(int ch) {
         return Tracks.indexOf(ch);
     }
 
@@ -390,7 +390,7 @@ public class Work {
     /**
      * Not a valid character for a track
      */
-    public static boolean isNotTrackCharacter(char c) {
+    public static boolean isNotTrackCharacter(int c) {
         return Tracks.indexOf(c) < 0;
     }
 }

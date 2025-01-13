@@ -72,9 +72,9 @@ public class Work {
         return hl;
     }
 
-    byte aReg;
+    int aReg;
 
-    public byte getA_Reg() {
+    public int getA_Reg() {
         return aReg;
     }
 
