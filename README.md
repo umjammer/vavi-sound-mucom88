@@ -1,18 +1,47 @@
+[![Release](https://jitpack.io/v/umjammer/vavi-sound-mucom88.svg)](https://jitpack.io/#umjammer/vavi-sound-mucom88)
+[![Java CI](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/maven.yml)
+[![CodeQL](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/codeql.yml)
+![Java](https://img.shields.io/badge/Java-17-b07219)
+
 # vavi-sound-mucom88
+
+<img alt="mucom88" src="https://github.com/user-attachments/assets/a8f0b794-ed79-487a-936d-2073007b91f1" width="240" />
+© <img alt="koshiro" src="https://github.com/user-attachments/assets/bc7f823d-103b-4d85-8906-e8159977b9f3" width="50" />
 
 Java version of mucom88.
 
+this is a form of [mucomDotNET](https://github.com/kuma4649/mucomDotNET)
+
+## Install
+
+* [maven](https://jitpack.io/#umjammer/vavi-sound-mucom88)
+
+## Usage
+
+## References
+
+ * http://iwamoo.seesaa.net/article/496523476.html
+
+## TODO
+
+ * compiler
+ * spi
+
+---
+
+# [Original](https://github.com/kuma4649/mucomDotNET)
+
 ## Overview
 
-It is a port of mucom88 to the .NET version.
+It is a port of mucom88 to the Java version.
 OPNAx2, OPNBx2, OPMx1 can be used at the same time.
 (It is a form that incorporates the W function of Boukichi-san. Thanks! Boukichi-san)
-The functions of AMD98 are also included with the kindness of Kodai-san.
+The functions of AMD98 are also included with the kindness of Koshiro-san.
 
 Official page
 
- - OPEN MUCOM PROJECT (Ancient Co., Ltd.)
- - OPEN MUCOM88 Wiki (ONION software / Onitama-sama)
+ - [OPEN MUCOM PROJECT](https://github.com/onitama/mucom88) (Ancient Co., Ltd.)
+ - [OPEN MUCOM88 Wiki](https://github.com/onitama/mucom88/wiki) (ONION software / Onitama-sama)
 
 ## Functions and features
 
@@ -32,7 +61,7 @@ For this reason, playing data using them on mucom88 would be a strange situation
 
 ## Copyright / Disclaimer
 
-mucom.NET is a CC BY-NC-SA 4.0 license specified by Creative Commons.
+vavi-sound-mucom88 is a CC BY-NC-SA 4.0 license specified by Creative Commons.
 
  https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja
 
@@ -83,3 +112,7 @@ thank you very much.
 
  - [mucom wiki](https://github.com/MUCOM88/mucom88/wiki)
  - [Boukichi-san's wiki](https://github.com/BouKiCHi/mucom88/wiki)
+
+---
+
+<sub>image by <a href="https://github.com/onitama/mucom88/wiki">official wiki</a></sub>
