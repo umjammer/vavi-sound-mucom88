@@ -38,6 +38,8 @@ import static vavi.sound.SoundUtil.volume;
 
 public class Program {
 
+    private static final Logger logger = getLogger(Program.class.getName());
+
     static class KeyboardHook {
         static AtomicBoolean typed = new AtomicBoolean();
         static {
@@ -57,7 +59,6 @@ public class Program {
             return typed.get();
         }
     }
-    private static final Logger logger = getLogger(Program.class.getName());
 
     private static SourceDataLine audioOutput = null;
     private static Thread threadMain = null;
