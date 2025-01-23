@@ -16,7 +16,6 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import dotnet4j.io.File;
 import dotnet4j.util.compat.StopWatch;
-import dotnet4j.util.compat.StringUtilities;
 import dotnet4j.util.compat.Tuple;
 import mdsound.Instrument;
 import mdsound.MDSound;
@@ -493,7 +492,7 @@ if (dat.address == 0x27) {
     private static void writeOPNBAdpcmA(int chipId, byte[] pcmData) {
         switch (device) {
         case 0:
-            mds.writeYm2610SetAdpcmA(chipId, pcmData);
+            mds.inst(Ym2610Inst.class).writeAdpcmA(chipId, pcmData);
             break;
         case 1:
         case 2:
@@ -504,7 +503,7 @@ if (dat.address == 0x27) {
     private static void writeOPNBAdpcmB(int chipId, byte[] pcmData) {
         switch (device) {
         case 0:
-            mds.writeYm2610SetAdpcmB(chipId, pcmData);
+            mds.inst(Ym2610Inst.class).writeAdpcmB(chipId, pcmData);
             break;
         case 1:
         case 2:

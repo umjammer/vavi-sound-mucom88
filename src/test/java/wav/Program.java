@@ -295,12 +295,12 @@ class Program {
     }
 
     private static void writeOPNBAdpcmA(int chipId, byte[] pcmData) {
-        mds.writeYm2610SetAdpcmA(chipId, pcmData);
+        mds.inst(Ym2610Inst.class).writeAdpcmA(chipId, pcmData);
 
     }
 
     private static void writeOPNBAdpcmB(int chipId, byte[] pcmData) {
-        mds.writeYm2610SetAdpcmB(chipId, pcmData);
+        mds.inst(Ym2610Inst.class).writeAdpcmB(chipId, pcmData);
 
     }
 
