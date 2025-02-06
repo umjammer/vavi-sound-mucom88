@@ -21,7 +21,6 @@ import musicDriverInterface.MmlDatum;
 import musicDriverInterface.MMLType;
 import vavi.util.ByteUtil;
 
-import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 import static java.lang.System.getLogger;
 
 

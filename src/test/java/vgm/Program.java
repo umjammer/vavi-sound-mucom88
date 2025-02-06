@@ -33,11 +33,11 @@ class Program {
         int fnIndex = analyzeOption(args);
 
         if (args == null || args.length != fnIndex + 1) {
-            System.err.println("引数(.mubファイル)１個欲しいよぉ");
+            System.err.println("at least one argument is needed (.mub file).");
             System.exit(-1);
         }
         if (!File.exists(args[fnIndex])) {
-            System.err.println("ファイルが見つかりません");
+            System.err.println("File not found");
             System.exit(-1);
         }
 
@@ -109,7 +109,7 @@ class Program {
                 driver.render();
                 writer.incrementWaitCOunter();
 
-                // ステータスが0(終了)又は0未満(エラー)の場合はループを抜けて終了
+                // Exit loop if status is 0 (end) or less than 0 (error)
                 if (driver.getStatus() <= 0) {
                     break;
                 }

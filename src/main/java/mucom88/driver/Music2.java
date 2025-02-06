@@ -16,7 +16,6 @@ import musicDriverInterface.MmlDatum;
 import musicDriverInterface.MMLType;
 import vavi.util.ByteUtil;
 
-import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 import static java.lang.System.getLogger;
 
 
@@ -2890,7 +2889,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         a = (work.pg.panMode == 4 || work.pg.panMode == 5) ? autoPantable[work.pg.panValue] : work.pg.panValue;
 
         List<Object> args = new ArrayList<>();
-        args.add((int) a);
+        args.add(a);
         outDummy(MMLType.Pan, args);
 
         if (work.soundWork.getCurrentChip() != 4) {
@@ -3065,7 +3064,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
 
                 // For parameter display
                 List<Object> args = new ArrayList<>();
-                args.add((int) b);
+                args.add(b);
                 outDummy(MMLType.Volume, args);
 
                 b = (work.soundWork.drmvol[work.soundWork.getCurrentChip()][i] & 0b1100_0000) | b;

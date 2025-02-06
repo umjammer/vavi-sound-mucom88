@@ -34,7 +34,6 @@ import musicDriverInterface.Tag;
 import vavi.util.ByteUtil;
 import vavi.util.serdes.Serdes;
 
-import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 import static java.lang.System.getLogger;
 
 
