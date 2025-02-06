@@ -29,7 +29,7 @@ public class RScciSoundChip extends RSoundChip {
 
     @Override
     public void init() {
-        NSoundInterface nsif = scci.NSoundInterfaceManager_.getInterface(BusID);
+        NSoundInterface nsif = Scci.NSoundInterfaceManager().getInterface(BusID);
         NSoundChip nsc = nsif.getSoundChip(SoundChip);
         realChip = nsc;
         dClock = (int) nsc.getSoundChipClock();
