@@ -67,7 +67,7 @@ public class VgmWriter {
         if (waitCounter != 0) {
             totalSample += waitCounter;
 
-            //waitコマンド出力
+            // wait command output
             Debug.printf(Level.FINEST, "wait:%d", waitCounter);
 
             if (waitCounter <= 882 * 3) {
@@ -107,7 +107,7 @@ public class VgmWriter {
         if (waitCounter != 0) {
             totalSample += waitCounter;
 
-            //waitコマンド出力
+            // wait command output
             Debug.printf(Level.FINEST, "wait:%d", waitCounter);
 
             if (waitCounter <= 882 * 3) {
@@ -146,7 +146,7 @@ public class VgmWriter {
         if (waitCounter != 0) {
             totalSample += waitCounter;
 
-            //waitコマンド出力
+            // wait command output
             Debug.printf(Level.FINEST, "wait:%d", waitCounter);
 
             if (waitCounter <= 882 * 3) {
@@ -181,7 +181,7 @@ public class VgmWriter {
     public void close(List<Tuple<String, String>> tags, int opnaMasterClock, int opnbMasterClock, int opmMasterClock) {
         if (dest == null) return;
 
-        // ヘッダ、フッタの調整
+        // Adjusting the header and footer
 
         // end of data
         dest.writeByte((byte) 0x66);
@@ -307,7 +307,7 @@ public class VgmWriter {
 
         List<Byte> des = new ArrayList<>();
 
-        //ヘッダの出力
+        // Header Output
         dest.write(hDat, 0, hDat.length);
 
     }
@@ -380,26 +380,26 @@ public class VgmWriter {
         //dest.writeByte(0x56); dest.writeByte(0x29); dest.writeByte(0x82);
         //writeAdpcm(0, new byte[65536]);
 
-        // 標準的な mub ファイル
+        // Standard mub files
         if (buf[0] == 0x4d &&
                 buf[1] == 0x55 &&
                 buf[2] == 0x43 &&
                 buf[3] == 0x38) {
             return;
         }
-        // 標準的な mub ファイル
+        // Standard mub files
         if (buf[0] == 0x4d &&
                 buf[1] == 0x55 &&
                 buf[2] == 0x42 &&
                 buf[3] == 0x38) {
             return;
         }
-        // 拡張 mubファイル？
+        // Extended mub file?
         if (buf[0] != 'm' ||
                 buf[1] != 'u' ||
                 buf[2] != 'P' ||
                 buf[3] != 'b') {
-            // 見知らぬファイル
+            // Unknown files
             return;
         }
 

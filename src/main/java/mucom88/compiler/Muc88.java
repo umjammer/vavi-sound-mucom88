@@ -77,7 +77,7 @@ public class Muc88 {
             this::SETMEM,
             this::SETRV,
             this::SETMAC,
-            this::STRET, // RETで戻る!
+            this::STRET, // Press RET to return!
             this::SETTI2, // ret code:fcomp13
             this::SETSYO,
             this::ENDMAC,
@@ -1393,7 +1393,7 @@ logger.log(Level.DEBUG, mucInfo);
             msub.MWRITE(new MmlDatum(0xff), new MmlDatum(0xfa)); // COM OF 'E'
             msub.MWRIT2(new MmlDatum(n)); // SET DATA ONLY
 
-            return SETSE1(5, "E0512", "E0513"); // ﾉｺﾘ 5 PARAMETER
+            return SETSE1(5, "E0512", "E0513"); // rest 5 PARAMETER
         }
 
         if (tp != ChannelType.SSG) {
@@ -1408,7 +1408,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         msub.MWRITE(new MmlDatum(0xfa), new MmlDatum(n)); // COM OF 'E'
 
-        return SETSE1(5, "E0512", "E0513"); // ﾉｺﾘ 5 PARAMETER
+        return SETSE1(5, "E0512", "E0513"); // rest 5 PARAMETER
     }
 
     /** Q */
@@ -1442,7 +1442,7 @@ logger.log(Level.DEBUG, mucInfo);
             work.loopPoint[work.chipIndex][c][work.pageNow] = hl;
         }
 
-        work.lCnt[work.chipIndex][c][work.pageNow] = work.tCnt[work.chipIndex][c][work.pageNow] + 1; // +1('L'ﾌﾗｸﾞﾉ ｶﾜﾘ)
+        work.lCnt[work.chipIndex][c][work.pageNow] = work.tCnt[work.chipIndex][c][work.pageNow] + 1; // +1(Instead of 'L' flag)
 
         return NextAction.fcomp1;
     }
@@ -1570,7 +1570,7 @@ logger.log(Level.DEBUG, mucInfo);
         mucInfo.getBufDst().set(n + 1, new MmlDatum(adr >> 8));
 
         int m = (mucInfo.getBufLoopStack().get(loopStackPtr + 2) & 0xff)
-                + (mucInfo.getBufLoopStack().get(loopStackPtr + 3) & 0xff) * 0x100; // HL ﾊ LOOP ｦ ｶｲｼｼﾀ ｱﾄﾞﾚｽ
+                + (mucInfo.getBufLoopStack().get(loopStackPtr + 3) & 0xff) * 0x100; // HL is the address where the LOOP started
 
         int loopRetOfs = work.mData - m; // LOOP RET ADR OFFSET
         mucInfo.getBufDst().set(work.mData, new MmlDatum(loopRetOfs));
@@ -1633,7 +1633,7 @@ logger.log(Level.DEBUG, mucInfo);
         mucInfo.getBufLoopStack().set(work.pointC + 8, (byte) 0);
         mucInfo.getBufLoopStack().set(work.pointC + 9, (byte) 0);
 
-        work.tCnt[work.chipIndex][work.chipCh][work.pageNow] = 0; // ﾄｰﾀﾙ ｸﾛｯｸ ｸﾘｱ
+        work.tCnt[work.chipIndex][work.chipCh][work.pageNow] = 0; // clear total lock
 
         work.repCount++;
         if (work.repCount > 16) {
@@ -1725,7 +1725,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         work.tCnt[work.chipIndex][work.chipCh][work.pageNow] += kotae;
 
-        if (work.befRst != 0) { // ｾﾞﾝｶｲｶｳﾝﾀ ﾜｰｸ(ﾌﾗｸﾞ)
+        if (work.befRst != 0) { // previous counter wrok (flag)
             kotae += work.befRst;
             if (kotae < 0 || kotae > 255) {
                 writeWarning(rb.getString("W0403").formatted(kotae), mucInfo.getRow(), mucInfo.getCol());
@@ -1767,7 +1767,7 @@ logger.log(Level.DEBUG, mucInfo);
                 work.chipCh * Work.MAXPG + work.pageNow);
         msub.MWRIT2(new MmlDatum(MMLType.Rest, args, lp, kotae | 0b1000_0000)); // set rest flag
 
-        work.latestNote = 2; // KUMA:チェック用(休符)
+        work.latestNote = 2; // KUMA: Check (rest)
 
         return NextAction.fcomp12;
     }
@@ -1794,7 +1794,7 @@ logger.log(Level.DEBUG, mucInfo);
                 //    ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
                 //    : (char)0;
                 //if (c == '.') { // 0x2e
-                //    // 厳密には挙動が違いますが、この文法は使用できないことを再現させるため
+                //    // Strictly speaking, the behavior is different, but this syntax is used to reproduce the fact that it cannot be used.
                 //    throw new MucException(rb.getString("E0439"), mucInfo.getRow(), mucInfo.getCol());
                 //}
 
@@ -1849,7 +1849,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         work.tCnt[work.chipIndex][work.chipCh][work.pageNow] += kotae;
 
-        if (work.befRst != 0) { // ｾﾞﾝｶｲｶｳﾝﾀ ﾜｰｸ(ﾌﾗｸﾞ)
+        if (work.befRst != 0) { // previous counter work (flag)
             kotae += work.befRst;
             work.mData--;
         }
@@ -1887,7 +1887,7 @@ logger.log(Level.DEBUG, mucInfo);
                 work.chipCh * Work.MAXPG + work.pageNow);
         msub.MWRIT2(new MmlDatum(MMLType.Rest, args, lp, kotae | 0b1000_0000)); // set rest flag
 
-        work.latestNote = 2; // KUMA:チェック用(休符)
+        work.latestNote = 2; // KUMA: Check (rest)
 
         return NextAction.fcomp12;
     }
@@ -1900,7 +1900,7 @@ logger.log(Level.DEBUG, mucInfo);
         int n = msub.readData(mucInfo.getLin(), /* ref */ptr);
         mucInfo.setSrcCPtr(ptr[0]);
         if (mucInfo.getCarry()) {
-            return SETMO2(); // nondata ﾅﾗ 2nd com prc
+            return SETMO2(); // nondata then 2nd com prc
         }
         if (mucInfo.getErrSign()) {
             throw new MucException(rb.getString("E0440"), mucInfo.getRow(), mucInfo.getCol());
@@ -1912,7 +1912,7 @@ logger.log(Level.DEBUG, mucInfo);
         work.lfoData[ix + 1] = n;
         msub.MWRIT2(new MmlDatum(n)); // SET DELAY
 
-        // --ｶｳﾝﾀ ｾｯﾄ--
+        // --set counter--
         // SETMO1:
         char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
                 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
@@ -1957,7 +1957,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         ChannelType tp = CHCHK();
         if (tp == ChannelType.SSG) {
-            n = -n; // ssgの場合はdeの符号を反転
+            n = -n; // In the case of ssg, the sign of de is inverted.
         }
 
         msub.MWRIT2(new MmlDatum(n & 0xff));
@@ -2068,7 +2068,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         ChannelType tp = CHCHK();
 
-        // MT はFMではTL LFO , SSGでは音量LFOスイッチ
+        // MT is TL LFO in FM, volume LFO switch in SSG
 
         // if (tp == ChannelType.SSG)
         // {
@@ -2254,7 +2254,7 @@ logger.log(Level.DEBUG, mucInfo);
     }
 
     private NextAction SETR2() {
-        // --yXX(ﾓｼﾞﾚﾂ),OpNo.,DATA--
+        // --yXX(strings),OpNo.,DATA--
 
         int i = 0;
         int[] ptr = new int[1];
@@ -2289,7 +2289,7 @@ logger.log(Level.DEBUG, mucInfo);
         }
 
         ptr[0] = mucInfo.getSrcCPtr();
-        int n = msub.ERRT(mucInfo.getLin(), /* ref */ptr, rb.getString("E0465")); // ｵﾍﾟﾚｰﾀｰ No.
+        int n = msub.ERRT(mucInfo.getLin(), /* ref */ptr, rb.getString("E0465")); // operator No.
         mucInfo.setSrcCPtr(ptr[0]);
 
         if (n == 0 || n > 4) {
@@ -2393,7 +2393,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         if (mucInfo.getCarry()) {
             mucInfo.decSrcCPtr();
-            n = 1; // ﾍﾝｶ 1
+            n = 1; // Change 1
         }
 
         return SetRelativeVolume(n);
@@ -2411,10 +2411,10 @@ logger.log(Level.DEBUG, mucInfo);
 
         if (mucInfo.getCarry()) {
             mucInfo.decSrcCPtr();
-            n = 1; // ﾍﾝｶ 1
+            n = 1; // Change 1
         }
 
-        n = -n; // ')' ﾉ ﾊﾝﾀｲ ﾊ '('
+        n = -n; // The opposite of ')' is '('
         return SetRelativeVolume(n);
     }
 
@@ -2422,11 +2422,11 @@ logger.log(Level.DEBUG, mucInfo);
         work.volume += n;
 
         if (mucInfo.getDriverType() == MUCInfo.DriverType.DotNet) {
-            if (work.chipIndex != 4 && work.chipCh == 6) { // KUMA:Rhythmの場合のみ特殊処理
+            if (work.chipIndex != 4 && work.chipCh == 6) { // KUMA: Special processing only for Rhythm
                 n = Math.min(Math.max(n, -63), 63);
                 int m = n;
                 m &= 0x7f;
-                if (work.getRhythmRelMode()) { // KUMA:とりあえず。
+                if (work.getRhythmRelMode()) { // KUMA: for now.
                     m |= 0x80;
                 }
 
@@ -2540,11 +2540,11 @@ logger.log(Level.DEBUG, mucInfo);
                         }
                         mucInfo.setSrcCPtr(ptr[0]);
 
-                        // 実際の処理はドライバ任せだが、判定用に値を保持する
+                        // The actual processing is left to the driver, but the value is retained for judgment purposes.
                         work.setFmVolMode(n);
                         msub.MWRITE(new MmlDatum(0xff), new MmlDatum(0xfb)); // COM OF 'vm'
                         msub.MWRIT2(new MmlDatum(n));
-                        if (n == 1) // vm1の場合は更に20個データを読み込む
+                        if (n == 1) // For vm1, read 20 more data items.
                         {
                             for (int i = 0; i < 20; i++) {
                                 skipSpaceAndTab();
@@ -2687,15 +2687,15 @@ logger.log(Level.DEBUG, mucInfo);
             char c = mucInfo.getLin().getItem2().length() > mucInfo.getSrcCPtr() ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr()) : (char) 0;
             if (c != ',') { // ','
                 if (mucInfo.getDriverType() == MUCInfo.DriverType.DotNet) {
-                    // KUMA:もしパラメータが一つだけの場合は個別指定したものとする
+                    // KUMA: If there is only one parameter, it is considered to be specified individually.
                     if (i == 0) {
                         MmlDatum m = mucInfo.getBufDst().get(work.mData - 1);
                         m.dat = Math.min(Math.max(m.dat, 0), 31);
-                        m.dat |= 0x80; // KUMA:個別指定を意味するフラグをbit7にたてる
+                        m.dat |= 0x80; // KUMA: Set a flag in bit 7 to indicate individual specification
                         mucInfo.getBufDst().set(work.mData - 1, m);
 
                         MmlDatum m2 = mucInfo.getBufDst().get(work.mData - 2);
-                        m2.args.set(0, m.dat & 0x7f); // KUMA:引数もクリップしたものに入れ替える
+                        m2.args.set(0, m.dat & 0x7f); // KUMA: Replace the arguments with the clipped ones.
                         mucInfo.getBufDst().set(work.mData - 2, m2);
 
                         return NextAction.fcomp1;
@@ -2888,14 +2888,14 @@ logger.log(Level.DEBUG, mucInfo);
 
     private NextAction SETCOL() {
 
-        // 音色名による指定か
+        // Specify by tone name?
         mucInfo.getAndIncSrcCPtr();
         char c = mucInfo.getLin().getItem2().length() > mucInfo.getSrcCPtr()
                 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
                 : (char) 0;
         char w = '\0';
         if (c == '\"') {
-            SETVN(); // 文字列による指定
+            SETVN(); // Specifying by string
             return NextAction.fcomp1;
         }
         if (c == 'I' || c == 'W') {
@@ -2911,7 +2911,7 @@ logger.log(Level.DEBUG, mucInfo);
         //mucInfo.getSrcCPtr() -= 2;
         mucInfo.decSrcCPtr();
 
-        // 数値を取得する
+        // Get the number
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
         int n = msub.ERRT(mucInfo.getLin(), /* ref */ptr, rb.getString("E0488"));
         if (mucInfo.getErrSign())
@@ -2921,18 +2921,18 @@ logger.log(Level.DEBUG, mucInfo);
         ChannelType tp = CHCHK();
         if (tp == ChannelType.SSG) {
             if (mucInfo.getSSGExtend() && w == 'I') {
-                // 波形プリセット番号チェック
+                // Waveform preset number check
                 if (n < 0 || n > 9) {
                     throw new MucException(rb.getString("Exxxx").formatted(n), mucInfo.getRow(), mucInfo.getCol());
                 }
             } else if (mucInfo.getSSGExtend() && w == 'W') {
-                // ユーザー定義波形番号チェック
+                // User-defined waveform number check
                 if (n < 0 || n > 255) {
                     throw new MucException(rb.getString("Exxxx").formatted(n), mucInfo.getRow(), mucInfo.getCol());
                 }
                 work.getUseSSGVoice().add(n);
             } else {
-                // 音色番号チェック
+                // Tone number check
                 if (n < 0 || n > 15) {
                     throw new MucException(rb.getString("E0508").formatted(n), mucInfo.getRow(), mucInfo.getCol());
                 }
@@ -2944,13 +2944,13 @@ logger.log(Level.DEBUG, mucInfo);
             return SETSSGPreset(n);
         }
 
-        // 通常の音色指定
+        // Normal tone selection
 
         if (tp == ChannelType.SSG) {
             return STCL5(n, w); // SSG
         }
         if (tp == ChannelType.FM) {
-            // 音色番号チェック
+            // Tone number check
             if (mucInfo.getDriverType() != MUCInfo.DriverType.DotNet) {
                 if (n == 0 || n == 1) {
                     writeWarning(rb.getString("W0410"), mucInfo.getRow(), mucInfo.getCol());
@@ -2978,7 +2978,7 @@ logger.log(Level.DEBUG, mucInfo);
         if (mucInfo.getDriverType() != MUCInfo.DriverType.DotNet)
             throw new MucException(rb.getString("E9998"), mucInfo.getRow(), mucInfo.getCol());
 
-        msub.MWRIT2(new MmlDatum(n)); // 一つ目のパラメータをセット
+        msub.MWRIT2(new MmlDatum(n)); // Set the first parameter
 
         return SETSE1(5, "E0510", "E0511");
     }
@@ -3151,53 +3151,53 @@ logger.log(Level.DEBUG, mucInfo);
     }
 
     public static final int[] SSGLIB = new int[] {
-            8, 0, // ﾉｰﾏﾙ
+            8, 0, // normal
             255, 255, 255, 255, 0, 255, // E
             1, 0, 0, 0, 0, 0, 0, 0,
 
-            8, 0, // ｺﾅﾐ(1)
+            8, 0, // konami(1)
             255, 255, 255, 200, 0, 10,
             1, 0, 0, 0, 0, 0, 0, 0,
 
-            8, 0, // ｺﾅﾐ(2)
+            8, 0, // konami(2)
             255, 255, 255, 200, 1, 10,
             1, 0, 0, 0, 0, 0, 0, 0,
 
-            8, 0, // ｺﾅﾐ+LFO(1)
+            8, 0, // konami+LFO(1)
             255, 255, 255, 190, 0, 10,
             0, 16, 1, 25, 0, 4, 0, 0,
 
-            8, 0, // ｺﾅﾐ+LFO(2)
+            8, 0, // koanmi+LFO(2)
             255, 255, 255, 190, 1, 10,
             0, 16, 1, 25, 0, 4, 0, 0,
 
-            8, 0, // ｺﾅﾐ(3)
+            8, 0, // konami(3)
             255, 255, 255, 170, 0, 10,
             1, 0, 0, 0, 0, 0, 0, 0,
 
             // 5
-            8, 0, // ｾｶﾞ ﾀｲﾌﾟ
+            8, 0, // sega type
             40, 70, 14, 190, 0, 15,
             0, 16, 1, 24, 0, 5, 0, 0,
 
-            8, 0, // ｽﾄﾘﾝｸﾞ ﾀｲﾌﾟ
+            8, 0, // string type
             120, 30, 255, 255, 0, 10,
             0, 16, 1, 25, 0, 4, 0, 0,
 
-            8, 0, // ﾋﾟｱﾉ･ﾊｰﾌﾟ ﾀｲﾌﾟ
+            8, 0, // piano･harp type
             255, 255, 255, 225, 8, 15,
             1, 0, 0, 0, 0, 0, 0, 0,
 
-            1, 0, // ｸﾛｰｽﾞ ﾊｲﾊｯﾄ
+            1, 0, // closed high-hat
             255, 255, 255, 1, 255, 255,
             1, 0, 0, 0, 0, 0, 0, 0,
 
-            1, 0, // ｵｰﾌﾟﾝ ﾊｲﾊｯﾄ
+            1, 0, // opened high-hat
             255, 255, 255, 200, 8, 255,
             1, 0, 0, 0, 0, 0, 0, 0,
 
             // 10
-            8, 0, // ｼﾝｾﾀﾑ･ｼﾝｾｷｯｸ
+            8, 0, // synth tom, synth kick
             255, 255, 255, 220, 20, 8,
             0, 1, 1, 0x2C, 1, 0x0FF, 0, 0,
 
@@ -3209,7 +3209,7 @@ logger.log(Level.DEBUG, mucInfo);
             255, 255, 255, 255, 0, 10,
             0, 1, 1, 0x50, 0, 255, 0, 0,
 
-            8, 0, // ﾎｲｯｽﾙ
+            8, 0, // hoitsle
             120, 80, 255, 255, 0, 255,
             0, 1, 1, 6, 0x0FF, 1, 0, 0,
 
@@ -3219,28 +3219,28 @@ logger.log(Level.DEBUG, mucInfo);
     };
 
 
-    /** VOICE ｶﾞ ﾄｳﾛｸｽﾞﾐｶ? */
+    /** is VOICE registered? */
     public int CCVC(int num, List<Integer> buf) {
         for (int b = 0; b < 256; b++) {
             if (num == buf.get(b)) {
-                return b + 1; // VOICE ﾊ ｽﾃﾞﾆ ﾄｳﾛｸｽﾞﾐ
+                return b + 1; // VOICE is already registered
             }
         }
 
         return -1;
     }
 
-    /** WORK ﾆ ｱｷ ｶﾞ ｱﾙｶ? */
+    /** is WORK vacancy? */
     public int CWVC(int num, List<Integer> buf) {
         for (int b = 0; b < 256; b++) {
             if (0 == buf.get(b)) {
-                // WORK ﾆ ｱｷ ｱﾘ
+                // WORK is vacancy
                 buf.set(b, num);
                 return b + 1;
             }
         }
 
-        return -1; // 空き無し
+        return -1; // no vacancy
     }
 
     public ChannelType CHCHK() {
@@ -3352,7 +3352,7 @@ logger.log(Level.DEBUG, mucInfo);
             mucInfo.getBufDst().set(work.datTbl + 4 * work.chipCh + 1, new MmlDatum((work.mData - work.datTbl + 1) >> 8));
         }
 
-        work.pointC = work.loopSp - 10; // LOOP ﾖｳ ｽﾀｯｸ
+        work.pointC = work.loopSp - 10; // stack for LOOP
 
         // Z80.HL = 1; // TEXT START ADR
         CSTART();
@@ -3739,7 +3739,7 @@ logger.log(Level.DEBUG, "ssg extended");
 
         if (work.getCompEndCmdFlag()) {
             if (!mucInfo.isExtendFormat()) {
-                // Jump先となるアドレスを0クリアする
+                // Clear the jump destination address to 0
                 int hl = work.datTbl + work.chipCh * 4 + 2;
                 mucInfo.getBufDst().set(hl, new MmlDatum(0));
                 hl++;
@@ -3749,15 +3749,15 @@ logger.log(Level.DEBUG, "ssg extended");
             }
         }
 
-        // KUMA: Result 表示用の bufCount をセット
+        // KUMA: Set bufCount for displaying the result
         if (!mucInfo.isExtendFormat()) {
             work.getBufCount()[0][0][0] = work.mData - work.getBufStartPtr();
         } else {
             work.getBufCount()[work.chipIndex][work.chipCh][work.pageNow] = work.mData - work.getBufStartPtr();
         }
 
-        // KUMA: ページ数を +1 する。10 ページ作成したら次の Ch にする。ヘッダには mml データの大きさを書き込む
-        if (!mucInfo.isExtendFormat()) work.pageNow = 10; // ページ機能を利用しないなら一気に 10 ページ進める
+        // KUMA: Increment the page number by 1. After creating 10 pages, move to the next Ch. Write the size of the mml data in the header.
+        if (!mucInfo.isExtendFormat()) work.pageNow = 10; // If you don't use the page function, go through 10 pages at a time.
         else work.pageNow++;
 
         if (work.pageNow == 10) {
@@ -3770,19 +3770,19 @@ logger.log(Level.DEBUG, "ssg extended");
 
         if (work.pageNow != 0) {
             if (work.pageNow == 1) work.lastMData = work.mData;
-            work.mData = work.backupMData; // KUMA: 次の Ch へ移る場合以外は、MDATA の位置を元に戻す
+            work.mData = work.backupMData; // KUMA: Returns MDATA to original position except when moving to next Ch.
         } else {
             if (mucInfo.isExtendFormat()) work.mData = work.lastMData;
 
             if (!mucInfo.isExtendFormat()) {
-                // ↓ TBLSET(); 相当
+                // ↓ Equivalent to TBLSET();
                 mucInfo.getBufPage()[work.chipIndex][0][0].set(work.datTbl + 4 * work.chipCh + 0, new MmlDatum(work.mData - work.datTbl + 1));
                 mucInfo.getBufPage()[work.chipIndex][0][0].set(work.datTbl + 4 * work.chipCh + 1, new MmlDatum((work.mData - work.datTbl + 1) >> 8));
             }
 
             if (work.chipCh == Work.MAXCH) {
 
-                mucInfo.setBufDst(mucInfo.getBufPage()[mucInfo.isExtendFormat() ? work.chipIndex : 0][0][0]); // KUMA:最初のバッファへ切り替え
+                mucInfo.setBufDst(mucInfo.getBufPage()[mucInfo.isExtendFormat() ? work.chipIndex : 0][0][0]); // KUMA: Switch to first buffer
 
                 CMPEN1();
 
@@ -3815,7 +3815,7 @@ logger.log(Level.DEBUG, "ssg extended");
                 break;
             }
 
-            // KUMA: 最後の Ch、ページまでコンパイルしたか
+            // KUMA: Did you compile the last Ch or page?
             if (work.chipIndex == (mucInfo.isExtendFormat() ? Work.MAXChips : 1)) {
                 return;
             }
@@ -3823,7 +3823,7 @@ logger.log(Level.DEBUG, "ssg extended");
         }
 
         if (mucInfo.isExtendFormat()) {
-            mucInfo.setBufDst(mucInfo.getBufPage()[work.chipIndex][work.chipCh][work.pageNow]); // KUMA:バッファの切り替え
+            mucInfo.setBufDst(mucInfo.getBufPage()[work.chipIndex][work.chipCh][work.pageNow]); // KUMA: Buffer Switching
         }
 
         work.backupMData = work.mData;
@@ -3848,7 +3848,7 @@ logger.log(Level.DEBUG, "ssg extended");
     }
 
     /**
-     * パートごとに呼ばれる初期化処理
+     * Initialization process called for each part
      */
     public void init() {
         work.lfoData[0] = 1;
@@ -3856,7 +3856,7 @@ logger.log(Level.DEBUG, "ssg extended");
         work.count = 24;
         work.clock = 128;
         work.volume = 0;
-        work.octInt = 0; // 検証結果による値。おそらく実機では不定
+        work.octInt = 0; // Value based on verification results. Probably undefined on actual device.
         work.compilerInfo = new CompilerInfo();
         work.compilerInfo.jumpRow = -1;
         work.compilerInfo.jumpCol = -1;
@@ -3871,7 +3871,7 @@ logger.log(Level.DEBUG, "ssg extended");
         if (mucInfo.getPcmInvert().equalsIgnoreCase("on")) {
             work.pcmInvert = true;
         }
-        work.quantize = 0; // KUMA: ポルタメントむけq値保存
+        work.quantize = 0; // KUMA: Save q value for portamento
         work.setRhythmRelMode(false);
 
         work.porSW = 0;
@@ -3892,15 +3892,15 @@ logger.log(Level.DEBUG, "ssg extended");
         work.endAdr = work.mData;
         work.otoDat = work.mData - work.muNum;
         work.setEnd(true);
-        // START ADRは0固定なのでわざわざ表示を更新する必要なし
-        //String h = Convert.ToString(0, 16); // START ADRは0固定
+        // START ADR is fixed at 0, so there is no need to update the display.
+        //String h = Convert.ToString(0, 16); // START ADR is fixed at 0
 
         VOICECONV1();
         expand.SSGTEXT();
     }
 
     public void VOICECONV1() {
-        // --   25 BYTE VOICE DATA ﾉ ｾｲｾｲ   --
+        // generate 25 BYTE VOICE DATA
         if (!mucInfo.isExtendFormat()) {
             mucInfo.setUseOtoAdr(work.endAdr);
             work.endAdr++;
@@ -3915,7 +3915,7 @@ logger.log(Level.DEBUG, "ssg extended");
         }
 
         int dvPtr = 0; // Work.DEFVOICE;
-        int B = 256; // FM:256色
+        int B = 256; // FM: 256 tones
         int useOto = 0;
 
         do {
@@ -3931,7 +3931,7 @@ logger.log(Level.DEBUG, "ssg extended");
             vn += work.vpco;
             dvPtr++;
             vn--;
-            expand.FVTEXT(vn); // KUMA: mml 中で音色定義されているナンバーかどうか探す
+            expand.FVTEXT(vn); // KUMA: Search for a number defined as a tone in mml
 
             byte[] bufVoi = mucInfo.getVoiceData();
             int vAdr;
@@ -3940,13 +3940,13 @@ logger.log(Level.DEBUG, "ssg extended");
                 // vAdr = GETADR(vn);
                 vAdr = vn * 32 + work.fmlib;
                 vAdr++; // HL= VOICE INDEX
-                // KUMA:見つからなかった
+                // KUMA: Not Found
             } else {
                 vAdr = work.fmlib + 1;
                 bufVoi = ByteUtil.toByteArray(mucInfo.getMmlVoiceDataWork());
             }
 
-            // mucomDotNET 独自
+            // mucomDotNET specific
             if (bufVoi == null) {
                 throw new MucException(rb.getString("E0519"), -1, -1);
             }
@@ -3954,7 +3954,7 @@ logger.log(Level.DEBUG, "ssg extended");
             work.getUsedFMVoiceNumber().add(vn);
 
             // 
-            // TLチェック処理
+            // TL check process
             // 
 
             // 24:FB/CON
@@ -3963,7 +3963,7 @@ logger.log(Level.DEBUG, "ssg extended");
             // 4-7:TL ope1-4
             int[] wTL = new int[] {
                     bufVoi[vAdr + 4] & 0x7f, // op1
-                    bufVoi[vAdr + 6] & 0x7f, // op2 6がop2
+                    bufVoi[vAdr + 6] & 0x7f, // op2 6 is op2
                     bufVoi[vAdr + 5] & 0x7f, // op3
                     bufVoi[vAdr + 7] & 0x7f // op4
             };
@@ -3981,7 +3981,7 @@ logger.log(Level.DEBUG, "ssg extended");
                 }
             }
 
-            // KUMA: 最初の 12byte 分の音色データをコピー
+            // KUMA: Copy the first 12 bytes of tone data
 
             int adr = work.endAdr;
 
@@ -3991,7 +3991,7 @@ logger.log(Level.DEBUG, "ssg extended");
                 vAdr++;
             }
 
-            // KUMA: 次の 4byte 分の音色データを bit7(AMON) を立ててコピー
+            // KUMA: Copy the next 4 bytes of tone data with bit 7 (AMON) set
             for (int i = 0; i < 4; i++) {
                 mucInfo.getBufDst().set(adr, new MmlDatum((bufVoi[vAdr] & 0xff) | 0b1000_0000)); // set amon flag
                 adr++;
@@ -4010,7 +4010,7 @@ logger.log(Level.DEBUG, "ssg extended");
             B--;
         } while (B != 0);
 
-        work.otoNum[work.chipIndex] = useOto; // ﾂｶﾜﾚﾃﾙ ｵﾝｼｮｸ ﾉ ｶｽﾞ
+        work.otoNum[work.chipIndex] = useOto; // number of used tones
         mucInfo.getBufDst().set(mucInfo.getUseOtoAdr(), new MmlDatum(useOto));
 
         work.ssgDat = work.endAdr - work.muNum;
@@ -4043,10 +4043,12 @@ logger.log(Level.DEBUG, "ssg extended");
     public EnmFMCOMPrtn FMCOMP() {
         int c;
 
-        // Channel表記の後は必ず空白1文字が必要。
-        // 以下のような表記はOK
-        // Akumajho cde
-        // A cde と同じ意
+        // One space is required after the Channel notation.
+        // The following expressions are OK:
+        //
+        //  Akumajho cde
+        //
+        // Same meaning as A cde
         do {
             c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
                     ? mucInfo.getLin().getItem2().charAt(mucInfo.getAndIncSrcCPtr())
@@ -4099,7 +4101,7 @@ logger.log(Level.DEBUG, "ssg extended");
                     ? mucInfo.getLin().getItem2().charAt(mucInfo.getAndIncSrcCPtr())
                     : (char) 0;
             if (c == 0) // DATA END?
-                return NextAction.NextLine; // ﾂｷﾞ ﾉ ｷﾞｮｳﾍ
+                return NextAction.NextLine; // to next line
         } while (c == ' ' || c == '\t'); // CHECK SPACE
 
         mucInfo.decSrcCPtr();
@@ -4132,26 +4134,26 @@ logger.log(Level.DEBUG, "ssg extended");
             return NextAction.comprc;
         }
 
-        // 音符の解析
+        // Analyzing notes
         int note = msub.STTONE();
         if (mucInfo.getCarry()) {
             return NextAction.occuredERROR;
         }
 
-        // ポルタメント制御
+        // Portamento Control
         if ((work.porSW != 0 && work.porPin == 0) || (work.porSW == 0 && work.porPin != 0)) {
             if (work.porOldNote != note) {
                 return analyzePor(note);
             }
         }
 
-        // ポルタメント無効時或いは、ポルタメントモード中の_,__コマンドも音程の引継ぎは行う
+        // When portamento is disabled or in portamento mode, the _,__ commands will also take over the pitch.
         work.porOldNote = note;
-        work.porPin = 0; // _,__の効果は一度だけなのでここでリセット
+        work.porPin = 0; // _,__ only have one effect, so reset it here
 
-        work.latestNote = 1; // KUMA: チェック用(音符を出力)
+        work.latestNote = 1; // KUMA: For checking (outputs notes)
 
-        // 音符が直前と同じで、タイフラグがたっているか
+        // Is the note the same as the previous one, and is the tie flag set?
         if (note == work.getBeforeTone()[0] && work.tieFg != 0) {
             mucInfo.getAndIncSrcCPtr();
             return FCOMP13(note);
@@ -4175,12 +4177,12 @@ logger.log(Level.DEBUG, "ssg extended");
         mucInfo.setSrcCPtr(ptr[0]);
         clk[0] = FCOMP1X(clk[0]);
 
-        // ポルタメントスイッチオフの状態で__によるピンポイントオンの場合は必ず初期化させる
+        // When the portamento switch is off and pinpointing is on by __, always initialize
         if (work.porSW == 0 && work.porPin == 2) {
             work.porOldNote = -1;
         }
 
-        // 初期化
+        // Initialization
         if (work.porOldNote < 0) {
             int n = expand.ctone(note);
             n += work.porDelta;
@@ -4189,10 +4191,10 @@ logger.log(Level.DEBUG, "ssg extended");
 
         int time = Math.min(work.porTime, clk[0]);
 
-        // 本家の動作に準拠
+        // Conforms to the original operation
         // int qtime = time - Work.quantize;
 
-        // ポルタメント部に関わる場合のみ影響
+        // Only affects portamento section
         int qtime = time;
         if (clk[0] - work.quantize < work.porTime) {
             qtime = clk[0] - work.quantize;
@@ -4200,27 +4202,27 @@ logger.log(Level.DEBUG, "ssg extended");
 
         qtime = Math.max(qtime, 1);
 
-        // ポルタメント作成
+        // Creating portamento
         if (time > 0) {
             PortamentMainEx(work.porOldNote, note, time, time - qtime);
 
             clk[0] = clk[0] - time;
 
-            // タイでつなげる
+            // Connecting with ties
             if (clk[0] > 0) {
                 work.tieFg = 0xfd;
                 msub.MWRIT2(new MmlDatum(0xfd));
             }
         }
 
-        // ポルタメント後、クロックが残っている場合は
+        // If there is still clock remaining after portamento
         if (clk[0] > 0) {
-            // 通常ノート作成
+            // Regular note taking
             FCOMP17(note, clk[0]);
             TCLKSUB(clk[0]);
         }
 
-        // 直前ノート情報更新
+        // Last minute note information update
         work.porOldNote = note;
         work.porPin = 0;
 
@@ -4436,8 +4438,8 @@ logger.log(Level.DEBUG, "no NextAction: " + (work.getCom() - 1));
     }
 
     private NextAction setPartReplaceEnd() {
-        // もし|の場合は最後の|]または行端までスキップ
-        // ただし行端の場合はパートリプレイス処理続行
+        // if | skip to last |] or end of line
+        // However, if it is the end of the line, the part replacement process continues.
         while (true) {
             char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length() ?
                     mucInfo.getLin().getItem2().charAt(mucInfo.getAndIncSrcCPtr()) : (char) 0;

@@ -27,11 +27,11 @@ class Program {
         int fnIndex = analyzeOption(args);
 
         if (args.length != fnIndex + 1) {
-            Debug.printf(Level.SEVERE, "引数(.mucファイル)１個欲しいよぉ");
+            Debug.printf(Level.SEVERE, "at least one argument is needed(.muc file)");
             return;
         }
         if (!File.exists(args[fnIndex])) {
-            Debug.printf(Level.SEVERE, "ファイルが見つかりません");
+            Debug.printf(Level.SEVERE, "file not found");
             return;
         }
 
@@ -104,7 +104,7 @@ class Program {
             if (lin.charAt(1) != '@') continue;
 
             String li = lin.substring(2).toLowerCase();
-            //文字列の長いものから比較
+            // Compare strings starting from the longest
             if (li.indexOf("pcm_3rd_b") == 0) {
                 ret[2].add(lin.substring(2 + 9));
             } else if (li.indexOf("pcm_4th_b") == 0) {

@@ -11,8 +11,8 @@ import dotnet4j.util.compat.Tuple;
 import mucom88.common.Common;
 import mucom88.common.MubException;
 import musicDriverInterface.MmlDatum;
+import vavi.util.ByteUtil;
 
-import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 import static java.lang.System.getLogger;
 
 
@@ -248,7 +248,7 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
             }
 //logger.log(Level.TRACE, srcBuf.length + ", " + dataOffset + ", " + dataSize + ", " + lb.size());
 
-            return getTagsByteArray(toByteArray(lb));
+            return getTagsByteArray(ByteUtil.toByteArray(lb));
         } catch (Exception e) {
             logger.log(Level.ERROR, e.getMessage(), e);
             return null;
@@ -265,7 +265,7 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
                 lb.add((byte) (srcBuf[pcmDataPtr[id] + i].dat & 0xff));
             }
 
-            return toByteArray(lb);
+            return ByteUtil.toByteArray(lb);
         } catch (Exception e) {
             logger.log(Level.ERROR, e.getMessage(), e);
             return null;

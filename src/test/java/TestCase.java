@@ -77,7 +77,7 @@ Debug.println("volume: " + volume);
         return Files.list(Path.of("src/test/resources/test/")).filter(p -> p.toString().endsWith(".muc")).map(Arguments::arguments);
     }
 
-    @Disabled("compiler not finished")
+//    @Disabled("compiler not finished")
     @Test
     @DisplayName("compile .muc at dir to .mub")
     void test0() throws Exception {
