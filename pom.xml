@@ -13,12 +13,6 @@
         <version>3.12.1</version>
         <configuration>
           <release>17</release>
-          <excludes>
-            <exclude>mucom88/player/real/*</exclude>
-          </excludes>
-          <testExcludes>
-            <testExclude>test/RealChip.java</testExclude>
-          </testExcludes>
         </configuration>
       </plugin>
       <plugin>
