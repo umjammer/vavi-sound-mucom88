@@ -80,6 +80,7 @@ Debug.println("volume: " + volume);
 //    @Disabled("compiler not finished")
     @Test
     @DisplayName("compile .muc at dir to .mub")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test0() throws Exception {
         Path dir = Path.of("tmp/iwamoo_mucom88muc_2018-2022/");
         Files.list(dir)

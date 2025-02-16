@@ -185,7 +185,7 @@ logger.log(Level.DEBUG, args[fnIndex]);
                 chip.option = null;
                 chips.add(chip);
             }
-            mds = new MDSound(SamplingRate, SamplingBuffer, chips.toArray(MDSound.Chip[]::new));
+            mds = new MDSound(SamplingRate, SamplingBuffer, chips);
 
             List<ChipAction> actions = new ArrayList<>();
             actions.add(new MucomChipAction(Program::writeOPNAP, null, Program::sendOPNAWait));

@@ -108,7 +108,7 @@ class Program {
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
-            mds = new MDSound(SamplingRate, samplingBuffer, chips.toArray(MDSound.Chip[]::new));
+            mds = new MDSound(SamplingRate, samplingBuffer, chips);
 
             List<ChipAction> actions = new ArrayList<>();
             MucomChipAction action;
