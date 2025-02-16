@@ -42,10 +42,10 @@ class Program {
         int fnIndex = analyzeOption(args);
 
         if (args == null || args.length != fnIndex + 1) {
-            throw new IllegalArgumentException("引数(.mubファイル)１個欲しいよぉ");
+            throw new IllegalArgumentException("at least one argument is needed(.mub file)");
         }
         if (!File.exists(args[fnIndex])) {
-            throw new IllegalArgumentException("ファイルが見つかりません");
+            throw new IllegalArgumentException("file not found");
         }
 
         try {
@@ -108,7 +108,7 @@ class Program {
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
-            mds = new MDSound(SamplingRate, samplingBuffer, chips.toArray(MDSound.Chip[]::new));
+            mds = new MDSound(SamplingRate, samplingBuffer, chips);
 
             List<ChipAction> actions = new ArrayList<>();
             MucomChipAction action;
@@ -149,7 +149,7 @@ class Program {
             while (true) {
 
                 EmuCallback(frames, 0, samplingBuffer);
-                // ステータスが0(終了)又は0未満(エラー)の場合はループを抜けて終了
+                // If the status is 0 (finished) or less than 0 (error), exit the loop
                 if (drv.getStatus() <= 0) {
                     break;
                 }

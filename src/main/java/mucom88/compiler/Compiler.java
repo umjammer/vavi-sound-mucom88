@@ -550,11 +550,11 @@ logger.log(Level.ERROR, e.getMessage(), e);
     }
 
     /**
-     * 音楽データファイルを出力(コンパイルが必要)
-     * @param option 1: #タグによるvoice設定を無視
-     *               2: PCM埋め込みをスキップ
-     * @return 戻り値が 0 以外の場合はエラー
-     * usePageFunc : ページ機能を使用しているか
+     * Output music data file (requires compilation)
+     * @param option 1: Ignore voice settings from #tags
+     *               2: Skip PCM Embedding
+     * @return If the return value is non-zero, an error occurs.
+     * usePageFunc : Are you using the page feature?
      */
     private int saveMusic(int length, int option, boolean isExtendFormat) {
 
@@ -563,7 +563,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             return saveMusicExtendFormat(length, option);
         }
 
-        int footSize = 1; // かならず1以上
+        int footSize = 1; // Must be 1 or more
 
         int pcmSize = (pcmData[0] == null) ? 0 : pcmData[0].length;
         boolean pcmUse = ((option & 2) == 0);
@@ -620,7 +620,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         dat.add(new MmlDatum((pcmSize >> 16) & 0xff));
         dat.add(new MmlDatum((pcmSize >> 24) & 0xff));
 
-        dat.add(new MmlDatum(work.jClock & 0xff)); // JCLOCKの値(Jコマンドのタグ位置)
+        dat.add(new MmlDatum(work.jClock & 0xff)); // JCLOCK value (tag position of J command)
         dat.add(new MmlDatum((work.jClock >> 8) & 0xff));
 
         dat.add(new MmlDatum(work.getJpLine() & 0xff)); // jump line number
@@ -664,13 +664,13 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
 
         for (int i = 0; i < length; i++) dat.add(mucInfo.getBufDst().get(i));
 
-        dat.set(dataOffset + 0, new MmlDatum(0)); // バイナリに含まれる曲データ数-1
+        dat.set(dataOffset + 0, new MmlDatum(0)); // Number of songs included in the binary - 1
         dat.set(dataOffset + 1, new MmlDatum(work.otoDat & 0xff));
         dat.set(dataOffset + 2, new MmlDatum((work.otoDat >> 8) & 0xff));
         dat.set(dataOffset + 3, new MmlDatum(work.endAdr & 0xff));
         dat.set(dataOffset + 4, new MmlDatum((work.endAdr >> 8) & 0xff));
         if (dat.get(dataOffset + 5) == null) {
-            dat.set(dataOffset + 5, new MmlDatum(0)); // テンポコマンド(タイマーB)を未設定時nullのままになってしまうので、とりあえず値をセット
+            dat.set(dataOffset + 5, new MmlDatum(0)); // The tempo command (timer B) will remain null when not set, so set the value for now.
         }
 
         footSize = 0;
@@ -682,7 +682,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             }
         }
 
-        // データサイズが64k超えていたらdotnet確定
+        // If the data size exceeds 64k, dotnet is confirmed.
         if (work.endAdr - work.muNum > 0xffff) {
             if (mucInfo.getDriverType() != MUCInfo.DriverType.DotNet) {
                 // TODO
@@ -722,7 +722,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         }
 
         if (tags == null) {
-            // クリア
+            // Clear
             for (int i = 0; i < 8; i++) {
                 dat.set(12 + i, new MmlDatum(0));
             }
@@ -746,7 +746,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
 
         dat.clear();
 
-        // 固定長ヘッダー情報　作成
+        // Fixed-length header information creation
 
         dat.add(new MmlDatum(0x6d)); // m
         dat.add(new MmlDatum(0x75)); // u
@@ -758,10 +758,10 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         dat.add(new MmlDatum(0x30)); // 0
         dat.add(new MmlDatum(0x30)); // 0
 
-        dat.add(new MmlDatum(0x05)); // 可変長ヘッダー情報の数。
-        dat.add(new MmlDatum(Work.MAXChips)); // 使用する音源の数(0～)
+        dat.add(new MmlDatum(0x05)); // Count of variable length header information.
+        dat.add(new MmlDatum(Work.MAXChips)); // Number of sound sources to use (0~)
 
-        dat.add(new MmlDatum(Work.MAXCH * Work.MAXChips)); // 使用するパートの総数(0～)
+        dat.add(new MmlDatum(Work.MAXCH * Work.MAXChips)); // Total number of parts to be used (0~)
         dat.add(new MmlDatum(0x00));
 
         int n = 0;
@@ -773,7 +773,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             }
         }
 
-        dat.add(new MmlDatum(n)); // 使用するページの総数(0～)
+        dat.add(new MmlDatum(n)); // Total number of pages to be used (0~)
         dat.add(new MmlDatum(0x00));
 
         int instSets = 0;
@@ -781,7 +781,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         if (!mucInfo.getSsgVoice().isEmpty()) instSets = 2;
         else instSets = instSets > 0 ? 1 : 0;
 
-        dat.add(new MmlDatum(instSets)); // 使用するInstrumentセットの総数(0～)
+        dat.add(new MmlDatum(instSets)); // Total number of Instrument sets to be used (0~)
         dat.add(new MmlDatum(0x00));
 
         boolean pcmuse = ((option & 2) == 0);
@@ -800,20 +800,20 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         }
         if (m == 6) pcmuse = false;
 
-        dat.add(new MmlDatum(pcmuse ? 6 : 0)); // 使用するPCMセットの総数(0～)
+        dat.add(new MmlDatum(pcmuse ? 6 : 0)); // Total number of PCM sets to be used (0~)
         dat.add(new MmlDatum(0x00));
 
-        dat.add(new MmlDatum(0x00)); // 曲情報への絶対アドレス
+        dat.add(new MmlDatum(0x00)); // Absolute address to song information
         dat.add(new MmlDatum(0x00)); // 
         dat.add(new MmlDatum(0x00)); // 
         dat.add(new MmlDatum(0x00)); // 
 
-        dat.add(new MmlDatum(0x00)); // 曲情報のサイズ
+        dat.add(new MmlDatum(0x00)); // Song info size
         dat.add(new MmlDatum(0x00)); // 
         dat.add(new MmlDatum(0x00)); // 
         dat.add(new MmlDatum(0x00)); // 
 
-        dat.add(new MmlDatum(work.jClock)); // JCLOCKの値(Jコマンドのタグ位置)
+        dat.add(new MmlDatum(work.jClock)); // JCLOCK value (tag position of J command)
         dat.add(new MmlDatum(work.jClock >> 8));
         dat.add(new MmlDatum(work.jClock >> 16));
         dat.add(new MmlDatum(work.jClock >> 24));
@@ -832,9 +832,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             work.compilerInfo.jumpCol = work.getJpCol();
         }
 
-
-        // 可変長ヘッダー情報
-
+        // Variable length header information
 
         // Chip Define division.
 
@@ -900,17 +898,17 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             dat.add(new MmlDatum(Work.MAXCH)); // part count
 
             n = work.otoNum[chipI] > 0 ? 1 : 0;
-            dat.add(new MmlDatum(n)); // 使用するInstrumentセットの総数(0～)
+            dat.add(new MmlDatum(n)); // Total number of Instrument sets to be used (0~)
 
             for (int i = 0; i < n; i++) {
-                dat.add(new MmlDatum(0x00)); // この音源Chipで使用するInstrumentセットの番号。上記パラメータの個数だけ繰り返す。
+                dat.add(new MmlDatum(0x00)); // The number of the Instrument set used by this sound chip. Repeated for the number of parameters above.
                 dat.add(new MmlDatum(0x00));
             }
 
             n = pcmuse ? (chipI < 2 ? 1 : (chipI < 4 ? 2 : 0)) : 0;
-            dat.add(new MmlDatum(n)); // この音源Chipで使用するPCMセットの個数
+            dat.add(new MmlDatum(n)); // Number of PCM sets used in this sound chip
             for (int i = 0; i < n; i++) {
-                dat.add(new MmlDatum(pcmI)); // この音源Chipで使用するPCMセットの番号。上記パラメータの個数だけ繰り返す。
+                dat.add(new MmlDatum(pcmI)); // The PCM set number used by this sound chip. Repeated for the number of parameters above.
                 dat.add(new MmlDatum(pcmI >> 8));
                 pcmI++;
             }
@@ -922,7 +920,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             for (int j = 0; j < Work.MAXCH; j++) {
                 n = 0;
                 for (int pg = 0; pg < Work.MAXPG; pg++) if (work.getBufCount()[i][j][pg] > 1) n++;
-                dat.add(new MmlDatum(n)); // ページの数(0～)
+                dat.add(new MmlDatum(n)); // Number of pages (0-)
             }
         }
 
@@ -934,12 +932,12 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
                     if (work.getBufCount()[i][j][pg] < 2) continue;
 
                     n = work.getBufCount()[i][j][pg];
-                    dat.add(new MmlDatum(n & 0xff)); // ページの大きさ(0～)
+                    dat.add(new MmlDatum(n & 0xff)); // Page size (0~)
                     dat.add(new MmlDatum((n >> 8) & 0xff));
                     dat.add(new MmlDatum((n >> 16) & 0xff));
                     dat.add(new MmlDatum((n >> 24) & 0xff));
                     n = work.loopPoint[i][j][pg];
-                    dat.add(new MmlDatum(n & 0xff)); // ページのループポイント(0～)
+                    dat.add(new MmlDatum(n & 0xff)); // Page loop point (0~)
                     dat.add(new MmlDatum((n >> 8) & 0xff));
                     dat.add(new MmlDatum((n >> 16) & 0xff));
                     dat.add(new MmlDatum((n >> 24) & 0xff));
@@ -947,15 +945,15 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
 
         // Instrument set division.
 
-        // 使用するInstrumentセットの総数(0～)
-        if (instSets > 0) { // FM の音色を使用する場合は1(但しSSG波形を使用している場合は、FMを使用していなくとも定義する)
+        // Total number of Instrument sets to be used (0~)
+        if (instSets > 0) { // If you use FM tones, set this to 1 (however, if you are using SSG waveforms, define this even if you are not using FM).
             dat.add(new MmlDatum(mucInfo.getBufUseVoice().size()));
             dat.add(new MmlDatum(mucInfo.getBufUseVoice().size() >> 8));
             dat.add(new MmlDatum(mucInfo.getBufUseVoice().size() >> 16));
             dat.add(new MmlDatum(mucInfo.getBufUseVoice().size() >> 24));
         }
-        if (instSets == 2) { // SSG の波形を使用する場合は2
-            int ssgVoiceSize = mucInfo.getSsgVoice().size() * 65; // 65 : 64(dataSize) + 1(音色番号)
+        if (instSets == 2) { // 2 if using SSG waveform
+            int ssgVoiceSize = mucInfo.getSsgVoice().size() * 65; // 65 : 64(dataSize) + 1(Tone Number)
             dat.add(new MmlDatum(ssgVoiceSize & 0xff));
             dat.add(new MmlDatum((ssgVoiceSize >> 8) & 0xff));
             dat.add(new MmlDatum((ssgVoiceSize >> 16) & 0xff));
@@ -973,7 +971,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             }
         }
 
-        // ページデータ出力
+        // Page Data Output
 
         for (int i = 0; i < Work.MAXChips; i++)
             for (int j = 0; j < Work.MAXCH; j++)
@@ -984,7 +982,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
                     }
                 }
 
-        // Instrumentデータ出力
+        // Instrument data output
 
         if (instSets > 0) {
             dat.addAll(mucInfo.getBufUseVoice());
@@ -998,7 +996,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             }
         }
 
-        // PCMデータ出力
+        // PCM Data Output
 
         if (pcmuse) {
             for (int i = 0; i < pcmI; i++)
@@ -1006,7 +1004,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
                     dat.add(new MmlDatum(pcmData[i][j] & 0xff));
         }
 
-        // 曲情報出力
+        // Song information output
 
         int infoAdr = dat.size();
         dat.set(0x12, new MmlDatum(infoAdr & 0xff));
@@ -1053,12 +1051,12 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         for (Object prm : param) {
             if (!(prm instanceof String)) continue;
 
-            // IDEフラグオン
+            // IDE Flag On
             if (prm.equals("IDE")) {
                 this.isIDE = true;
             }
 
-            // スキップ再生指定
+            // Skip playback specification
             if (((String) prm).indexOf("SkipPoint=") == 0) {
                 try {
                     String[] p = ((String) prm).split("=")[1].split(":");

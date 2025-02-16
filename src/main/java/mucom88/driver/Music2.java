@@ -16,7 +16,6 @@ import musicDriverInterface.MmlDatum;
 import musicDriverInterface.MMLType;
 import vavi.util.ByteUtil;
 
-import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
 import static java.lang.System.getLogger;
 
 
@@ -627,7 +626,7 @@ public class Music2 {
 
             if (c == 4) continue;
 
-            // PSGﾊﾞｯﾌｧ ｲﾆｼｬﾗｲｽﾞ
+            // initialize PSG buffer
             System.arraycopy(work.soundWork.initPm, 0, work.soundWork.pregBf[c], 0, work.soundWork.initPm.length);
         }
     }
@@ -1002,10 +1001,12 @@ public class Music2 {
                 //    Work.cd.currentFMVolTable = Work.soundWork.FMVDAT;
                 e = work.cd.getCurrentFMVolTable()[c]; // GET volume DATA
             }
-        } else
+        } else {
+assert c >= 0 && c < 20 : work.pg.volume + ", " + work.pg.reverbVol;
             e = SoundWork.FMVDAT[c]; // GET volume DATA
+        }
 
-        int d = 0x40 + work.pg.channelNumber; // GET PORT No.
+        int d = (0x40 + work.pg.channelNumber) & 0xff; // GET PORT No.
 
         if (work.pg.algo >= 8) return; // KUMA: The original is unchecked
 
@@ -1278,7 +1279,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
                     if (nrFlg)
                         work.abnormalEnd = true;
                     endFM(hl); // If DATA TOP ADDRESS is 0000H, BGM
-                    return; // ﾉ Decide when to end, otherwise repeat
+                    return; // Decide when to end, otherwise repeat
                 }
                 hl = work.pg.dataTopAddress;
                 a = work.pg.mData[hl].dat; // get flag & length
@@ -2015,6 +2016,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         if (work.soundWork.getPvMode() == 0) return;
 
         work.pg.volume = work.pcmTables[work.soundWork.getCurrentChip()][a].getItem2()[3];
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
     }
 
     public void restoreOTOPCM() {
@@ -2032,6 +2034,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         if (work.soundWork.getPvMode() == 0) return;
 
         work.pg.volume = work.pcmTables[work.soundWork.getCurrentChip()][a].getItem2()[3];
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
     }
 
     /** Tone Setting subroutine (FM) */
@@ -2067,7 +2070,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         // Get the tone number from the work
 //STENV0:
         int hl = work.pg.instrumentNumber * 25; // HL=*25
-        //hl += Work.mData[Work.soundWork.otoDat].dat + Work.mData[Work.soundWork.otoDat + 1].dat * 0x100 + 1; // HL ﾊ ｵﾝｼｮｸﾃﾞｰﾀ ｶｸﾉｳ ｱﾄﾞﾚｽ
+        //hl += Work.mData[Work.soundWork.otoDat].dat + Work.mData[Work.soundWork.otoDat + 1].dat * 0x100 + 1; // HL is the tone data storage address
         //hl += Work.soundWork.MUSNUM;
         hl++; // Since the number of tones is stored, shift it one by one.
 
@@ -2197,6 +2200,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         }
 
         work.pg.volume = work.pg.mData[work.hl++].dat;
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         STVOL();
     }
 
@@ -2207,10 +2211,11 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             return;
         }
         work.pg.volume = e;
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
     }
 
     public void VOLDRM() {
-        int a = work.pg.mData[work.hl++].dat;
+        int a = work.pg.mData[work.hl++].dat & 0xff;
 
         if (work.isDotNET) {
             if ((a & 0x80) != 0) {
@@ -2220,6 +2225,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         }
 
         work.pg.volume = a;
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         DVOLSET();
 //VOLDR1:
         int b = 6;
@@ -2230,9 +2236,9 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             a |= work.pg.mData[work.hl++].dat;
             work.soundWork.drmvol[work.soundWork.getCurrentChip()][de++] = a;
             if (work.soundWork.getCurrentChip() < 2)
-                outPSG(0x18 - b + 6, a);
+                outPSG((0x18 - b + 6) & 0xff, a);
             else
-                outPCM(1, 0x8 - b + 6, a);
+                outPCM(1, (0x8 - b + 6) & 0xff, a);
             b--;
         } while (b != 0);
     }
@@ -2890,7 +2896,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         a = (work.pg.panMode == 4 || work.pg.panMode == 5) ? autoPantable[work.pg.panValue] : work.pg.panValue;
 
         List<Object> args = new ArrayList<>();
-        args.add((int) a);
+        args.add(a);
         outDummy(MMLType.Pan, args);
 
         if (work.soundWork.getCurrentChip() != 4) {
@@ -2938,7 +2944,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             if ((work.soundWork.drmPanEnable[work.soundWork.getCurrentChip()][n] & 1) == 0) continue;
             if ((--work.soundWork.drmPanCounterWork[work.soundWork.getCurrentChip()][n]) != 0) continue;
 
-            work.soundWork.drmPanCounterWork[work.soundWork.getCurrentChip()][n] = work.soundWork.drmPanCounter[work.soundWork.getCurrentChip()][n]; // ; カウンター再設定
+            work.soundWork.drmPanCounterWork[work.soundWork.getCurrentChip()][n] = work.soundWork.drmPanCounter[work.soundWork.getCurrentChip()][n]; // ; Counter reset
 
             if (work.soundWork.drmPanMode[work.soundWork.getCurrentChip()][n] == 4 || work.soundWork.drmPanMode[work.soundWork.getCurrentChip()][n] == 5) {
                 // left / right
@@ -3019,7 +3025,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         // LinePos lp;
 
         if (work.soundWork.getDrmF1() != 0) {
-            int n = work.pg.mData[work.hl++].dat;
+            int n = work.pg.mData[work.hl++].dat & 0xff;
 
             if (work.isDotNET) {
                 if ((n & 0x80) != 0) {
@@ -3028,7 +3034,8 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
                 }
             }
 
-            work.pg.volume += n;
+            work.pg.volume += ((n & 0xff) - 0x80);
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             // For parameter display
             args = new ArrayList<>();
             args.add(work.pg.volume);
@@ -3039,7 +3046,8 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         }
 
         if (work.cd.getFmVolMode() != 3) {
-            work.pg.volume += work.pg.mData[work.hl++].dat;
+            work.pg.volume += ((work.pg.mData[work.hl++].dat & 0xff) - 0x80);
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         } else {
             int n = -work.pg.mData[work.hl++].dat;
             for (int i = 0; i < 4; i++) {
@@ -3065,7 +3073,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
 
                 // For parameter display
                 List<Object> args = new ArrayList<>();
-                args.add((int) b);
+                args.add(b);
                 outDummy(MMLType.Volume, args);
 
                 b = (work.soundWork.drmvol[work.soundWork.getCurrentChip()][i] & 0b1100_0000) | b;
@@ -3168,7 +3176,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         work.pg.reverbMode = false;
     }
 
-    /** PSG ｵﾝｼｮｸｾｯﾄ */
+    /** set PSG tone */
     public void OTOSSG() {
         outDummy();
 
@@ -3201,14 +3209,14 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         for (int i = 0; i < 6; i++) {
             work.pg.softEnvelopeParam[i] = work.pg.mData[work.hl++].dat;
         }
-        work.pg.volume = work.pg.volume | 0b1001_0000; // ｴﾝﾍﾞﾌﾗｸﾞ ｱﾀｯｸﾌﾗｸﾞ ｾｯﾄ
+        work.pg.volume = work.pg.volume | 0b1001_0000; // set envelope flag, attack flag
     }
 
     public void ENVPSTex() {
         for (int i = 0; i < 6; i++) {
             work.pg.softEnvelopeParam[i] = work.pg.mData[work.hl++].dat;
         }
-        work.pg.softEnvelopeFlag = 0b1001_0000; // ｴﾝﾍﾞﾌﾗｸﾞ ｱﾀｯｸﾌﾗｸﾞ ｾｯﾄ
+        work.pg.softEnvelopeFlag = 0b1001_0000; // set envelope flag, attack flag
     }
 
     /** PSG volume */
@@ -3308,6 +3316,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             a &= 0b1111_0000;
             a |= d;
             work.pg.volume = a;
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
 
             List<Object> args = new ArrayList<>();
             args.add(d);
@@ -4045,7 +4054,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             SSSUB3(0); // if not releasing SSSUB3
             return;
         }
-        work.pg.volume &= 0b1000_1111; // STATE 4 (ﾘﾘｰｽ)
+        work.pg.volume &= 0b1000_1111; // STATE 4 (release)
         SOFEV9();
         SSSUB3(work.aReg);
     }
@@ -4091,7 +4100,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         a &= 0x7f; // CY=REST FLAG
 
         work.pg.lengthCounter = a; // set wait counter
-        //  ｷｭｳﾌ ﾅﾗ SSSUBA
+        //  if rest then SSSUBA
         if (carry) {
             work.crntMmlDatum = work.pg.mData[work.hl - 1];
             SSSUBA();
@@ -4233,6 +4242,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             a = work.pg.volume; // KUMA: Get current volume & flags
             a ^= 0b0011_0000; // KUMA: Attack flag: off decay flag: on realized with xor (nice)
             work.pg.volume = a; // TO STATE 2 (DECAY) // KUMA: Update current volume & flags
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             SOFEV7();
 //            return;
 //SOFEV2:
@@ -4256,6 +4266,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             a = work.pg.volume; // KUMA: Get current volume & flags
             a ^= 0b0110_0000; // KUMA:dcay flag:off  sustain flag:on
             work.pg.volume = a; // TO STATE 3 (SUSTAIN) // KUMA: Update current volume & flags
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             SOFEV7();
 //            return;
         } else {
@@ -4280,6 +4291,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             a = work.pg.volume; // KUMA: Get current volume & flags
             a &= 0b1000_1111; // KUMA: Resets progress flags used in envelopes
             work.pg.volume = a; // END OF ENVE // KUMA: If SL is reached during KEYON and the counter reaches 0, envelope processing ends.
+logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             SOFEV7();
         }
     }

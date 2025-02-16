@@ -1,7 +1,7 @@
 package mucom88.player;
 
 
-public class SChipType {
+public class SChipType implements Cloneable {
 
     private boolean useEmu = true;
 
@@ -253,7 +253,8 @@ public class SChipType {
         latencyForScci = value;
     }
 
-    public SChipType copy() {
+    @Override
+    public SChipType clone() {
         SChipType ct = new SChipType();
         ct.useEmu = this.useEmu;
         ct.useEmu2 = this.useEmu2;

@@ -77,9 +77,10 @@ Debug.println("volume: " + volume);
         return Files.list(Path.of("src/test/resources/test/")).filter(p -> p.toString().endsWith(".muc")).map(Arguments::arguments);
     }
 
-    @Disabled("compiler not finished")
+//    @Disabled("compiler not finished")
     @Test
     @DisplayName("compile .muc at dir to .mub")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test0() throws Exception {
         Path dir = Path.of("tmp/iwamoo_mucom88muc_2018-2022/");
         Files.list(dir)

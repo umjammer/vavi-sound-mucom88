@@ -125,7 +125,7 @@ public class PCMFileInfo {
     }
 
     /**
-     * ストリームから一括でバイナリを読み込む
+     * Read binary from a stream in bulk
      */
     private byte[] ReadAllBytes(Stream stream) {
         if (stream == null) return null;
@@ -173,7 +173,7 @@ public class PCMFileInfo {
             return null;
         }
 
-        // ファイルの読み込み
+        // Loading a file
         byte[] buf = File.readAllBytes(fnPcm);
 
         if (!Path.getExtension(fileName).toUpperCase().trim().equals(".WAV")) {
@@ -198,7 +198,7 @@ public class PCMFileInfo {
             return null;
         }
 
-        // サイズ取得
+        // Get size
         int fSize = (buf[0x4] & 0xff) + (buf[0x5] & 0xff) * 0x100 + (buf[0x6] & 0xff) * 0x1_0000 + (buf[0x7] & 0xff) * 0x100_0000;
 
         if (buf[0x8] != 'W' || buf[0x9] != 'A' || buf[0xa] != 'V' || buf[0xb] != 'E') {
@@ -277,10 +277,10 @@ public class PCMFileInfo {
                 }
             }
 
-            // volumeの加工
+            // Volume processing
             if (is16bit[0]) {
                 for (int i = 0; i < des.length; i += 2) {
-                    // 16bitのwavファイルはsignedのデータのためそのままボリューム変更可能
+                    // 16bit wav files are signed data so you can change the volume as is
                     int b = (int) ((short) ((des[i] & 0xff) | ((des[i + 1] & 0xff) << 8)) * vol * 0.01);
                     b = (b > 0x7fff) ? 0x7fff : b;
                     b = (b < -0x8000) ? -0x8000 : b;
@@ -289,15 +289,15 @@ public class PCMFileInfo {
                 }
             } else {
                 for (int i = 0; i < des.length; i++) {
-                    // 8bitのwavファイルはunsignedのデータのためsignedのデータに変更してからボリューム変更する
+                    // 8-bit wav files are unsigned data, so change them to signed data before changing the volume.
                     int d = des[i];
-                    // signed化
+                    // let it Signed
                     d -= 0x80;
                     d = (int) (d * vol * 0.01);
                     //clip
                     d = (d > 127) ? 127 : d;
                     d = (d < -128) ? -128 : d;
-                    // unsigned化
+                    // let it Unsigned
                     d += 0x80;
 
                     des[i] = (byte) d;
