@@ -10,6 +10,8 @@ import java.util.function.Function;
 import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
 
+import static mucom88.common.Common.charset;
+
 
 public class PCMFileManager {
 
@@ -61,7 +63,7 @@ public class PCMFileManager {
             return ret;
         }
 
-        byte[] data = dicFile.get(i).getName().getBytes(Charset.forName("MS932"));
+        byte[] data = dicFile.get(i).getName().getBytes(charset);
         for (int n = 0; n < v; n++) {
             if (n < data.length)
                 ret.add(data[n]);
@@ -94,7 +96,7 @@ public class PCMFileManager {
             return ret;
         }
 
-        byte[] data = dicFile.get(i).getName().getBytes(Charset.forName("MS932"));
+        byte[] data = dicFile.get(i).getName().getBytes(charset);
         for (byte datum : data) {
             ret.add(datum);
         }

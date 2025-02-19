@@ -25,6 +25,7 @@ import musicDriverInterface.Tag;
 import musicDriverInterface.ICompiler;
 
 import static java.lang.System.getLogger;
+import static mucom88.common.Common.charset;
 
 
 public class Compiler implements ICompiler {
@@ -381,7 +382,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
      *         item2 is the value, trimmed.
      */
     private List<Tuple<String, String>> getTagsFromMUC(byte[] buf) {
-        var text = Arrays.stream(new String(buf, Common.fileEncoding).split("\r\n"))
+        var text = Arrays.stream(new String(buf, charset).split("\r\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
         if (tags != null) tags.clear();
         else tags = new ArrayList<>();
@@ -407,7 +408,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
 
     private int storeBasicSource(byte[] buf) {
         int line = 0;
-        var text = new String(buf, Common.fileEncoding).split("\r\n");
+        var text = new String(buf, charset).split("\r\n");
 
         basSrc.clear();
         for (String txt : text) {
@@ -513,9 +514,9 @@ logger.log(Level.ERROR, e.getMessage(), e);
             work.compilerInfo.jumpChannel = work.getJChCom();
 
             if (work.pcmFlag == 0) pcmFlag = 2;
-            msg = new String(textLineBuf, 31, 4, Common.fileEncoding);
+            msg = new String(textLineBuf, 31, 4, charset);
             int start = Integer.parseInt(msg, 16);
-            msg = new String(textLineBuf, 41, 4, Common.fileEncoding);
+            msg = new String(textLineBuf, 41, 4, charset);
             int length = mucInfo.getBufDst().size();
             if (isExtendFormat) length = bufferLength;
             mubSize = length;
@@ -700,7 +701,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
                 if (tag.getItem1() != null && !tag.getItem1().isEmpty() && tag.getItem1().charAt(0) == '*') continue;
                 if (StringUtilities.isNullOrEmpty(tag.getItem1()) && !StringUtilities.isNullOrEmpty(tag.getItem2()) && tag.getItem2().trim().charAt(0) == '*')
                     continue;
-                byte[] b = "#%s %s\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(Common.fileEncoding);
+                byte[] b = "#%s %s\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(charset);
                 footSize += b.length;
                 for (byte bd : b) dat.add(new MmlDatum(bd & 0xff));
             }
@@ -1028,7 +1029,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             int tagSize = 0;
             for (Tuple<String, String> tag : tags) {
                 if (tag.getItem1() != null && !tag.getItem1().isEmpty() && tag.getItem1().charAt(0) == '*') continue;
-                byte[] b = "#%s %s\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(Common.fileEncoding);
+                byte[] b = "#%s %s\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(charset);
                 tagSize += b.length;
                 for (byte bd : b) dat.add(new MmlDatum(bd & 0xff));
             }

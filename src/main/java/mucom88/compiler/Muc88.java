@@ -22,6 +22,7 @@ import musicDriverInterface.MMLType;
 import vavi.util.ByteUtil;
 
 import static java.lang.System.getLogger;
+import static mucom88.common.Common.charset;
 
 
 public class Muc88 {
@@ -2992,7 +2993,7 @@ logger.log(Level.DEBUG, mucInfo);
         mucInfo.getAndIncSrcCPtr();
         int voiBPtr = 0x20 + 26; // 0x6020 + 26;
         int num = 1;
-        var sjis = mucInfo.getLin().getItem2().getBytes(Common.fileEncoding);
+        var sjis = mucInfo.getLin().getItem2().getBytes(charset);
 
         do {
             int srcPtr = mucInfo.getSrcCPtr();
@@ -4030,7 +4031,7 @@ logger.log(Level.DEBUG, "ssg extended");
     public void DispHex4(int n, int pos) {
         String h = "000" + Integer.toHexString(n); // pr end adr
         h = h.substring(h.length() - 4, h.length() - 4 + 4);
-        byte[] data = h.getBytes(Common.fileEncoding);
+        byte[] data = h.getBytes(charset);
         for (int i = 0; i < data.length; i++) mucInfo.getBufTitle().set(pos + i, data[i] & 0xff);
     }
 
