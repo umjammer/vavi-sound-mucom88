@@ -35,6 +35,7 @@ import vavi.util.ByteUtil;
 import vavi.util.serdes.Serdes;
 
 import static java.lang.System.getLogger;
+import static mucom88.common.Common.charset;
 
 
 public class Driver implements IDriver {
@@ -359,7 +360,7 @@ public class Driver implements IDriver {
             for (int i = 0; i < cnt; i++) {
                 List<Byte> b = new ArrayList<>();
                 while (pcm[id][p] != 0x0) b.add(pcm[id][p++]);
-                String item1 = new String(ByteUtil.toByteArray(b), Common.fileEncoding);
+                String item1 = new String(ByteUtil.toByteArray(b), charset);
                 p++;
                 p++;
                 short[] item2 = new short[4];
@@ -387,7 +388,7 @@ public class Driver implements IDriver {
                     item2[3] = (short) ((pcm[id][infTable + 26] & 0xff) | ((pcm[id][infTable + 27] & 0xff) * 0x100));
                     System.arraycopy(pcm[id], i * 32, pcmName, 0, 16);
                     pcmName[16] = 0;
-                    String item1 = new String(pcmName, Common.fileEncoding);
+                    String item1 = new String(pcmName, charset);
 
                     Tuple<String, short[]> pd = new Tuple<>(item1, item2);
                     pcmTable.add(pd);
@@ -729,7 +730,7 @@ logger.log(Level.TRACE, "Stop rendering.");
     }
 
     private static List<Tuple<String, String>> getTagsByteArray(byte[] buf) {
-        var text = Arrays.stream(new String(buf, Common.fileEncoding).split("\r\n"))
+        var text = Arrays.stream(new String(buf, charset).split("\r\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
 
         List<Tuple<String, String>> tags = new ArrayList<>();

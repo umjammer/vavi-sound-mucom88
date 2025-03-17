@@ -1,9 +1,18 @@
 package mucom88.player;
 
+import real.nc86ctl.Nc86ctl;
+import real.nscci.NScci;
+
+
 public abstract class RSoundChip {
+
     protected int SoundLocation;
     protected int BusID;
     protected int SoundChip;
+
+    protected int device;
+    protected NScci nScci;
+    protected Nc86ctl nc86ctl;
 
     public int dClock = 3579545;
 

@@ -19,6 +19,8 @@ import dotnet4j.util.compat.StringUtilities;
 import mucom88.compiler.pcmTool.AdpcmMaker;
 import vavi.util.Debug;
 
+import static mucom88.common.Common.charset;
+
 
 class Program {
     private static String srcFile;
@@ -56,7 +58,7 @@ class Program {
             srcFile = fn;
 
             //sjis crlf
-            String[] src = File.readAllText(fn, Charset.forName("MS932")).split("\r\n");
+            String[] src = File.readAllText(fn, charset).split("\r\n");
 
             List<String>[] ret = divider(src);
             byte[][] pcmdata = new byte[6][];

@@ -5,6 +5,14 @@ import java.lang.System.Logger.Level;
 
 import mucom88.player.RSoundChip;
 import mucom88.player.SChipType;
+import real.NSoundInterface;
+import real.nc86ctl.Nc86ctl;
+import real.nc86ctl.Nc86ctl.ChipType;
+import real.nc86ctl.Nc86ctl.NIGimic2;
+import real.nc86ctl.Nc86ctl.NIRealChip;
+import real.nscci.NScci;
+import real.nscci.NScci.NSCCI_INTERFACE_INFO;
+import real.nscci.NScci.NSoundChip;
 
 import static java.lang.System.getLogger;
 
@@ -19,7 +27,7 @@ public class RC86ctlSoundChip extends RSoundChip {
 
     private static final Logger logger = getLogger(RC86ctlSoundChip.class.getName());
 
-    public Nc86ctl.Nc86ctl c86ctl = null;
+    public Nc86ctl c86ctl = null;
     public Nc86ctl.NIRealChip realChip = null;
     public Nc86ctl.ChipType chiptype = ChipType.CHIP_UNKNOWN;
 
@@ -44,12 +52,12 @@ public class RC86ctlSoundChip extends RSoundChip {
 
     @Override
     public void setRegister(int adr, int dat) {
-        realChip/*@out*/((short) adr, (byte) dat);
+        realChip.out((short) adr, (byte) dat);
     }
 
     @Override
     public int getRegister(int adr) {
-        return realChip/*@in*/((short) adr);
+        return realChip.in((short) adr);
     }
 
     @Override
@@ -101,7 +109,7 @@ public class RC86ctlSoundChip extends RSoundChip {
         SChipType ct = null;
         int iCount;
 
-        nScci = new NScci.NScci();
+        nScci = NScci.INSTANCE;
         iCount = NScci.NSoundInterfaceManager().getInterfaceCount();
         if (iCount == 0) {
             nScci.Dispose();
@@ -109,7 +117,7 @@ public class RC86ctlSoundChip extends RSoundChip {
             logger.log(Level.ERROR, "Not found SCCI.");
             return null;
         }
-        scciExit:
+scciExit:
         for (int i = 0; i < iCount; i++) {
             NSoundInterface iIntfc = NScci.NSoundInterfaceManager().getInterface(i);
             NSCCI_INTERFACE_INFO iInfo = NScci.NSoundInterfaceManager().getInterfaceInfo(i);

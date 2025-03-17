@@ -14,6 +14,7 @@ import musicDriverInterface.MmlDatum;
 import vavi.util.ByteUtil;
 
 import static java.lang.System.getLogger;
+import static mucom88.common.Common.charset;
 
 
 public class MubHeader {
@@ -273,7 +274,7 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
     }
 
     private List<Tuple<String, String>> getTagsByteArray(byte[] buf) {
-        var text = Arrays.stream(new String(buf, Common.fileEncoding).split("\r\n"))
+        var text = Arrays.stream(new String(buf, charset).split("\r\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
 
         List<Tuple<String, String>> tags = new ArrayList<>();
