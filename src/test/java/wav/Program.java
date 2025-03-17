@@ -75,10 +75,10 @@ class Program {
                 chip.samplingRate = SamplingRate;
                 chip.clock = opnaMasterClock;
                 chip.volume = 0;
-                chip.setVolumes.put("FM", ym2608::setFMVolume);
-                chip.setVolumes.put("PSG", ym2608::setPSGVolume);
-                chip.setVolumes.put("Rhythm", ym2608::setRhythmVolume);
-                chip.setVolumes.put("Adpcm", ym2608::setAdpcmVolume);
+                chip.setVolumes.put("FM", ym2608::setVolume);
+                chip.setVolumes.put("SSG", ym2608::setVolume);
+                chip.setVolumes.put("RHYTHM", ym2608::setVolume);
+                chip.setVolumes.put("ADPCM", ym2608::setVolume);
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
@@ -90,10 +90,10 @@ class Program {
                 chip.samplingRate = SamplingRate;
                 chip.clock = opnbMasterClock;
                 chip.volume = 0;
-                chip.setVolumes.put("FM", ym2610::setFMVolume);
-                chip.setVolumes.put("PSG", ym2610::setPSGVolume);
-                chip.setVolumes.put("AdpcmA", ym2610::setAdpcmAVolume);
-                chip.setVolumes.put("AdpcmB", ym2610::setAdpcmBVolume);
+                chip.setVolumes.put("FM", ym2610::setVolume);
+                chip.setVolumes.put("SSG", ym2610::setVolume);
+                chip.setVolumes.put("ADPCMA", ym2610::setVolume);
+                chip.setVolumes.put("ADPCMB", ym2610::setVolume);
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
