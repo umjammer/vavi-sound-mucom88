@@ -78,7 +78,7 @@ class Program {
             if (tags != null) {
                 for (Tuple<String, String> tag : tags) {
                     if (tag.getItem1().isEmpty()) continue;
-                    Debug.printf(Level.INFO, "%-16s : %s", tag.getItem1(), tag.getItem2());
+Debug.printf(Level.INFO, "%-16s : %s", tag.getItem1(), tag.getItem2());
                 }
             }
 

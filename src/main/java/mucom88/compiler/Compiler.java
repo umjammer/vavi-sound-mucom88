@@ -489,8 +489,8 @@ logger.log(Level.ERROR, e.getMessage(), e);
                             work.compilerInfo.bufferCount.add(work.getBufCount()[i][j][pg]);
                             if (work.getBufCount()[i][j][pg] > 0xffff) {
                                 throw new MucException(rb.getString("E0700").formatted(
-                                        Work.getTrackCharacterFromChipValue(i, j) + String.valueOf(pg)
-                                        , Arrays.toString(work.getBufCount()[i][j])));
+                                        Work.getTrackCharacterFromChipValue(i, j) + String.valueOf(pg),
+                                        Arrays.toString(work.getBufCount()[i][j])));
                             }
                         }
                     }

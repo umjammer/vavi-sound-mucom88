@@ -265,13 +265,13 @@ public class Music2 {
 
     public void setLFOTBL() {
         lfoTbl = new Runnable[] {
-                this::LFOOFF
-                , this::LFOON2
-                , this::SETDEL
-                , this::SETCO
-                , this::setVc2
-                , this::SETPEK
-                , this::TLLFOorSSGTremolo
+                this::LFOOFF,
+                this::LFOON2,
+                this::SETDEL,
+                this::SETCO,
+                this::setVc2,
+                this::SETPEK,
+                this::TLLFOorSSGTremolo
         };
     }
 
@@ -1146,22 +1146,22 @@ assert c >= 0 && c < 20 : work.pg.volume + ", " + work.pg.reverbVol;
     public void makeDummyCrrentMmlDatum(MMLType type, List<Object> args) {
         LinePos lp;
         if (work.soundWork.getCurrentChip() != 4) {
-            lp = new LinePos(null, "", -1, -1, -1
-                    , work.soundWork.getCurrentChip() < 2
+            lp = new LinePos(null, "", -1, -1, -1,
+                    work.soundWork.getCurrentChip() < 2
                     ? (work.soundWork.getPcmFlg() != 0 ? "ADPCM" : (work.soundWork.getDrmF1() != 0 ? "RHYTHM" : (work.soundWork.getSsgF1() != 0 ? "SSG" : "FM")))
-                    : (work.soundWork.getPcmFlg() != 0 ? "ADPCM-B" : (work.soundWork.getDrmF1() != 0 ? "ADPCM-A" : (work.soundWork.getSsgF1() != 0 ? "SSG" : "FM")))
-                    , Common.getChipName(work.soundWork.getCurrentChip())
-                    , 0
-                    , Common.getChipNumber(work.soundWork.getCurrentChip())
-                    , work.soundWork.getCurrentCh()
+                    : (work.soundWork.getPcmFlg() != 0 ? "ADPCM-B" : (work.soundWork.getDrmF1() != 0 ? "ADPCM-A" : (work.soundWork.getSsgF1() != 0 ? "SSG" : "FM"))),
+                    Common.getChipName(work.soundWork.getCurrentChip()),
+                    0,
+                    Common.getChipNumber(work.soundWork.getCurrentChip()),
+                    work.soundWork.getCurrentCh()
             );
         } else {
-            lp = new LinePos(null, "", -1, -1, -1
-                    , "FM"
-                    , "YM2151"
-                    , 0
-                    , work.soundWork.getCurrentChip() % 2
-                    , work.soundWork.getCurrentCh()
+            lp = new LinePos(null, "", -1, -1, -1,
+                    "FM",
+                    "YM2151",
+                    0,
+                    work.soundWork.getCurrentChip() % 2,
+                    work.soundWork.getCurrentCh()
             );
         }
         work.crntMmlDatum = new MmlDatum(type, args, lp, 0);
@@ -2174,8 +2174,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         } while (c != 0);
 
         e = work.fmVoiceAtMusData[hl]; // get feedback/algorithm
-        a = (((work.pg.panValue & 1) << 1)
-                | ((work.pg.panValue & 2) >> 1)); // Bit order swapping
+        a = (((work.pg.panValue & 1) << 1) | ((work.pg.panValue & 2) >> 1)); // Bit order swapping
         e |= (a << 6); // pan
 
         // get algorithm

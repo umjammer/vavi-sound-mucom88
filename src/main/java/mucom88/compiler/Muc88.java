@@ -309,20 +309,20 @@ logger.log(Level.DEBUG, mucInfo);
             if (clock + (clockMod > 0 ? 1 : 0) != 0) {
                 int n = clock + (clockMod > 0 ? 1 : 0);
                 Tuple4<Integer, Integer, Integer, Integer> p = new Tuple4<>(
-                        (int) (stNote + beftone)
-                        , (int) (edNote + beftone)
-                        , n
-                        , Math.min(qBefCo, n)
+                        (int) (stNote + beftone),
+                        (int) (edNote + beftone),
+                        n,
+                        Math.min(qBefCo, n)
                 );
                 lstPrt.add(p);
                 qBefCo -= n;
                 qBefCo = Math.max(qBefCo, 0);
             } else {
                 Tuple4<Integer, Integer, Integer, Integer> p = new Tuple4<>(
-                        lstPrt.get(lstPrt.size() - 1).getItem1()
-                        , (int) (edNote + beftone)
-                        , lstPrt.get(lstPrt.size() - 1).getItem3()
-                        , qBefCo > lstPrt.get(lstPrt.size() - 1).getItem3() ? lstPrt.get(lstPrt.size() - 1).getItem3() : qBefCo
+                        lstPrt.get(lstPrt.size() - 1).getItem1(),
+                        (int) (edNote + beftone),
+                        lstPrt.get(lstPrt.size() - 1).getItem3(),
+                        qBefCo > lstPrt.get(lstPrt.size() - 1).getItem3() ? lstPrt.get(lstPrt.size() - 1).getItem3() : qBefCo
                 );
                 qBefCo -= lstPrt.get(lstPrt.size() - 1).getItem3();
                 qBefCo = Math.max(qBefCo, 0);
@@ -383,9 +383,7 @@ logger.log(Level.DEBUG, mucInfo);
             depth = (e - s) * 64D / clk;
         }
         if (mucInfo.getCarry()) {
-            throw new MucException(
-                    rb.getString("E0406")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0406"), mucInfo.getRow(), mucInfo.getCol());
         }
 
         int speed = 1;
@@ -510,15 +508,11 @@ logger.log(Level.DEBUG, mucInfo);
                 : (char) 0;
 
         if (c == 0) {
-            throw new MucException(
-                    rb.getString("E0404")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0404"), mucInfo.getRow(), mucInfo.getCol());
         }
         if (c == '}') // 0x7d
         {
-            throw new MucException(
-                    rb.getString("E0405")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0405"), mucInfo.getRow(), mucInfo.getCol());
         }
 
         boolean pflg = false;
@@ -554,9 +548,7 @@ logger.log(Level.DEBUG, mucInfo);
         }
 
         if (mucInfo.getCarry()) {
-            throw new MucException(
-                    rb.getString("E0406")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0406"), mucInfo.getRow(), mucInfo.getCol());
         }
 
         mucInfo.getBufDst().set(work.getBefMd(), new MmlDatum(depth)); // KUMA: Write DE(DEPTH)
@@ -701,12 +693,12 @@ logger.log(Level.DEBUG, mucInfo);
         List<Object> args = new ArrayList<>();
         LinePos lp = new LinePos(
                 mucInfo.document,
-                mucInfo.getFnSrcOnlyFile()
-                , mucInfo.getRow(), mucInfo.getCol()
-                , mucInfo.getSrcCPtr() - mucInfo.getCol() + 1
-                , work.currentPartType
-                , work.currentChipName
-                , 0, work.chipIndex % 2, work.chipCh * Work.MAXPG + work.pageNow);
+                mucInfo.getFnSrcOnlyFile(),
+                mucInfo.getRow(), mucInfo.getCol(),
+                mucInfo.getSrcCPtr() - mucInfo.getCol() + 1,
+                work.currentPartType,
+                work.currentChipName,
+                0, work.chipIndex % 2, work.chipCh * Work.MAXPG + work.pageNow);
 
         msub.MWRIT2(new MmlDatum(MMLType.HardLFO, args, lp, 0xfc));
 
@@ -784,12 +776,12 @@ logger.log(Level.DEBUG, mucInfo);
             args.add(n);
             LinePos lp = new LinePos(
                     mucInfo.document,
-                    mucInfo.getFnSrcOnlyFile()
-                    , mucInfo.getRow(), mucInfo.getCol()
-                    , mucInfo.getSrcCPtr() - mucInfo.getCol() + 1
-                    , work.currentPartType
-                    , work.currentChipName
-                    , 0, work.chipIndex % 2, work.chipCh * Work.MAXPG + work.pageNow);
+                    mucInfo.getFnSrcOnlyFile(),
+                    mucInfo.getRow(), mucInfo.getCol(),
+                    mucInfo.getSrcCPtr() - mucInfo.getCol() + 1,
+                    work.currentPartType,
+                    work.currentChipName,
+                    0, work.chipIndex % 2, work.chipCh * Work.MAXPG + work.pageNow);
 
             if (tp == ChannelType.SSG && mucInfo.getSSGExtend()) { // kuma: Panning is only available on SSG when Extended Mode is enabled
                 msub.MWRITE(
@@ -850,16 +842,14 @@ logger.log(Level.DEBUG, mucInfo);
                 args.add(n);
                 LinePos lp = new LinePos(
                         mucInfo.document,
-                        mucInfo.getFnSrcOnlyFile()
-                        , mucInfo.getRow(), mucInfo.getCol()
-                        , mucInfo.getSrcCPtr() - mucInfo.getCol() + 1
-                        , work.chipIndex / 2 == 0 ? "RHYTHM" : "ADPCM-A" // YM2151 is not coming here, so we will skip the judgment.
-                        , work.chipIndex / 2 == 0 ? "YM2608" : "YM2610B"
-                        , 0, work.chipIndex % 2, work.chipCh * Work.MAXPG + work.pageNow);
+                        mucInfo.getFnSrcOnlyFile(),
+                        mucInfo.getRow(), mucInfo.getCol(),
+                        mucInfo.getSrcCPtr() - mucInfo.getCol() + 1,
+                        work.chipIndex / 2 == 0 ? "RHYTHM" : "ADPCM-A", // YM2151 is not coming here, so we will skip the judgment.
+                        work.chipIndex / 2 == 0 ? "YM2608" : "YM2610B",
+                        0, work.chipIndex % 2, work.chipCh * Work.MAXPG + work.pageNow);
 
-                msub.MWRITE(
-                        new MmlDatum(MMLType.Pan, args, lp, 0xf8)
-                        , new MmlDatum(n)); // COM OF 'p'
+                msub.MWRITE(new MmlDatum(MMLType.Pan, args, lp, 0xf8), new MmlDatum(n)); // COM OF 'p'
             }
 
             if (n2 != -1) { // 0x2c
@@ -1147,9 +1137,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         ChannelType tp = CHCHK();
         if (tp != ChannelType.SSG) {
-            throw new MucException(
-                    rb.getString("E0424")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0424"), mucInfo.getRow(), mucInfo.getCol());
         }
 
         int[] ptr = new int[1];
@@ -1185,9 +1173,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         ChannelType tp = CHCHK();
         if (tp != ChannelType.SSG) {
-            throw new MucException(
-                    rb.getString("E0426")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0426"), mucInfo.getRow(), mucInfo.getCol());
         }
 
         int[] ptr = new int[1];
@@ -1204,9 +1190,7 @@ logger.log(Level.DEBUG, mucInfo);
         } else if (n == 0) {
             n = 9;
         } else {
-            throw new MucException(
-                    rb.getString("E0428")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0428"), mucInfo.getRow(), mucInfo.getCol());
         }
 
         msub.MWRITE(new MmlDatum(0xf7), new MmlDatum(n)); // COM OF 'P'
@@ -1233,8 +1217,7 @@ logger.log(Level.DEBUG, mucInfo);
         // Quick Check
         if (n < 1 || n > 4321) {
             // error
-            throw new MucException(rb.getString("E0535").formatted(n)
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0535").formatted(n), mucInfo.getRow(), mucInfo.getCol());
         }
 
         String s = String.valueOf(n);
@@ -1243,8 +1226,7 @@ logger.log(Level.DEBUG, mucInfo);
         for (char c : s.toCharArray()) {
             if (c < '1' || c > '4') {
                 // error
-                throw new MucException(rb.getString("E0536").formatted(c)
-                        , mucInfo.getRow(), mucInfo.getCol());
+                throw new MucException(rb.getString("E0536").formatted(c), mucInfo.getRow(), mucInfo.getCol());
             }
             int d = Integer.parseInt(String.valueOf(c));
             sw |= (1 << (d - 1));
@@ -1268,8 +1250,7 @@ logger.log(Level.DEBUG, mucInfo);
         }
         if (sw == -1) {
             // error
-            throw new MucException(rb.getString("E0537")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0537"), mucInfo.getRow(), mucInfo.getCol());
         }
         mucInfo.getAndIncSrcCPtr();
         mucInfo.getAndIncSrcCPtr();
@@ -1398,9 +1379,7 @@ logger.log(Level.DEBUG, mucInfo);
         }
 
         if (tp != ChannelType.SSG) {
-            throw new MucException(
-                    rb.getString("E0429")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0429"), mucInfo.getRow(), mucInfo.getCol());
         }
 
         ptr[0] = mucInfo.getSrcCPtr();
@@ -1453,9 +1432,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         if (work.chipCh != 2) {
             // ERROR if not 3 Ch
-            throw new MucException(
-                    rb.getString("E0432")
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0432"), mucInfo.getRow(), mucInfo.getCol());
         }
 
         int[] ptr = new int[1];
@@ -1563,15 +1540,15 @@ logger.log(Level.DEBUG, mucInfo);
         int loopStackPtr = work.pointC;
         work.pointC -= 10;
 
-        int n = (mucInfo.getBufLoopStack().get(loopStackPtr) & 0xff)
-                + (mucInfo.getBufLoopStack().get(loopStackPtr + 1) & 0xff) * 0x100;
+        int n = (mucInfo.getBufLoopStack().get(loopStackPtr) & 0xff) +
+                (mucInfo.getBufLoopStack().get(loopStackPtr + 1) & 0xff) * 0x100;
         adr -= n;
 
         mucInfo.getBufDst().set(n, new MmlDatum(adr)); // RSKIP JP ADR
         mucInfo.getBufDst().set(n + 1, new MmlDatum(adr >> 8));
 
-        int m = (mucInfo.getBufLoopStack().get(loopStackPtr + 2) & 0xff)
-                + (mucInfo.getBufLoopStack().get(loopStackPtr + 3) & 0xff) * 0x100; // HL is the address where the LOOP started
+        int m = (mucInfo.getBufLoopStack().get(loopStackPtr + 2) & 0xff) +
+                (mucInfo.getBufLoopStack().get(loopStackPtr + 3) & 0xff) * 0x100; // HL is the address where the LOOP started
 
         int loopRetOfs = work.mData - m; // LOOP RET ADR OFFSET
         mucInfo.getBufDst().set(work.mData, new MmlDatum(loopRetOfs));
@@ -1589,12 +1566,12 @@ logger.log(Level.DEBUG, mucInfo);
 
         work.repCount--;
 
-        int backupAdr = (mucInfo.getBufLoopStack().get(loopStackPtr + 6) & 0xff)
-                + (mucInfo.getBufLoopStack().get(loopStackPtr + 7) & 0xff) * 0x100;
+        int backupAdr = (mucInfo.getBufLoopStack().get(loopStackPtr + 6) & 0xff) +
+                (mucInfo.getBufLoopStack().get(loopStackPtr + 7) & 0xff) * 0x100;
         backupAdr += work.tCnt[work.chipIndex][work.chipCh][work.pageNow] * (rep - 1);
 
-        int ofs = (mucInfo.getBufLoopStack().get(loopStackPtr + 8) & 0xff)
-                + (mucInfo.getBufLoopStack().get(loopStackPtr + 9) & 0xff) * 0x100;
+        int ofs = (mucInfo.getBufLoopStack().get(loopStackPtr + 8) & 0xff) +
+                (mucInfo.getBufLoopStack().get(loopStackPtr + 9) & 0xff) * 0x100;
         if (ofs == 0) {
             // '/' is not used within brackets
             ofs = work.tCnt[work.chipIndex][work.chipCh][work.pageNow];
@@ -2313,8 +2290,8 @@ logger.log(Level.DEBUG, mucInfo);
         int ch = work.chipCh;
         if (work.chipIndex != 4) {
             if (ch < 0 || (ch >= 3 && ch < 7) || ch >= 10) {
-                throw new MucException(rb.getString("E0467").formatted((char) ('A' + ch))
-                        , mucInfo.getRow(), mucInfo.getCol());
+                throw new MucException(rb.getString("E0467").formatted((char) ('A' + ch)),
+                        mucInfo.getRow(), mucInfo.getCol());
             }
             if (ch > 6) ch -= 7;
 
@@ -2324,8 +2301,8 @@ logger.log(Level.DEBUG, mucInfo);
         }
 
         if (ch < 0 || ch > 7) {
-            throw new MucException(rb.getString("E0467").formatted((char) ('A' + ch))
-                    , mucInfo.getRow(), mucInfo.getCol());
+            throw new MucException(rb.getString("E0467").formatted((char) ('A' + ch)),
+                    mucInfo.getRow(), mucInfo.getCol());
         }
 
         n += ch; // Op*4+CH No.
@@ -2334,13 +2311,13 @@ logger.log(Level.DEBUG, mucInfo);
     }
 
     public static final String[] DMDAT = {
-            "DM\0"
-            , "TL\0"
-            , "KA\0"
-            , "DR\0"
-            , "SR\0"
-            , "SL\0"
-            , "SE\0"
+            "DM\0",
+            "TL\0",
+            "KA\0",
+            "DR\0",
+            "SR\0",
+            "SL\0",
+            "SE\0"
     };
 
     private NextAction SETTIE() {
@@ -2365,7 +2342,6 @@ logger.log(Level.DEBUG, mucInfo);
 
         return FCOMP13(a);
     }
-
 
     private NextAction SETVUP() {
         if (work.volumeUDFlag != 0) {

@@ -428,10 +428,10 @@ public class VgmWriter {
             for (int j = 0; j < partCount[i]; j++) {
                 pageLength[i][j] = new int[pageCount[i][j]];
                 for (int k = 0; k < pageCount[i][j]; k++) {
-                    pageLength[i][j][k] = (buf[ptr] & 0xff)
-                            + (buf[ptr + 1] & 0xff) * 0x100
-                            + (buf[ptr + 2] & 0xff) * 0x1_0000
-                            + (buf[ptr + 3] & 0xff) * 0x100_0000;
+                    pageLength[i][j][k] = (buf[ptr] & 0xff) +
+                            (buf[ptr + 1] & 0xff) * 0x100 +
+                            (buf[ptr + 2] & 0xff) * 0x1_0000 +
+                            (buf[ptr + 3] & 0xff) * 0x100_0000;
                     ptr += 8;
                 }
             }
