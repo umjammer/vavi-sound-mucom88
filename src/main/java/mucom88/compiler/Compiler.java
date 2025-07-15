@@ -730,7 +730,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         }
 
         if (pcmUse) {
-            for (int i = 0; i < pcmSize; i++) dat.add(new MmlDatum(pcmData[0][i]));
+            for (int i = 0; i < pcmSize; i++) dat.add(new MmlDatum(pcmData[0][i] & 0xff));
             if (pcmSize > 0) {
                 pcmPtr = 16 * 3 + 32 + length + footSize;
                 dat.set(20, new MmlDatum(pcmPtr & 0xff)); // pcmData size(32bit)
@@ -814,10 +814,10 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         dat.add(new MmlDatum(0x00)); // 
         dat.add(new MmlDatum(0x00)); // 
 
-        dat.add(new MmlDatum(work.jClock)); // JCLOCK value (tag position of J command)
-        dat.add(new MmlDatum(work.jClock >> 8));
-        dat.add(new MmlDatum(work.jClock >> 16));
-        dat.add(new MmlDatum(work.jClock >> 24));
+        dat.add(new MmlDatum(work.jClock & 0xff)); // JCLOCK value (tag position of J command)
+        dat.add(new MmlDatum((work.jClock >> 8) & 0xff));
+        dat.add(new MmlDatum((work.jClock >> 16) & 0xff));
+        dat.add(new MmlDatum((work.jClock >> 24) & 0xff));
 
         dat.add(new MmlDatum(work.getJpLine() & 0xff)); // jump line number
         dat.add(new MmlDatum((work.getJpLine() >> 8) & 0xff));
@@ -909,8 +909,8 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             n = pcmuse ? (chipI < 2 ? 1 : (chipI < 4 ? 2 : 0)) : 0;
             dat.add(new MmlDatum(n)); // Number of PCM sets used in this sound chip
             for (int i = 0; i < n; i++) {
-                dat.add(new MmlDatum(pcmI)); // The PCM set number used by this sound chip. Repeated for the number of parameters above.
-                dat.add(new MmlDatum(pcmI >> 8));
+                dat.add(new MmlDatum(pcmI & 0xff)); // The PCM set number used by this sound chip. Repeated for the number of parameters above.
+                dat.add(new MmlDatum((pcmI >> 8) & 0xff));
                 pcmI++;
             }
         }
@@ -948,10 +948,10 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
 
         // Total number of Instrument sets to be used (0~)
         if (instSets > 0) { // If you use FM tones, set this to 1 (however, if you are using SSG waveforms, define this even if you are not using FM).
-            dat.add(new MmlDatum(mucInfo.getBufUseVoice().size()));
-            dat.add(new MmlDatum(mucInfo.getBufUseVoice().size() >> 8));
-            dat.add(new MmlDatum(mucInfo.getBufUseVoice().size() >> 16));
-            dat.add(new MmlDatum(mucInfo.getBufUseVoice().size() >> 24));
+            dat.add(new MmlDatum(mucInfo.getBufUseVoice().size() & 0xff));
+            dat.add(new MmlDatum((mucInfo.getBufUseVoice().size() >> 8) & 0xff));
+            dat.add(new MmlDatum((mucInfo.getBufUseVoice().size() >> 16) & 0xff));
+            dat.add(new MmlDatum((mucInfo.getBufUseVoice().size() >> 24)  & 0xff));
         }
         if (instSets == 2) { // 2 if using SSG waveform
             int ssgVoiceSize = mucInfo.getSsgVoice().size() * 65; // 65 : 64(dataSize) + 1(Tone Number)

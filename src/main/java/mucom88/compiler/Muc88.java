@@ -277,8 +277,8 @@ logger.log(Level.DEBUG, mucInfo);
         msub.MWRIT2(new MmlDatum(0xf9));
         msub.MWRIT2(new MmlDatum(beforeNote & 0xff));
         msub.MWRIT2(new MmlDatum(afterNote & 0xff));
-        msub.MWRIT2(new MmlDatum(clk));
-        msub.MWRIT2(new MmlDatum(clk >> 8));
+        msub.MWRIT2(new MmlDatum(clk & 0xff));
+        msub.MWRIT2(new MmlDatum((clk >> 8) & 0xff));
 
         writeFC162p(beforeNote, clk, q, false, true);
     }

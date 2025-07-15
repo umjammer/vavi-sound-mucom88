@@ -1003,6 +1003,19 @@ public class SoundWork {
             public int portaTotalClock = 0;
             public double portaBeforeFNum = 0;
             public boolean enableKeyOff = true;
+            public boolean useKeyOn = false;
+
+            // Tone Gradation
+            public boolean instrumentGradationSwitch = false;
+            public int instrumentGradationWait = 0;
+            public int instrumentGradationWaitCounter=0;
+            public int[] instrumentGradations = new int[2];
+            public int instrumentGradationPointer = 0;
+            public int[] instrumentGradationSt = new int[42];
+            public int[] instrumentGradationEd = new int[42];
+            public int[] instrumentGradationWk = new int[42];
+            public boolean[] instrumentGradationFlg = new boolean[42];
+            public boolean instrumentGradationReset = true;
         }
     }
 }
