@@ -1428,12 +1428,12 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             if (work.soundWork.getCurrentChip() != 4) {
                 hl = work.soundWork.FNUMB[work.soundWork.getCurrentChip() / 2][(a & 0xff) & 0xf]; // get key code(C, C+, D...B)
                 hl |= (a & 0x70) << 7; // get block data
-                // Adjust for A4-A6 port output
-                // get fNum2
-                // a= key code & fNum hi
+                                       // Adjust for A4-A6 port output
+                                       // get fNum2
+                                       // a= key code & fNum hi
 
                 hl = hl + work.pg.detune; // get detune data
-                // detune plus
+                                          // detune plus
             } else {
                 // OPM dedicated processing
                 int val = work.soundWork.FNUMBopm[work.getHeader().opmClockMode == MubHeader.enmOPMClockMode.normal ? 0 : 1][a & 0xf]; // get key code(C, C+, D...B)
@@ -1448,7 +1448,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
                 }
 
                 // Detune Add
-                hl = addDetuneToFNumOpm(val | ((oct & 0x7) << 11), work.pg.detune);
+                hl = addDetuneToFNumOpm(val | ((oct & 0x7) << 11), (short) work.pg.detune);
             }
 
             if (!work.pg.tlLfoFlag) {
@@ -1507,6 +1507,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         LFORST2();
     }
 
+    /** FMSUB6 */
     public void subFM6(int hl, int bc) {
         if (work.soundWork.getCurrentChip() == 4) {
             subFM6Opm(hl, bc);
@@ -1514,7 +1515,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         }
 
         if (work.isDotNET) {
-            hl = addDetuneToFNum(hl, bc);
+            hl = addDetuneToFNum(hl, (short) (bc & 0xffff));
         } else {
             hl += bc; // block/fnum1&2 detune plus(for se mode)
         }
@@ -1534,9 +1535,10 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         work.carry = false;
     }
 
+    /** FMSUB6ex */
     public void subFM6ex(int hl, int bc) {
         if (work.isDotNET) {
-            hl = addDetuneToFNum(hl, bc);
+            hl = addDetuneToFNum(hl, (short) (bc & 0xffff));
         } else {
             hl += bc; // block / fnum1 & 2 detune plus(for se mode)
         }
@@ -1553,8 +1555,9 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         outPSG(d, e);
     }
 
+    /** FMSUB6opm */
     public void subFM6Opm(int hl, int bc) {
-        hl = addDetuneToFNumOpm(hl, bc);
+        hl = addDetuneToFNumOpm(hl, (short) (bc & 0xffff));
 
         int oct = ((hl & 0x3800) >> 11);
         int note = ((hl & 0x7ff) >> 6);
@@ -2281,7 +2284,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
 
         outDummy();
         work.pg.beforeCode = 0; // if detune clear before code
-        int de = (work.pg.mData[work.hl].dat) + (work.pg.mData[work.hl + 1].dat) * 0x100;
+        int de = (short) ((work.pg.mData[work.hl].dat) + (work.pg.mData[work.hl + 1].dat) * 0x100);
         work.hl += 2;
         int a = work.pg.mData[work.hl++].dat;
         if (a != 0) {
@@ -3075,7 +3078,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             work.pg.volume += (byte) work.pg.mData[work.hl++].dat;
 //logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume + ", %x".formatted(work.pg.mData[work.hl - 1].dat));
         } else {
-            int n = -work.pg.mData[work.hl++].dat;
+            int n = (-((byte) work.pg.mData[work.hl++].dat)) & 0xff;
             for (int i = 0; i < 4; i++) {
                 work.pg.getTlDirectTable()[i] += n;
             }
@@ -3095,7 +3098,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         int inst = work.pg.instrumentNumber;
         for (int i = 0; i < 6; i++) {
             if (((inst >> i) & 1) != 0) {
-                int b = (a & 0x3f) | ((a & 0x40) != 0 ? 0xc0 : 0) + (work.soundWork.drmvol[work.soundWork.getCurrentChip()][i] & 0x3f);
+                int b = ((byte) ((a & 0x3f) | ((a & 0x40) != 0 ? 0xc0 : 0) + (work.soundWork.drmvol[work.soundWork.getCurrentChip()][i] & 0x3f))) & 0xff;
 
                 // For parameter display
                 List<Object> args = new ArrayList<>();
@@ -3415,7 +3418,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
 
     public void PLSKI2(int hl) {
         if (work.soundWork.getSsgF1() != 0 && work.pg.getSsgTremoloFlg()) {
-            work.pg.addSSGTremoloVol(hl);
+            work.pg.addSSGTremoloVol((short) (hl & 0xffff));
 // logger.log(Level.TRACE, Work.pg.SSGTremoloVol);
             return;
         }
@@ -3424,7 +3427,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             // KUMA: Limit check processing when in FM
 
             int[] num = new int[1];
-            int dlt = hl;
+            int dlt = (short) (hl & 0xffff);
 //logger.log(Level.TRACE, "b:%d num:%x -> +%d".formatted(blk, num, dlt));
 
             num[0] = work.pg.fnum & 0x7ff;
@@ -3654,7 +3657,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
 
     public void prcPLSKI2(int hl) {
         if (work.soundWork.getSsgF1() != 0 && work.pg.getSsgTremoloFlg()) {
-            work.pg.addSSGTremoloVol(hl);
+            work.pg.addSSGTremoloVol((short) (hl & 0xffff));
 //logger.log(Level.TRACE, Work.pg.SSGTremoloVol);
             return;
         }
@@ -3663,7 +3666,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             // KUMA: Limit check processing when in FM
 
             int[] num = new int[1];
-            int dlt = (short) hl;
+            int dlt = (short) (hl & 0xffff);
 //logger.log(Level.TRACE, "b:%d num:%x -> +%d".formatted(blk, num, dlt));
 
             if (work.soundWork.getCurrentChip() != 4) {
@@ -3789,7 +3792,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
 //logger.log(Level.TRACE, "%s %d %s".formatted(isNeg, d, nxFnum));
 
         int[] num = new int[1];
-        int dlt = (short) delta;
+        int dlt = (short) (delta & 0xffff);
 
         if (work.soundWork.getCurrentChip() != 4) {
             num[0] = work.pg.fnum & 0x7ff;

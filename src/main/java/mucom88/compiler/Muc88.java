@@ -1290,9 +1290,9 @@ logger.log(Level.DEBUG, mucInfo);
         // delta
 
         ptr[0] = mucInfo.getSrcCPtr();
-        n = msub.ERRT(mucInfo.getLin(), /* ref */ ptr, rb.getString("E0530"));
+        n = (byte) msub.ERRT(mucInfo.getLin(), /* ref */ ptr, rb.getString("E0530"));
         mucInfo.setSrcCPtr(ptr[0]);
-        work.porDelta = n;
+        work.porDelta = (byte) n;
         work.porOldNote = -1;
 
         skipSpaceAndTab();
@@ -1317,7 +1317,7 @@ logger.log(Level.DEBUG, mucInfo);
         mucInfo.getAndIncSrcCPtr();
 
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
-        int n = msub.ERRT(mucInfo.getLin(), /* ref */ ptr, rb.getString("E0531"));
+        int n = msub.ERRT(mucInfo.getLin(), /* ref */ ptr, rb.getString("E0531")) & 0xff;
         mucInfo.setSrcCPtr(ptr[0]);
         work.porSW = n;
 
@@ -1328,9 +1328,9 @@ logger.log(Level.DEBUG, mucInfo);
         mucInfo.getAndIncSrcCPtr();
 
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
-        int n = msub.ERRT(mucInfo.getLin(), /* ref */ ptr, rb.getString("E0532"));
+        int n = (byte) msub.ERRT(mucInfo.getLin(), /* ref */ ptr, rb.getString("E0532"));
         mucInfo.setSrcCPtr(ptr[0]);
-        work.porDelta = n;
+        work.porDelta = (byte) n;
         work.porOldNote = -1;
 
         return NextAction.fcomp1;
@@ -2373,14 +2373,14 @@ logger.log(Level.DEBUG, mucInfo);
             n = 1; // Change 1
         }
 
-        return SetRelativeVolume(n);
+        return SetRelativeVolume((byte) n);
     }
 
     public NextAction SVD2() {
 
         mucInfo.getAndIncSrcCPtr();
         int[] ptr = new int[] {mucInfo.getSrcCPtr()};
-        int n = msub.readData(mucInfo.getLin(), /* ref */ptr);
+        int n = msub.readData(mucInfo.getLin(), /* ref */ ptr);
         if (mucInfo.getErrSign()) {
             throw new MucException(rb.getString("E0470"), mucInfo.getRow(), mucInfo.getCol());
         }
@@ -2392,7 +2392,7 @@ logger.log(Level.DEBUG, mucInfo);
         }
 
         n = -n; // The opposite of ')' is '('
-        return SetRelativeVolume(n);
+        return SetRelativeVolume((byte) n);
     }
 
     private NextAction SetRelativeVolume(int n) {
@@ -2401,7 +2401,7 @@ logger.log(Level.DEBUG, mucInfo);
         if (mucInfo.getDriverType() == MUCInfo.DriverType.DotNet) {
             if (work.chipIndex != 4 && work.chipCh == 6) { // KUMA: Special processing only for Rhythm
                 n = Math.min(Math.max(n, -63), 63);
-                int m = n;
+                int m = (byte) n;
                 m &= 0x7f;
                 if (work.getRhythmRelMode()) { // KUMA: for now.
                     m |= 0x80;
@@ -4285,7 +4285,7 @@ logger.log(Level.DEBUG, "ssg extended");
     public int FCOMP1X(int clk) {
         int n = clk & 0xff;
         n += work.getKeyOnR();
-        work.setKeyOnR(-work.getKeyOnR());
+        work.setKeyOnR((byte) -work.getKeyOnR());
         if (n < 0 || n > 255) {
             writeWarning(rb.getString("W0404").formatted(n), mucInfo.getRow(), mucInfo.getCol());
         }
