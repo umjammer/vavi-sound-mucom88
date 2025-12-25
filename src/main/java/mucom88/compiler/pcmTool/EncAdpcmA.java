@@ -64,7 +64,7 @@ public class EncAdpcmA {
         decstep += step_adj[code & 7] * 16;
         if (decstep < 0) decstep = 0;
         if (decstep > 48 * 16) decstep = 48 * 16;
-        return acc;
+        return (short) acc;
     }
 
     /** our encoding sub, returns ADPCM nibble */
@@ -199,11 +199,11 @@ public class EncAdpcmA {
         for (lpc = 0; lpc < size; lpc++) {
             if (is16bit) {
                 if (buffer.length > lpc * 2 + 1)
-                    src = (buffer[lpc * 2] & 0xff) | (buffer[lpc * 2 + 1] & 0xff) << 8; // 16 bit samples, + fixing byte order
+                    src = (short) (buffer[lpc * 2] & 0xff) | (buffer[lpc * 2 + 1] & 0xff) << 8; // 16 bit samples, + fixing byte order
                 else src = 0;
             } else {
                 if (buffer.length > lpc)
-                    src = ((buffer[lpc] - 128) & 0xff) << 8;
+                    src = (short) ((buffer[lpc] - 128) & 0xff) << 8;
                 else src = 0;
             }
 

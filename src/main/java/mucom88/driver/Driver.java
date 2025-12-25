@@ -23,7 +23,6 @@ import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
 import dotnet4j.util.compat.TriConsumer;
 import dotnet4j.util.compat.Tuple;
-import mucom88.common.Common;
 import mucom88.common.MubException;
 import musicDriverInterface.ChipAction;
 import musicDriverInterface.ChipDatum;
@@ -202,7 +201,7 @@ public class Driver implements IDriver {
                     if (i == 0) for (ChipDatum dat : pcmSendData) writeOPNAPRegister(dat);
                     if (i == 1) for (ChipDatum dat : pcmSendData) writeOPNASRegister(dat);
 
-                    waitSendOPNA.accept(sw - System.currentTimeMillis(), pcmSendData.length);
+                    waitSendOPNA.accept(System.currentTimeMillis() - sw, pcmSendData.length);
                 }
 
                 List<Byte> buf = new ArrayList<>();
@@ -251,7 +250,7 @@ public class Driver implements IDriver {
         for (int i = 0; i < work.pcmTables[v].length; i++) {
             pcmData.add(new ArrayList<>());
             List<Byte> one = pcmData.get(i);
-            for (int p = (work.pcmTables[v][i].getItem2()[0] << 2); p < (work.pcmTables[v][i].getItem2()[1] << 2) + 16; p++) {
+            for (int p = ((work.pcmTables[v][i].getItem2()[0] & 0xffff) << 2); p < ((work.pcmTables[v][i].getItem2()[1] & 0xffff) << 2) + 16; p++) {
                 one.add(pcm[v][p + 0x400]); // 0x400 header size
             }
         }
@@ -422,8 +421,8 @@ public class Driver implements IDriver {
                 new ChipDatum(0x1, 0x00, 0x61),
                 new ChipDatum(0x1, 0x00, 0x68),
                 new ChipDatum(0x1, 0x01, 0x00),
-                new ChipDatum(0x1, 0x02, (startAddress >> 2) & 0xff),
-                new ChipDatum(0x1, 0x03, (startAddress >> 10) & 0xff),
+                new ChipDatum(0x1, 0x02, startAddress >> 2),
+                new ChipDatum(0x1, 0x03, startAddress >> 10),
                 new ChipDatum(0x1, 0x04, 0xff),
                 new ChipDatum(0x1, 0x05, 0xff),
                 new ChipDatum(0x1, 0x0c, 0xff),

@@ -353,8 +353,9 @@ logger.log(Level.DEBUG, "error: %d not in %s".formatted(c, Arrays.toString(TONES
         return (((o[0] & 0xf) << 4) | (n[0] & 0xf)) & 0xff;
     }
 
+    /** KEYSIFT */
     public void siftKey(/* ref */ int[] oct, /* ref */ int[] n) {
-        int shift = work.siftDat + work.siftDa2;
+        int shift = (byte) work.siftDat + (byte) work.siftDa2;
         if (shift == 0) return;
 
         //mucInfo.Carry = (oct * 12 + n > 0xff);
