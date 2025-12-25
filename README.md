@@ -1,14 +1,14 @@
 [![Release](https://jitpack.io/v/umjammer/vavi-sound-mucom88.svg)](https://jitpack.io/#umjammer/vavi-sound-mucom88)
 [![Java CI](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/codeql.yml)
-![Java](https://img.shields.io/badge/Java-17-b07219)
+![Java](https://img.shields.io/badge/Java-21-b07219)
 
 # vavi-sound-mucom88
 
 <img alt="mucom88" src="https://github.com/user-attachments/assets/a8f0b794-ed79-487a-936d-2073007b91f1" width="240" />
 © <img alt="koshiro" src="https://github.com/user-attachments/assets/bc7f823d-103b-4d85-8906-e8159977b9f3" width="50" />
 
-Java version of mucom88.
+🥁 Java version of mucom88.
 
 this is a form of [mucomDotNET](https://github.com/kuma4649/mucomDotNET)
 
@@ -18,13 +18,17 @@ this is a form of [mucomDotNET](https://github.com/kuma4649/mucomDotNET)
 
 ## Usage
 
+currently this project has no good player, use [vavi-sound-mdplayer](https://github.com/umjammer/vavi-sound-mdplayer) instead
+
 ## References
 
  * http://iwamoo.seesaa.net/article/496523476.html
+ * https://github.com/DM-88mkII
 
 ## TODO
 
  * compiler
+ * adpcm?
  * spi
 
 ---
