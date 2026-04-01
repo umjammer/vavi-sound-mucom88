@@ -168,7 +168,7 @@ public class EncAdpcmA {
         return outBuffer;
     }
 
-    static int[] stepSizeTable = {57, 57, 57, 57, 77, 102, 128, 153, 57, 57, 57, 57, 77, 102, 128, 153};
+    static final int[] stepSizeTable = {57, 57, 57, 57, 77, 102, 128, 153, 57, 57, 57, 57, 77, 102, 128, 153};
 //    /** our input buffer, load your sample file into this before encoding */
 //    private byte[] buffer;
 //    /**

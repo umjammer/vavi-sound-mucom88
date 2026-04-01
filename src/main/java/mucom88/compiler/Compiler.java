@@ -657,7 +657,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         work.compilerInfo.jumpRow = -1;
         work.compilerInfo.jumpCol = -1;
         if (work.getJpLine() >= 0) {
-            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().get(0)));
+            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().getFirst()));
             logger.log(Level.DEBUG, "#Jump line [row:%s col:%s].".formatted(work.getJpLine(), work.getJpCol()));
             work.compilerInfo.jumpRow = work.getJpLine();
             work.compilerInfo.jumpCol = work.getJpCol();
@@ -679,7 +679,10 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         boolean useDriverTAG = false;
         if (tags != null) {
             for (Tuple<String, String> tag : tags) {
-                if (tag.getItem1().equals("driver")) useDriverTAG = true;
+                if (tag.getItem1().equals("driver")) {
+                    useDriverTAG = true;
+                    break;
+                }
             }
         }
 
@@ -827,7 +830,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         work.compilerInfo.jumpRow = -1;
         work.compilerInfo.jumpCol = -1;
         if (work.getJpLine() >= 0) {
-            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().get(0)));
+            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().getFirst()));
             logger.log(Level.DEBUG, "#Jump line [row:%s col:%s].".formatted(work.getJpLine(), work.getJpCol()));
             work.compilerInfo.jumpRow = work.getJpLine();
             work.compilerInfo.jumpCol = work.getJpCol();
@@ -1016,7 +1019,10 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         boolean useDriverTAG = false;
         if (tags != null) {
             for (Tuple<String, String> tag : tags) {
-                if (tag.getItem1().equals("driver")) useDriverTAG = true;
+                if (tag.getItem1().equals("driver")) {
+                    useDriverTAG = true;
+                    break;
+                }
             }
         }
 

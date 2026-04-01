@@ -37,7 +37,7 @@ public class Work {
     public int minUsf = 0; //
     public int befRst = 0; // b
     public int tieFg = 0; // b
-    public int[] otoNum = new int[MAXChips]; // 0xfxxx b
+    public final int[] otoNum = new int[MAXChips]; // 0xfxxx b
     public int volume = 0; // b
     public int endAdr = 0; // w
     public int octInt = 0; // w
@@ -45,7 +45,7 @@ public class Work {
     public static final String titleFmt = "[  MUCOM88 Ver:0.0  ]  Address:0000-0000(0000)         [ 00:00 ] MODE:NORMAL  ";
     public String title = "[  MUCOM88 Ver:0.0  ]  Address:0000-0000(0000)         [ 00:00 ] MODE:NORMAL  ";
 //    public int fmvoiceCnt = 0; // 50
-    public int[] lfoData = new int[] {1, 0, 0, 0, 0, 0, 0};
+    public final int[] lfoData = new int[] {1, 0, 0, 0, 0, 0, 0};
     public int linCfg = 0;
     public int adrStc = 0;
     public int vpco = 1; // Set dummy to 1
@@ -291,7 +291,7 @@ public class Work {
     public int muNum = 0; // b MUSIC number being compiled
     public int otoDat = 1; // w Contains the address top where FM tones are stored
     public int ssgDat = 3; // w SSG...
-    public int muTop = 5; // w Music data (including address table) Start address
+    public final int muTop = 5; // w Music data (including address table) Start address
     public CompilerInfo compilerInfo = null;
     public int quantize = 0;
     public int beforeQuantize = 0;

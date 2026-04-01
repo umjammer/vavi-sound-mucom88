@@ -8,7 +8,7 @@ import musicDriverInterface.MmlDatum;
 
 public class Common {
 
-    public static Charset charset = Charset.forName(System.getProperty("mucom88.encoding", "ms932"));
+    public static final Charset charset = Charset.forName(System.getProperty("mucom88.encoding", "ms932"));
 
     public static final Point EmptyPoint = new Point(0, 0);
 

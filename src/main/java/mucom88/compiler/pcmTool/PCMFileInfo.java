@@ -68,7 +68,7 @@ public class PCMFileInfo {
 
         int n;
         if (!itemList.isEmpty()) {
-            String item = itemList.get(0).toLowerCase().trim();
+            String item = itemList.getFirst().toLowerCase().trim();
             if (item.length() > 1 && item.charAt(0) == '$') {
                 n = Integer.parseInt(item.substring(1), 16);
                 number = n;
@@ -127,7 +127,7 @@ public class PCMFileInfo {
     /**
      * Read binary from a stream in bulk
      */
-    private byte[] ReadAllBytes(Stream stream) {
+    private static byte[] ReadAllBytes(Stream stream) {
         if (stream == null) return null;
 
         var buf = new byte[8192];

@@ -102,13 +102,13 @@ public class Work {
         return nowLoopCounter;
     }
 
-    int[] rhythmORKeyOff = new int[4];
+    final int[] rhythmORKeyOff = new int[4];
 
     public int[] getRhythmORKeyOff() {
         return rhythmORKeyOff;
     }
 
-    int[] rhythmOR = new int[4];
+    final int[] rhythmOR = new int[4];
 
     public int[] getRhythmOR() {
         return rhythmOR;
@@ -139,8 +139,8 @@ public class Work {
     public OPMTimer timerOPM = null;
 
     public long timeCounter = 0L;
-    public byte[][] fmVoice = new byte[4][];
-    public Tuple<String, short[]>[][] pcmTables = new Tuple[6][];
+    public final byte[][] fmVoice = new byte[4][];
+    public final Tuple<String, short[]>[][] pcmTables = new Tuple[6][];
     public MmlDatum[] mData = null;
     public SoundWork soundWork = null;
     public byte[] fmVoiceAtMusData = null;

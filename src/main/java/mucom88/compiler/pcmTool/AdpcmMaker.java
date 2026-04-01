@@ -101,7 +101,7 @@ public class AdpcmMaker {
         return filemanager;
     }
 
-    private byte[] make(Config config, PCMFileManager fileManager) {
+    private static byte[] make(Config config, PCMFileManager fileManager) {
         List<Byte> dst = new ArrayList<>();
         dst = MakeHeader(config, fileManager, dst);
         List<Byte> raw = fileManager.getRawData();

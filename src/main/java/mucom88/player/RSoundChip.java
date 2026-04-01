@@ -6,9 +6,9 @@ import real.nscci.NScci;
 
 public abstract class RSoundChip {
 
-    protected int SoundLocation;
-    protected int BusID;
-    protected int SoundChip;
+    protected final int SoundLocation;
+    protected final int BusID;
+    protected final int SoundChip;
 
     protected int device;
     protected NScci nScci;

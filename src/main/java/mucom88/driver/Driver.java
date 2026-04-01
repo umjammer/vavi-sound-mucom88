@@ -46,8 +46,8 @@ public class Driver implements IDriver {
     public static final int cOPMMasterClock_X68k = 4000000;
     public static final int cOPMMasterClock_Normal = 3579545;
 
-    public byte[][] pcm = new byte[6][];
-    public int[] pcmStartPos = new int[6];
+    public final byte[][] pcm = new byte[6][];
+    public final int[] pcmStartPos = new int[6];
 
     private MubHeader header = null;
     private List<Tuple<String, String>> tags = null;
@@ -188,7 +188,7 @@ public class Driver implements IDriver {
         writeOPNBAdpcmBP = lstChipWriteAdpcm.get(2);
         writeOPNBAdpcmAS = lstChipWriteAdpcm.get(3);
         writeOPNBAdpcmBS = lstChipWriteAdpcm.get(3);
-        waitSendOPNA = chipWaitSend.get(0);
+        waitSendOPNA = chipWaitSend.getFirst();
 
         // Transmit PCM
         if (pcm != null) {
