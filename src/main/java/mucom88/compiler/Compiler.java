@@ -19,9 +19,9 @@ import mucom88.common.MucException;
 import mucom88.common.Common;
 import mucom88.compiler.pcmTool.AdpcmMaker;
 import musicDriverInterface.CompilerInfo;
-import musicDriverInterface.GD3Tag;
+import musicDriverInterface.MetaData;
+import musicDriverInterface.MetaData.Tag;
 import musicDriverInterface.MmlDatum;
-import musicDriverInterface.Tag;
 import musicDriverInterface.ICompiler;
 
 import static java.lang.System.getLogger;
@@ -1080,52 +1080,41 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         }
     }
 
-    public GD3Tag getGD3TagInfo(byte[] srcBuf) {
+    public MetaData getGD3TagInfo(byte[] srcBuf) {
         List<Tuple<String, String>> tags = getTagsFromMUC(srcBuf);
 
-        GD3Tag gt = new GD3Tag();
+        MetaData metaData = new MetaData();
 
         for (Tuple<String, String> tag : tags) {
             switch (tag.getItem1()) {
             case "title":
-                addItemAry(gt, Tag.Title, tag.getItem2());
-                addItemAry(gt, Tag.TitleJ, tag.getItem2());
+                metaData.add(Tag.Title, tag.getItem2());
+                metaData.add(Tag.TitleJ, tag.getItem2());
                 break;
             case "composer":
-                addItemAry(gt, Tag.Composer, tag.getItem2());
-                addItemAry(gt, Tag.ComposerJ, tag.getItem2());
+                metaData.add(Tag.Composer, tag.getItem2());
+                metaData.add(Tag.ComposerJ, tag.getItem2());
                 break;
             case "author":
-                addItemAry(gt, Tag.Artist, tag.getItem2());
-                addItemAry(gt, Tag.ArtistJ, tag.getItem2());
+                metaData.add(Tag.Artist, tag.getItem2());
+                metaData.add(Tag.ArtistJ, tag.getItem2());
                 break;
             case "comment":
-                addItemAry(gt, Tag.Note, tag.getItem2());
+                metaData.add(Tag.Note, tag.getItem2());
                 break;
             case "mucom88":
-                addItemAry(gt, Tag.RequestDriverVersion, tag.getItem2());
+                metaData.add(Tag.RequestDriverVersion, tag.getItem2());
                 break;
             case "date":
-                addItemAry(gt, Tag.ReleaseDate, tag.getItem2());
+                metaData.add(Tag.ReleaseDate, tag.getItem2());
                 break;
             case "driver":
-                addItemAry(gt, Tag.DriverName, tag.getItem2());
+                metaData.add(Tag.DriverName, tag.getItem2());
                 break;
             }
         }
 
-        return gt;
-    }
-
-    private static void addItemAry(GD3Tag gt, Tag tag, String item) {
-        if (!gt.items.containsKey(tag))
-            gt.items.put(tag, new String[] {item});
-        else {
-            String[] temp = gt.items.get(tag);
-            temp = new String[temp.length + 1];
-            temp[temp.length - 1] = item;
-            gt.items.put(tag, temp);
-        }
+        return metaData;
     }
 
     private static byte[] getPackedPCM(int i, java.util.List<String> list, Function<String, Stream> appendFileReaderCallback) {

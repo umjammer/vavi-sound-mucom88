@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import dotnet4j.util.compat.Tuple;
 import dotnet4j.util.compat.Tuple3;
 import dotnet4j.util.compat.Tuple4;
+import musicDriverInterface.MmlDatum.MMLType;
 import musicDriverInterface.common.AutoExtendList;
 import mucom88.common.Common;
 import mucom88.common.MUCInfo;
@@ -18,7 +19,6 @@ import mucom88.common.MucException;
 import musicDriverInterface.CompilerInfo;
 import musicDriverInterface.LinePos;
 import musicDriverInterface.MmlDatum;
-import musicDriverInterface.MMLType;
 import vavi.util.ByteUtil;
 
 import static java.lang.System.getLogger;

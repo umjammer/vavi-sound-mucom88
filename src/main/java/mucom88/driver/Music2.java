@@ -13,7 +13,7 @@ import mucom88.common.Common;
 import musicDriverInterface.ChipDatum;
 import musicDriverInterface.LinePos;
 import musicDriverInterface.MmlDatum;
-import musicDriverInterface.MMLType;
+import musicDriverInterface.MmlDatum.MMLType;
 import vavi.util.ByteUtil;
 
 import static java.lang.System.getLogger;
