@@ -678,7 +678,7 @@ logger.log(Level.TRACE, "Stop rendering.");
         return 0;
     }
 
-    public MetaData getGD3TagInfo(byte[] srcBuf) {
+    public MetaData getMetaData(byte[] srcBuf) {
         int tagData = ByteUtil.readLeInt(srcBuf, 0x000c);
         int tagsize = ByteUtil.readLeInt(srcBuf, 0x0010);
         if (srcBuf[0] == 'm' && srcBuf[1] == 'u' && srcBuf[2] == 'P' && srcBuf[3] == 'b') {

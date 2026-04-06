@@ -1080,7 +1080,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         }
     }
 
-    public MetaData getGD3TagInfo(byte[] srcBuf) {
+    public MetaData getMetaData(byte[] srcBuf) {
         List<Tuple<String, String>> tags = getTagsFromMUC(srcBuf);
 
         MetaData metaData = new MetaData();
