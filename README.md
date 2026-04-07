@@ -1,7 +1,7 @@
 [![Release](https://jitpack.io/v/umjammer/vavi-sound-mucom88.svg)](https://jitpack.io/#umjammer/vavi-sound-mucom88)
 [![Java CI](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/codeql.yml/badge.svg)](https://github.com/umjammer/vavi-sound-mucom88/actions/workflows/codeql.yml)
-![Java](https://img.shields.io/badge/Java-21-b07219)
+![Java](https://img.shields.io/badge/Java-25-b07219)
 
 # vavi-sound-mucom88
 
@@ -25,11 +25,18 @@ currently this project has no good player, use [vavi-sound-mdplayer](https://git
  * http://iwamoo.seesaa.net/article/496523476.html
  * https://github.com/DM-88mkII
 
+### File Types
+
+| name | type | status | desxription |
+|------|------|:------:|-------------|
+| MUS  | MML  |  ✅️?   |             |
+| MUB  | SEQ  |   ✅️   |             |
+
 ## TODO
 
  * compiler
  * adpcm?
- * spi
+ * ~~spi~~
 
 ---
 
