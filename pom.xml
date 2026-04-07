@@ -3,7 +3,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-mucom88</artifactId>
-  <version>0.0.6</version>
+  <version>0.0.7</version>
 
   <build>
     <plugins>
@@ -12,7 +12,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.12.1</version>
         <configuration>
-          <release>21</release>
+          <release>25</release>
         </configuration>
       </plugin>
       <plugin>
@@ -42,7 +42,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.14.0</version>
+        <version>6.0.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -58,12 +58,12 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.22</version>
+      <version>1.0.24</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-util-serdes</artifactId>
-      <version>1.0.11</version>
+      <version>1.0.13</version>
     </dependency>
 
     <dependency>
@@ -74,12 +74,12 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound-mdsound</artifactId>
-      <version>0.0.10</version>
+      <version>0.0.14</version>
     </dependency>
     <dependency>
-      <groupId>com.github.umjammer</groupId> <!-- com.github.umjammer / vavi -->
+      <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound-mdi</artifactId>
-      <version>0.0.3</version>
+      <version>0.0.4</version>
     </dependency>
 
     <dependency>

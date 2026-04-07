@@ -40,7 +40,7 @@ public class Program {
     private static final Logger logger = getLogger(Program.class.getName());
 
     static class KeyboardHook {
-        static AtomicBoolean typed = new AtomicBoolean();
+        static final AtomicBoolean typed = new AtomicBoolean();
         static {
             try {
                 GlobalScreen.registerNativeHook();

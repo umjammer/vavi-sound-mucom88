@@ -2,10 +2,10 @@ package mucom88.driver;
 
 
 public class OPNAData {
-    public byte port;
-    public byte address;
-    public byte data;
-    public long time;
+    public final byte port;
+    public final byte address;
+    public final byte data;
+    public final long time;
     public Object addtionalData = null;
 
     public OPNAData(byte port, byte address, byte data, long time /* = 0 */, Object addtionalData /* = null */) {

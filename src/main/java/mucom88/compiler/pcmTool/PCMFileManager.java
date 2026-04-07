@@ -1,6 +1,5 @@
 package mucom88.compiler.pcmTool;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,8 +113,7 @@ public class PCMFileManager {
         return i;
     }
 
-
-    private List<String> analyzeLine(String lin) {
+    private static List<String> analyzeLine(String lin) {
         List<String> itemList = new ArrayList<>();
         int pos = 0;
         StringBuilder item = new StringBuilder();

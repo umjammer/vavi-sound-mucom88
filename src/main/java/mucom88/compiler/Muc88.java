@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import dotnet4j.util.compat.Tuple;
 import dotnet4j.util.compat.Tuple3;
 import dotnet4j.util.compat.Tuple4;
+import musicDriverInterface.MmlDatum.MMLType;
 import musicDriverInterface.common.AutoExtendList;
 import mucom88.common.Common;
 import mucom88.common.MUCInfo;
@@ -18,7 +19,6 @@ import mucom88.common.MucException;
 import musicDriverInterface.CompilerInfo;
 import musicDriverInterface.LinePos;
 import musicDriverInterface.MmlDatum;
-import musicDriverInterface.MMLType;
 import vavi.util.ByteUtil;
 
 import static java.lang.System.getLogger;
@@ -78,7 +78,7 @@ public class Muc88 {
             this::SETMEM,
             this::SETRV,
             this::SETMAC,
-            this::STRET, // Press RET to return!
+            Muc88::STRET, // Press RET to return!
             this::SETTI2, // ret code:fcomp13
             this::SETSYO,
             this::ENDMAC,
@@ -319,12 +319,12 @@ logger.log(Level.DEBUG, mucInfo);
                 qBefCo = Math.max(qBefCo, 0);
             } else {
                 Tuple4<Integer, Integer, Integer, Integer> p = new Tuple4<>(
-                        lstPrt.get(lstPrt.size() - 1).getItem1(),
+                        lstPrt.getLast().getItem1(),
                         (int) (edNote + beftone),
-                        lstPrt.get(lstPrt.size() - 1).getItem3(),
-                        qBefCo > lstPrt.get(lstPrt.size() - 1).getItem3() ? lstPrt.get(lstPrt.size() - 1).getItem3() : qBefCo
+                        lstPrt.getLast().getItem3(),
+                        qBefCo > lstPrt.getLast().getItem3() ? lstPrt.getLast().getItem3() : qBefCo
                 );
-                qBefCo -= lstPrt.get(lstPrt.size() - 1).getItem3();
+                qBefCo -= lstPrt.getLast().getItem3();
                 qBefCo = Math.max(qBefCo, 0);
                 lstPrt.set(lstPrt.size() - 1, p);
             }
@@ -1067,7 +1067,7 @@ logger.log(Level.DEBUG, mucInfo);
         return NextAction.comovr;
     }
 
-    private NextAction STRET() {
+    private static NextAction STRET() {
         return NextAction.comovr;
     }
 
@@ -2400,7 +2400,7 @@ logger.log(Level.DEBUG, mucInfo);
 
         if (mucInfo.getDriverType() == MUCInfo.DriverType.DotNet) {
             if (work.chipIndex != 4 && work.chipCh == 6) { // KUMA: Special processing only for Rhythm
-                n = Math.min(Math.max(n, -63), 63);
+                n = Math.clamp(n, -63, 63);
                 int m = (byte) n;
                 m &= 0x7f;
                 if (work.getRhythmRelMode()) { // KUMA: for now.
@@ -2530,7 +2530,7 @@ logger.log(Level.DEBUG, mucInfo);
                                     throw new MucException(rb.getString("E0472"), mucInfo.getRow(), mucInfo.getCol());
                                 ptr[0] = mucInfo.incAndGetSrcCPtr();
                                 n = msub.readData(mucInfo.getLin(), /* ref */ptr);
-                                n = Math.min(Math.max(n, 0), 127);
+                                n = Math.clamp(n, 0, 127);
                                 mucInfo.setSrcCPtr(ptr[0]);
                                 if (mucInfo.getCarry())
                                     throw new MucException(rb.getString("E0472"), mucInfo.getRow(), mucInfo.getCol());
@@ -2574,7 +2574,7 @@ logger.log(Level.DEBUG, mucInfo);
                             break;
                         }
                     } else {
-                        n = 127 - Math.min(Math.max(n, 0), 127);
+                        n = 127 - Math.clamp(n, 0, 127);
                         mucInfo.setSrcCPtr(ptr[0]);
                         skipSpaceAndTab();
                         ptr[0] = mucInfo.getSrcCPtr();
@@ -2656,7 +2656,7 @@ logger.log(Level.DEBUG, mucInfo);
         n += work.tvOfs;
 
         if (mucInfo.getDriverType() == MUCInfo.DriverType.DotNet)
-            n = Math.min(Math.max(n, 0), 63);
+            n = Math.clamp(n, 0, 63);
 
         msub.MWRITE(new MmlDatum(MMLType.Volume, args, lp, 0xf1), new MmlDatum(n));
 
@@ -2667,7 +2667,7 @@ logger.log(Level.DEBUG, mucInfo);
                     // KUMA: If there is only one parameter, it is considered to be specified individually.
                     if (i == 0) {
                         MmlDatum m = mucInfo.getBufDst().get(work.mData - 1);
-                        m.dat = Math.min(Math.max(m.dat, 0), 31);
+                        m.dat = Math.clamp(m.dat, 0, 31);
                         m.dat |= 0x80; // KUMA: Set a flag in bit 7 to indicate individual specification
                         mucInfo.getBufDst().set(work.mData - 1, m);
 
@@ -4037,20 +4037,15 @@ logger.log(Level.DEBUG, "ssg extended");
         NextAction ret = NextAction.fcomp1;
 
         do {
-            switch (ret) {
-            case comprc:
-                ret = COMPRC();
-                break;
-            case fcomp1:
-                ret = FCOMP1();
-                break;
-            case fcomp12:
-                ret = FCOMP12();
-                break;
-//            case enmFCOMPNextRtn.fcomp13:
-//                ret = FCOMP13();
-//                break;
-            }
+            //            case enmFCOMPNextRtn.fcomp13:
+            //                ret = FCOMP13();
+            //                break;
+            ret = switch (ret) {
+                case comprc -> COMPRC();
+                case fcomp1 -> FCOMP1();
+                case fcomp12 -> FCOMP12();
+                default -> ret;
+            };
 
             if (ret == NextAction.occuredERROR) {
                 mucInfo.setErrSign(true);

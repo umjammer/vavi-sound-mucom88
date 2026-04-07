@@ -12,7 +12,7 @@ import musicDriverInterface.MmlDatum;
  */
 public class SoundWork {
 
-    public List<List<CHDAT>> chData = Arrays.asList(
+    public final List<List<CHDAT>> chData = Arrays.asList(
             Arrays.asList(
                     new CHDAT(), // FM Ch1
                     new CHDAT(), // FM Ch2
@@ -82,25 +82,25 @@ public class SoundWork {
 
     public int[][] pregBf = null;
     public int[] initPm = null;
-    public int[][] detdat = {
+    public final int[][] detdat = {
             null, null, null, null
     };
-    public int[][] drmvol = new int[][] {
+    public final int[][] drmvol = new int[][] {
             null, null, null, null
     };
-    public int[][] drmPanEnable = new int[][] {
+    public final int[][] drmPanEnable = new int[][] {
             null, null, null, null
     };
-    public int[][] drmPanMode = new int[][] {
+    public final int[][] drmPanMode = new int[][] {
             null, null, null, null
     };
-    public int[][] drmPanCounter = new int[][] {
+    public final int[][] drmPanCounter = new int[][] {
             null, null, null, null
     };
-    public int[][] drmPanCounterWork = new int[][] {
+    public final int[][] drmPanCounterWork = new int[][] {
             null, null, null, null
     };
-    public int[][] drmPanValue = new int[][] {
+    public final int[][] drmPanValue = new int[][] {
             null, null, null, null
     };
     public int[] opSel = null;
@@ -162,7 +162,7 @@ public class SoundWork {
         pvMode = value;
     }
 
-    private int muTop = 5;
+    private final int muTop = 5;
 
     public int getMuTop() {
         return muTop;
@@ -206,8 +206,8 @@ public class SoundWork {
         return (PLSET1_VAL[chip] & 0x40) != 0;
     }
 
-    public int[] PLSET1_VAL = new int[5];
-    public int[] PLSET2_VAL = new int[5];
+    public final int[] PLSET1_VAL = new int[5];
+    public final int[] PLSET2_VAL = new int[5];
 
     private final int[] pcmLr = new int[6];
 
@@ -345,7 +345,7 @@ public class SoundWork {
         return TOTALV;
     }
 
-    private final int OTODAT = 1;
+    private static final int OTODAT = 1;
 
     public int getOTODAT() {
         return OTODAT;
@@ -424,7 +424,7 @@ public class SoundWork {
         return PCMaSTTADR;
     }
 
-    public int[][] PCMaENDADR = new int[][] {
+    public final int[][] PCMaENDADR = new int[][] {
             new int[6], new int[6]
     };
 
@@ -467,9 +467,9 @@ public class SoundWork {
     void init() {
         for (int chipIndex = 0; chipIndex < 4; chipIndex++) {
             for (int i = 0; i < chData.get(chipIndex).get(0).pgDat.size(); i++) {
-                chData.get(chipIndex).get(0).pgDat.get(i).lengthCounter = 1;
-                chData.get(chipIndex).get(0).pgDat.get(i).instrumentNumber = 24;
-                chData.get(chipIndex).get(0).pgDat.get(i).volume = 10;
+                chData.get(chipIndex).getFirst().pgDat.get(i).lengthCounter = 1;
+                chData.get(chipIndex).getFirst().pgDat.get(i).instrumentNumber = 24;
+                chData.get(chipIndex).getFirst().pgDat.get(i).volume = 10;
             }
 
             for (int i = 0; i < chData.get(chipIndex).get(1).pgDat.size(); i++) {
@@ -777,7 +777,7 @@ public class SoundWork {
 //            /** DS5 SOFT ENVE DUMMY 13-17  */
 //            public int[] softEnvelopeDummy = new int[5];
             /** SOFT ENVE12-17 KUMA: 12:AL 13:AR 14:DR 15:SR 16:SL 17:RR */
-            public int[] softEnvelopeParam = new int[6];
+            public final int[] softEnvelopeParam = new int[6];
             /** rev vol? 17 */
             public int reverbVol = 0;
             /** DB0 Quantize 18 */
@@ -910,8 +910,8 @@ public class SoundWork {
             public boolean keyOnDelayFlag = false;
             /** for keyOnSlot control */
             public int keyOnSlot = 0xf0;
-            public int[] kd = new int[4];
-            public int[] kdWork = new int[4];
+            public final int[] kd = new int[4];
+            public final int[] kdWork = new int[4];
             /** Slots used by the page(bit) */
             public int useSlot = 0x0f;
 
@@ -987,7 +987,7 @@ public class SoundWork {
                 ssgWfNum = value;
             }
 
-            public int[] vTl = new int[] {
+            public final int[] vTl = new int[] {
                     0, 0, 0, 0
             };
 
@@ -1009,12 +1009,12 @@ public class SoundWork {
             public boolean instrumentGradationSwitch = false;
             public int instrumentGradationWait = 0;
             public int instrumentGradationWaitCounter=0;
-            public int[] instrumentGradations = new int[2];
+            public final int[] instrumentGradations = new int[2];
             public int instrumentGradationPointer = 0;
-            public int[] instrumentGradationSt = new int[42];
-            public int[] instrumentGradationEd = new int[42];
-            public int[] instrumentGradationWk = new int[42];
-            public boolean[] instrumentGradationFlg = new boolean[42];
+            public final int[] instrumentGradationSt = new int[42];
+            public final int[] instrumentGradationEd = new int[42];
+            public final int[] instrumentGradationWk = new int[42];
+            public final boolean[] instrumentGradationFlg = new boolean[42];
             public boolean instrumentGradationReset = true;
         }
     }

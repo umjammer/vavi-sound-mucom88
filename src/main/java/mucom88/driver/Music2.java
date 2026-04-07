@@ -13,7 +13,7 @@ import mucom88.common.Common;
 import musicDriverInterface.ChipDatum;
 import musicDriverInterface.LinePos;
 import musicDriverInterface.MmlDatum;
-import musicDriverInterface.MMLType;
+import musicDriverInterface.MmlDatum.MMLType;
 import vavi.util.ByteUtil;
 
 import static java.lang.System.getLogger;
@@ -147,24 +147,14 @@ public class Music2 {
             // logger.log(Level.TRACE, "CurrentTimer:%d".formatted(Work.currentTimer));
 
             work.timeCounter++;
-            boolean flg = false;
-            switch (work.currentTimer) {
-            case 0:
-                flg = (work.timerOPNA1.statReg & 3) != 0;
-                break;
-            case 1:
-                flg = (work.timerOPNA2.statReg & 3) != 0;
-                break;
-            case 2:
-                flg = (work.timerOPNB1.statReg & 3) != 0;
-                break;
-            case 3:
-                flg = (work.timerOPNB2.statReg & 3) != 0;
-                break;
-            case 4:
-                flg = (work.timerOPM.statReg & 3) != 0;
-                break;
-            }
+            boolean flg = switch (work.currentTimer) {
+                case 0 -> (work.timerOPNA1.statReg & 3) != 0;
+                case 1 -> (work.timerOPNA2.statReg & 3) != 0;
+                case 2 -> (work.timerOPNB1.statReg & 3) != 0;
+                case 3 -> (work.timerOPNB2.statReg & 3) != 0;
+                case 4 -> (work.timerOPM.statReg & 3) != 0;
+                default -> false;
+            };
             if (flg) {
                 PL_SND();
             }
@@ -484,9 +474,9 @@ public class Music2 {
         work.soundWork.chData.get(chipIndex).set(ch, new SoundWork.CHDAT());
         work.soundWork.chData.get(chipIndex).get(ch).pgDat = new ArrayList<>();
         work.soundWork.chData.get(chipIndex).get(ch).pgDat.add(new SoundWork.CHDAT.PGDAT());
-        work.soundWork.chData.get(chipIndex).get(ch).pgDat.get(0).lengthCounter = 1;
-        work.soundWork.chData.get(chipIndex).get(ch).pgDat.get(0).volume = 0;
-        work.soundWork.chData.get(chipIndex).get(ch).pgDat.get(0).setMusicEnd(false);
+        work.soundWork.chData.get(chipIndex).get(ch).pgDat.getFirst().lengthCounter = 1;
+        work.soundWork.chData.get(chipIndex).get(ch).pgDat.getFirst().volume = 0;
+        work.soundWork.chData.get(chipIndex).get(ch).pgDat.getFirst().setMusicEnd(false);
         work.soundWork.chData.get(chipIndex).get(ch).setFmVolMode(0);
         work.soundWork.chData.get(chipIndex).get(ch).setCurrentFMVolTable(SoundWork.FMVDAT);
 
@@ -504,25 +494,25 @@ public class Music2 {
         for (int i = 0; i < length; i++) {
             bf.add(work.mData[work.soundWork.getMuTop() + work.weight + stPtr + i]);
         }
-        work.soundWork.chData.get(chipIndex).get(ch).pgDat.get(0).mData = bf.toArray(MmlDatum[]::new);
+        work.soundWork.chData.get(chipIndex).get(ch).pgDat.getFirst().mData = bf.toArray(MmlDatum[]::new);
 
         if (nCPtr < stPtr) {
             work.weight += 0x1_0000;
         }
 
-        work.soundWork.chData.get(chipIndex).get(ch).pgDat.get(0).dataAddressWork = 0; // ix 2,3
-        work.soundWork.chData.get(chipIndex).get(ch).pgDat.get(0).dataTopAddress = lpPtr != -1 ? (lpPtr - stPtr) : -1; // ix 4,5
+        work.soundWork.chData.get(chipIndex).get(ch).pgDat.getFirst().dataAddressWork = 0; // ix 2,3
+        work.soundWork.chData.get(chipIndex).get(ch).pgDat.getFirst().dataTopAddress = lpPtr != -1 ? (lpPtr - stPtr) : -1; // ix 4,5
 
         work.soundWork.incC2NUM();
         work.soundWork.addTbTop(4);
         if (work.soundWork.getChNum() > 2) {
             // FOR SSG
-            work.soundWork.chData.get(chipIndex).get(ch).pgDat.get(0).volReg = work.soundWork.getChNum() + 5; // ix 7
-            work.soundWork.chData.get(chipIndex).get(ch).pgDat.get(0).channelNumber = (work.soundWork.getChNum() - 3) * 2; // ix 8
+            work.soundWork.chData.get(chipIndex).get(ch).pgDat.getFirst().volReg = work.soundWork.getChNum() + 5; // ix 7
+            work.soundWork.chData.get(chipIndex).get(ch).pgDat.getFirst().channelNumber = (work.soundWork.getChNum() - 3) * 2; // ix 8
             work.soundWork.incChNum();
             return;
         }
-        work.soundWork.chData.get(chipIndex).get(ch).pgDat.get(0).channelNumber = work.soundWork.getChNum(); // ix 8
+        work.soundWork.chData.get(chipIndex).get(ch).pgDat.getFirst().channelNumber = work.soundWork.getChNum(); // ix 8
         work.soundWork.incChNum();
     }
 
@@ -671,7 +661,7 @@ public class Music2 {
 
         for (int b = 0; b < 7; b++) {
             for (int c = 0; c < 10; c++)
-                work.soundWork.PALDAT[b * 10 + c] = 0xc0;
+                SoundWork.PALDAT[b * 10 + c] = 0xc0;
         }
 
         for (int c = 0; c < 4; c++)
@@ -956,7 +946,7 @@ public class Music2 {
     public void FMSUB() {
         //Work.carry = false;
         work.pg.lengthCounter--;
-        work.pg.lengthCounter = work.pg.lengthCounter;
+        work.pg.lengthCounter = work.pg.lengthCounter & 0xff;
         if (work.pg.lengthCounter == 0) {
             FMSUB1();
             return;
@@ -977,9 +967,9 @@ public class Music2 {
             return;
         }
 
-        if (checkCh3SpecialMode()
-                || work.soundWork.getDrmF1() != 0
-                || work.cd.getCurrentPageNo() == work.pg.getPageNo())
+        if (checkCh3SpecialMode() ||
+                work.soundWork.getDrmF1() != 0 ||
+                work.cd.getCurrentPageNo() == work.pg.getPageNo())
             KEYOFF(false);
     }
 
@@ -997,12 +987,12 @@ public class Music2 {
         int e;
         if (work.isDotNET) {
             if (work.cd.getFmVolMode() == 2)
-                e = 127 - Math.min(Math.max(work.pg.volume, 0), 127);
+                e = 127 - Math.clamp(work.pg.volume, 0, 127);
             else if (work.cd.getFmVolMode() == 3)
                 e = 255;
             else {
-                //if (Work.cd.currentFMVolTable == null)
-                //    Work.cd.currentFMVolTable = Work.soundWork.FMVDAT;
+                //if (work.cd.currentFMVolTable == null)
+                //    work.cd.currentFMVolTable = work.soundWork.FMVDAT;
                 e = work.cd.getCurrentFMVolTable()[c]; // GET volume DATA
             }
         } else {
@@ -1020,7 +1010,7 @@ assert c >= 0 && c < 20 : work.pg.volume + ", " + work.pg.reverbVol;
             if ((work.pg.useSlot & 1) != 0) {
                 if ((c & (1 << 0)) != 0) { // slot1
                     int v = e;
-                    if (work.isDotNET) v = Math.min(Math.max(e + work.pg.vTl[0], 0), 127);
+                    if (work.isDotNET) v = Math.clamp(e + work.pg.vTl[0], 0, 127);
                     outPSG(d + 0 * 4, v); // If CAREER go to PNGOUT
                 }
             }
@@ -1028,7 +1018,7 @@ assert c >= 0 && c < 20 : work.pg.volume + ", " + work.pg.reverbVol;
             if ((work.pg.useSlot & 4) != 0) {
                 if ((c & (1 << 1)) != 0) { // slot3
                     int v = e;
-                    if (work.isDotNET) v = Math.min(Math.max(e + work.pg.vTl[1], 0), 127);
+                    if (work.isDotNET) v = Math.clamp(e + work.pg.vTl[1], 0, 127);
                     outPSG(d + 1 * 4, v); // If CAREER go to PNGOUT
                 }
             }
@@ -1036,7 +1026,7 @@ assert c >= 0 && c < 20 : work.pg.volume + ", " + work.pg.reverbVol;
             if ((work.pg.useSlot & 2) != 0) {
                 if ((c & (1 << 2)) != 0) { // slot2
                     int v = e;
-                    if (work.isDotNET) v = Math.min(Math.max(e + work.pg.vTl[2], 0), 127);
+                    if (work.isDotNET) v = Math.clamp(e + work.pg.vTl[2], 0, 127);
                     outPSG(d + 2 * 4, v); // If CAREER go to PNGOUT
                 }
             }
@@ -1044,7 +1034,7 @@ assert c >= 0 && c < 20 : work.pg.volume + ", " + work.pg.reverbVol;
             if ((work.pg.useSlot & 8) != 0) {
                 if ((c & (1 << 3)) != 0) { // slot4
                     int v = e;
-                    if (work.isDotNET) v = Math.min(Math.max(e + work.pg.vTl[3], 0), 127);
+                    if (work.isDotNET) v = Math.clamp(e + work.pg.vTl[3], 0, 127);
                     outPSG(d + 3 * 4, v); // If CAREER go to PNGOUT
                 }
             }
@@ -1054,9 +1044,9 @@ assert c >= 0 && c < 20 : work.pg.volume + ", " + work.pg.reverbVol;
                     int v = e;
                     if (work.isDotNET) {
                         if (e == 255) {
-                            v = Math.min(Math.max(work.pg.getTlDirectTable()[b] + work.pg.vTl[b], 0), 127);
+                            v = Math.clamp(work.pg.getTlDirectTable()[b] + work.pg.vTl[b], 0, 127);
                         } else {
-                            v = Math.min(Math.max(e + work.pg.vTl[b], 0), 127);
+                            v = Math.clamp(e + work.pg.vTl[b], 0, 127);
                         }
                     }
                     outPSG(d + b * 4, v); // If CAREER go to PNGOUT
@@ -1078,7 +1068,7 @@ assert c >= 0 && c < 20 : work.pg.volume + ", " + work.pg.reverbVol;
     public void STV2opm(int c) {
         int e;
         if (work.cd.getFmVolMode() == 2)
-            e = 127 - Math.min(Math.max(work.pg.volume, 0), 127);
+            e = 127 - Math.clamp(work.pg.volume, 0, 127);
         else if (work.cd.getFmVolMode() == 3)
             e = 255;
         else {
@@ -1096,9 +1086,9 @@ assert c >= 0 && c < 20 : work.pg.volume + ", " + work.pg.reverbVol;
                 int v = e;
                 if (work.isDotNET) {
                     if (e == 255) {
-                        v = Math.min(Math.max(work.pg.getTlDirectTable()[b] + work.pg.vTl[b], 0), 127);
+                        v = Math.clamp(work.pg.getTlDirectTable()[b] + work.pg.vTl[b], 0, 127);
                     } else {
-                        v = Math.min(Math.max(e + work.pg.vTl[b], 0), 127);
+                        v = Math.clamp(e + work.pg.vTl[b], 0, 127);
                     }
                 }
                 outPSG(d + b * 8, v); // If CAREER go to PNGOUT
@@ -2511,9 +2501,9 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
 //STER2:
                 int a = work.pg.mData[work.hl++].dat;
                 int c = ((a >> 2) & 0x3f) | (a << 6);
-                int d = work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()];
+                int d = SoundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()];
                 d = (d & 0b0011_1111) | c;
-                work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()] = d;
+                SoundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()] = d;
                 a = 0x0B4 + work.pg.channelNumber;
 
                 if (checkCh3SpecialMode() || work.cd.getCurrentPageNo() == work.pg.getPageNo())
@@ -2561,9 +2551,9 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             if (work.soundWork.getCurrentChip() != 4 && work.soundWork.getSsgF1() == 0) {
                 // Existing process
                 c = ((a >> 2) & 0x3f) | (a << 6); // Rotate right twice (rotate left six times is simpler in C#)
-                d = work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()];
+                d = SoundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()];
                 d = (d & 0b0011_1111) | c;
-                work.soundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()] = d;
+                SoundWork.PALDAT[work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo()] = d;
                 a = 0x0B4 + work.pg.channelNumber;
 
                 if (checkCh3SpecialMode() || work.cd.getCurrentPageNo() == work.pg.getPageNo())
@@ -3127,8 +3117,8 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         int c = work.pg.mData[work.hl++].dat; // pms
         c = (c & 0xff) | (work.pg.mData[work.hl++].dat << 4); // ams+pms
         int de = work.soundWork.getFmPort() + work.pg.channelNumber * 10 + work.pg.getPageNo(); // paldat
-        a = (work.soundWork.PALDAT[de] & 0b1100_0000) | c;
-        work.soundWork.PALDAT[de] = a;
+        a = (SoundWork.PALDAT[de] & 0b1100_0000) | c;
+        SoundWork.PALDAT[de] = a;
         outPSG(0xb4 + work.pg.channelNumber, a);
     }
 
@@ -3215,9 +3205,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         int ptr = 0; // ssgDat;
         ptr = a * 6;
         // ENVPST();
-        for (int i = 0; i < 6; i++) {
-            work.pg.softEnvelopeParam[i] = work.soundWork.SSGDAT[ptr + i];
-        }
+        System.arraycopy(work.soundWork.SSGDAT, ptr + 0, work.pg.softEnvelopeParam, 0, 6);
         work.pg.volume = work.pg.volume | 0b1001_0000;
     }
 
@@ -3473,7 +3461,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         outPSG(d, e);
     }
 
-    private void getFNum(/* ref */ int[] blk, /* ref */ int[] num) {
+    private static void getFNum(/* ref */ int[] blk, /* ref */ int[] num) {
         int NoteC = 0x26a;
         while (num[0] < NoteC) {
             if (blk[0] == 0) {
@@ -3489,7 +3477,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             blk[0]++;
             num[0] = num[0] - NoteC * 2 + NoteC;
         }
-        num[0] = Math.min(Math.max(num[0], 0), 0x7ff);
+        num[0] = Math.clamp(num[0], 0, 0x7ff);
     }
 
     /** for fm lfo */
@@ -4033,7 +4021,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         SOFENV();
 
         if (work.pg.getSsgTremoloFlg()) {
-            work.aReg = Math.max(Math.min((work.aReg + work.pg.getSsgTremoloVol()), 15), 0);
+            work.aReg = Math.clamp(work.aReg + work.pg.getSsgTremoloVol(), 0, 15);
             //logger.log(Level.TRACE, "%d".formatted(Work.pg.SSGTremoloVol));
         }
 

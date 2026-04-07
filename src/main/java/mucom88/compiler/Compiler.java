@@ -19,9 +19,9 @@ import mucom88.common.MucException;
 import mucom88.common.Common;
 import mucom88.compiler.pcmTool.AdpcmMaker;
 import musicDriverInterface.CompilerInfo;
-import musicDriverInterface.GD3Tag;
+import musicDriverInterface.MetaData;
+import musicDriverInterface.MetaData.Tag;
 import musicDriverInterface.MmlDatum;
-import musicDriverInterface.Tag;
 import musicDriverInterface.ICompiler;
 
 import static java.lang.System.getLogger;
@@ -657,7 +657,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         work.compilerInfo.jumpRow = -1;
         work.compilerInfo.jumpCol = -1;
         if (work.getJpLine() >= 0) {
-            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().get(0)));
+            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().getFirst()));
             logger.log(Level.DEBUG, "#Jump line [row:%s col:%s].".formatted(work.getJpLine(), work.getJpCol()));
             work.compilerInfo.jumpRow = work.getJpLine();
             work.compilerInfo.jumpCol = work.getJpCol();
@@ -679,7 +679,10 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         boolean useDriverTAG = false;
         if (tags != null) {
             for (Tuple<String, String> tag : tags) {
-                if (tag.getItem1().equals("driver")) useDriverTAG = true;
+                if (tag.getItem1().equals("driver")) {
+                    useDriverTAG = true;
+                    break;
+                }
             }
         }
 
@@ -827,7 +830,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         work.compilerInfo.jumpRow = -1;
         work.compilerInfo.jumpCol = -1;
         if (work.getJpLine() >= 0) {
-            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().get(0)));
+            logger.log(Level.DEBUG, "#Jump count [%s]. channelNumber[%s]".formatted(work.jClock, work.getJChCom().getFirst()));
             logger.log(Level.DEBUG, "#Jump line [row:%s col:%s].".formatted(work.getJpLine(), work.getJpCol()));
             work.compilerInfo.jumpRow = work.getJpLine();
             work.compilerInfo.jumpCol = work.getJpCol();
@@ -1016,7 +1019,10 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         boolean useDriverTAG = false;
         if (tags != null) {
             for (Tuple<String, String> tag : tags) {
-                if (tag.getItem1().equals("driver")) useDriverTAG = true;
+                if (tag.getItem1().equals("driver")) {
+                    useDriverTAG = true;
+                    break;
+                }
             }
         }
 
@@ -1074,52 +1080,41 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         }
     }
 
-    public GD3Tag getGD3TagInfo(byte[] srcBuf) {
+    public MetaData getMetaData(byte[] srcBuf) {
         List<Tuple<String, String>> tags = getTagsFromMUC(srcBuf);
 
-        GD3Tag gt = new GD3Tag();
+        MetaData metaData = new MetaData();
 
         for (Tuple<String, String> tag : tags) {
             switch (tag.getItem1()) {
             case "title":
-                addItemAry(gt, Tag.Title, tag.getItem2());
-                addItemAry(gt, Tag.TitleJ, tag.getItem2());
+                metaData.add(Tag.Title, tag.getItem2());
+                metaData.add(Tag.TitleJ, tag.getItem2());
                 break;
             case "composer":
-                addItemAry(gt, Tag.Composer, tag.getItem2());
-                addItemAry(gt, Tag.ComposerJ, tag.getItem2());
+                metaData.add(Tag.Composer, tag.getItem2());
+                metaData.add(Tag.ComposerJ, tag.getItem2());
                 break;
             case "author":
-                addItemAry(gt, Tag.Artist, tag.getItem2());
-                addItemAry(gt, Tag.ArtistJ, tag.getItem2());
+                metaData.add(Tag.Artist, tag.getItem2());
+                metaData.add(Tag.ArtistJ, tag.getItem2());
                 break;
             case "comment":
-                addItemAry(gt, Tag.Note, tag.getItem2());
+                metaData.add(Tag.Note, tag.getItem2());
                 break;
             case "mucom88":
-                addItemAry(gt, Tag.RequestDriverVersion, tag.getItem2());
+                metaData.add(Tag.RequestDriverVersion, tag.getItem2());
                 break;
             case "date":
-                addItemAry(gt, Tag.ReleaseDate, tag.getItem2());
+                metaData.add(Tag.ReleaseDate, tag.getItem2());
                 break;
             case "driver":
-                addItemAry(gt, Tag.DriverName, tag.getItem2());
+                metaData.add(Tag.DriverName, tag.getItem2());
                 break;
             }
         }
 
-        return gt;
-    }
-
-    private static void addItemAry(GD3Tag gt, Tag tag, String item) {
-        if (!gt.items.containsKey(tag))
-            gt.items.put(tag, new String[] {item});
-        else {
-            String[] temp = gt.items.get(tag);
-            temp = new String[temp.length + 1];
-            temp[temp.length - 1] = item;
-            gt.items.put(tag, temp);
-        }
+        return metaData;
     }
 
     private static byte[] getPackedPCM(int i, java.util.List<String> list, Function<String, Stream> appendFileReaderCallback) {

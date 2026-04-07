@@ -151,6 +151,7 @@ Debug.println(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
 
             if (op.equals("XML")) {
                 isXml = true;
+                break;
             }
 
             i++;

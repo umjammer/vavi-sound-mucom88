@@ -26,10 +26,10 @@ import dotnet4j.util.compat.Tuple;
 import mucom88.common.MubException;
 import musicDriverInterface.ChipAction;
 import musicDriverInterface.ChipDatum;
-import musicDriverInterface.GD3Tag;
+import musicDriverInterface.MetaData;
 import musicDriverInterface.IDriver;
+import musicDriverInterface.MetaData.Tag;
 import musicDriverInterface.MmlDatum;
-import musicDriverInterface.Tag;
 import vavi.util.ByteUtil;
 import vavi.util.serdes.Serdes;
 
@@ -46,8 +46,8 @@ public class Driver implements IDriver {
     public static final int cOPMMasterClock_X68k = 4000000;
     public static final int cOPMMasterClock_Normal = 3579545;
 
-    public byte[][] pcm = new byte[6][];
-    public int[] pcmStartPos = new int[6];
+    public final byte[][] pcm = new byte[6][];
+    public final int[] pcmStartPos = new int[6];
 
     private MubHeader header = null;
     private List<Tuple<String, String>> tags = null;
@@ -188,7 +188,7 @@ public class Driver implements IDriver {
         writeOPNBAdpcmBP = lstChipWriteAdpcm.get(2);
         writeOPNBAdpcmAS = lstChipWriteAdpcm.get(3);
         writeOPNBAdpcmBS = lstChipWriteAdpcm.get(3);
-        waitSendOPNA = chipWaitSend.get(0);
+        waitSendOPNA = chipWaitSend.getFirst();
 
         // Transmit PCM
         if (pcm != null) {
@@ -678,7 +678,7 @@ logger.log(Level.TRACE, "Stop rendering.");
         return 0;
     }
 
-    public GD3Tag getGD3TagInfo(byte[] srcBuf) {
+    public MetaData getMetaData(byte[] srcBuf) {
         int tagData = ByteUtil.readLeInt(srcBuf, 0x000c);
         int tagsize = ByteUtil.readLeInt(srcBuf, 0x0010);
         if (srcBuf[0] == 'm' && srcBuf[1] == 'u' && srcBuf[2] == 'P' && srcBuf[3] == 'b') {
@@ -694,38 +694,38 @@ logger.log(Level.TRACE, "Stop rendering.");
         }
 
         List<Tuple<String, String>> tags = getTagsByteArray(ByteUtil.toByteArray(lb));
-        GD3Tag gt = new GD3Tag();
+        MetaData metaData = new MetaData();
 
         for (Tuple<String, String> tag : tags) {
             switch (tag.getItem1()) {
             case "title":
-                addItemAry(gt, Tag.Title, tag.getItem2());
-                addItemAry(gt, Tag.TitleJ, tag.getItem2());
+                metaData.add(Tag.Title, tag.getItem2());
+                metaData.add(Tag.TitleJ, tag.getItem2());
                 break;
             case "composer":
-                addItemAry(gt, Tag.Composer, tag.getItem2());
-                addItemAry(gt, Tag.ComposerJ, tag.getItem2());
+                metaData.add(Tag.Composer, tag.getItem2());
+                metaData.add(Tag.ComposerJ, tag.getItem2());
                 break;
             case "author":
-                addItemAry(gt, Tag.Artist, tag.getItem2());
-                addItemAry(gt, Tag.ArtistJ, tag.getItem2());
+                metaData.add(Tag.Artist, tag.getItem2());
+                metaData.add(Tag.ArtistJ, tag.getItem2());
                 break;
             case "comment":
-                addItemAry(gt, Tag.Note, tag.getItem2());
+                metaData.add(Tag.Note, tag.getItem2());
                 break;
             case "mucom88":
-                addItemAry(gt, Tag.RequestDriverVersion, tag.getItem2());
+                metaData.add(Tag.RequestDriverVersion, tag.getItem2());
                 break;
             case "date":
-                addItemAry(gt, Tag.ReleaseDate, tag.getItem2());
+                metaData.add(Tag.ReleaseDate, tag.getItem2());
                 break;
             case "driver":
-                addItemAry(gt, Tag.DriverName, tag.getItem2());
+                metaData.add(Tag.DriverName, tag.getItem2());
                 break;
             }
         }
 
-        return gt;
+        return metaData;
     }
 
     private static List<Tuple<String, String>> getTagsByteArray(byte[] buf) {
@@ -750,17 +750,6 @@ logger.log(Level.TRACE, "Stop rendering.");
         }
 
         return tags;
-    }
-
-    private static void addItemAry(GD3Tag gt, Tag tag, String item) {
-        if (!gt.items.containsKey(tag))
-            gt.items.put(tag, new String[] {item});
-        else {
-            String[] dmy = gt.items.get(tag);
-            dmy = new String[dmy.length + 1];
-            dmy[dmy.length - 1] = item;
-            gt.items.put(tag, dmy);
-        }
     }
 
     public int getNowLoopCounter() {

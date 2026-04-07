@@ -21,13 +21,13 @@ public class MubHeader {
 
     private static final Logger logger = getLogger(MubHeader.class.getName());
 
-    public int magic;
+    public final int magic;
     public int dataOffset = 0;
     public int dataSize = 0;
     public int tagData;
     public int tagSize;
-    public int[] pcmDataPtr = new int[] {0, 0, 0, 0, 0, 0};
-    public int[] pcmSize = new int[] {0, 0, 0, 0, 0, 0};
+    public final int[] pcmDataPtr = new int[] {0, 0, 0, 0, 0, 0};
+    public final int[] pcmSize = new int[] {0, 0, 0, 0, 0, 0};
     public int jumpCount;
     public int jumpLine;
     public int extFlags = 0;
@@ -37,14 +37,14 @@ public class MubHeader {
     public int extFmVoiceNum = 0;
     public int extPlayer = 0;
     public int pad1 = 0;
-    public byte[] extFmVoice = new byte[32];
+    public final byte[] extFmVoice = new byte[32];
     private final MmlDatum[] srcBuf;
     public MupbInfo mupb;
     private int mupbDataPtr;
     public boolean carrierCorrection;
     public enmOPMClockMode opmClockMode;
     public boolean SSGExtend = false;
-    public int[] rhythmMute = new int[] {0x3f, 0x3f, 0x3f, 0x3f};
+    public final int[] rhythmMute = new int[] {0x3f, 0x3f, 0x3f, 0x3f};
 
     public enum enmOPMClockMode {
         normal, X68000
@@ -307,75 +307,83 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
             if (tag == null) continue;
             if (StringUtilities.isNullOrEmpty(tag.getItem1())) continue;
 
-            if (tag.getItem1().toLowerCase().trim().equals("carriercorrection")) {
-                if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
-                    String val = tag.getItem2().toLowerCase().trim();
-                    carrierCorrection = val.equals("yes") || val.equals("y") || val.equals("1") || val.equals("true") || val.equals("t");
-                }
-            } else if (tag.getItem1().toLowerCase().trim().equals("opmclockmode")) {
-                if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
-                    String val = tag.getItem2().toLowerCase().trim();
-
-                    opmClockMode = enmOPMClockMode.normal;
-                    if (val.equals("x68000") || val.equals("x68k") || val.equals("x68") || val.equals("x") || val.equals("4000000") || val.equals("x680x0")) {
-                        opmClockMode = enmOPMClockMode.X68000;
+            switch (tag.getItem1().toLowerCase().trim()) {
+                case "carriercorrection" -> {
+                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                        String val = tag.getItem2().toLowerCase().trim();
+                        carrierCorrection = val.equals("yes") || val.equals("y") || val.equals("1") || val.equals("true") || val.equals("t");
                     }
                 }
-            } else if (tag.getItem1().toLowerCase().trim().equals("ssgextend")) {
-                if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
-                    String val = tag.getItem2().toLowerCase().trim();
-                    SSGExtend = val.equals("on") || val.equals("yes") || val.equals("y") || val.equals("1") || val.equals("true") || val.equals("t");
-                }
-            } else if (tag.getItem1().toLowerCase().trim().equals("opna1rhythmmute")) {
-                if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
-                    String val = tag.getItem2().toLowerCase().trim();
-                    rhythmMute[0] = 0;
-                    if (val.indexOf('b') > -1) rhythmMute[0] |= 1;
-                    if (val.indexOf('s') > -1) rhythmMute[0] |= 2;
-                    if (val.indexOf('c') > -1) rhythmMute[0] |= 4;
-                    if (val.indexOf('h') > -1) rhythmMute[0] |= 8;
-                    if (val.indexOf('t') > -1) rhythmMute[0] |= 16;
-                    if (val.indexOf('r') > -1) rhythmMute[0] |= 32;
-                    rhythmMute[0] = (~rhythmMute[0]) & 0b0011_1111;
-                }
-            } else if (tag.getItem1().toLowerCase().trim().equals("opna2rhythmmute")) {
-                if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
-                    String val = tag.getItem2().toLowerCase().trim();
+                case "opmclockmode" -> {
+                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                        String val = tag.getItem2().toLowerCase().trim();
 
-                    rhythmMute[1] = 0;
-                    if (val.indexOf('b') > -1) rhythmMute[1] |= 1;
-                    if (val.indexOf('s') > -1) rhythmMute[1] |= 2;
-                    if (val.indexOf('c') > -1) rhythmMute[1] |= 4;
-                    if (val.indexOf('h') > -1) rhythmMute[1] |= 8;
-                    if (val.indexOf('t') > -1) rhythmMute[1] |= 16;
-                    if (val.indexOf('r') > -1) rhythmMute[1] |= 32;
-                    rhythmMute[1] = (~rhythmMute[1]) & 0b0011_1111;
+                        opmClockMode = enmOPMClockMode.normal;
+                        if (val.equals("x68000") || val.equals("x68k") || val.equals("x68") || val.equals("x") || val.equals("4000000") || val.equals("x680x0")) {
+                            opmClockMode = enmOPMClockMode.X68000;
+                        }
+                    }
                 }
-            } else if (tag.getItem1().toLowerCase().trim().equals("opnb1adpcmamute")) {
-                if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
-                    String val = tag.getItem2().toLowerCase().trim();
-
-                    rhythmMute[2] = 0;
-                    if (val.indexOf('1') > -1) rhythmMute[2] |= 1;
-                    if (val.indexOf('2') > -1) rhythmMute[2] |= 2;
-                    if (val.indexOf('3') > -1) rhythmMute[2] |= 4;
-                    if (val.indexOf('4') > -1) rhythmMute[2] |= 8;
-                    if (val.indexOf('5') > -1) rhythmMute[2] |= 16;
-                    if (val.indexOf('6') > -1) rhythmMute[2] |= 32;
-                    rhythmMute[2] = (~rhythmMute[2]) & 0b0011_1111;
+                case "ssgextend" -> {
+                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                        String val = tag.getItem2().toLowerCase().trim();
+                        SSGExtend = val.equals("on") || val.equals("yes") || val.equals("y") || val.equals("1") || val.equals("true") || val.equals("t");
+                    }
                 }
-            } else if (tag.getItem1().toLowerCase().trim().equals("opnb2adpcmamute")) {
-                if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
-                    String val = tag.getItem2().toLowerCase().trim();
+                case "opna1rhythmmute" -> {
+                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                        String val = tag.getItem2().toLowerCase().trim();
+                        rhythmMute[0] = 0;
+                        if (val.indexOf('b') > -1) rhythmMute[0] |= 1;
+                        if (val.indexOf('s') > -1) rhythmMute[0] |= 2;
+                        if (val.indexOf('c') > -1) rhythmMute[0] |= 4;
+                        if (val.indexOf('h') > -1) rhythmMute[0] |= 8;
+                        if (val.indexOf('t') > -1) rhythmMute[0] |= 16;
+                        if (val.indexOf('r') > -1) rhythmMute[0] |= 32;
+                        rhythmMute[0] = (~rhythmMute[0]) & 0b0011_1111;
+                    }
+                }
+                case "opna2rhythmmute" -> {
+                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                        String val = tag.getItem2().toLowerCase().trim();
 
-                    rhythmMute[3] = 0;
-                    if (val.indexOf('1') > -1) rhythmMute[3] |= 1;
-                    if (val.indexOf('2') > -1) rhythmMute[3] |= 2;
-                    if (val.indexOf('3') > -1) rhythmMute[3] |= 4;
-                    if (val.indexOf('4') > -1) rhythmMute[3] |= 8;
-                    if (val.indexOf('5') > -1) rhythmMute[3] |= 16;
-                    if (val.indexOf('6') > -1) rhythmMute[3] |= 32;
-                    rhythmMute[3] = (~rhythmMute[3]) & 0b0011_1111;
+                        rhythmMute[1] = 0;
+                        if (val.indexOf('b') > -1) rhythmMute[1] |= 1;
+                        if (val.indexOf('s') > -1) rhythmMute[1] |= 2;
+                        if (val.indexOf('c') > -1) rhythmMute[1] |= 4;
+                        if (val.indexOf('h') > -1) rhythmMute[1] |= 8;
+                        if (val.indexOf('t') > -1) rhythmMute[1] |= 16;
+                        if (val.indexOf('r') > -1) rhythmMute[1] |= 32;
+                        rhythmMute[1] = (~rhythmMute[1]) & 0b0011_1111;
+                    }
+                }
+                case "opnb1adpcmamute" -> {
+                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                        String val = tag.getItem2().toLowerCase().trim();
+
+                        rhythmMute[2] = 0;
+                        if (val.indexOf('1') > -1) rhythmMute[2] |= 1;
+                        if (val.indexOf('2') > -1) rhythmMute[2] |= 2;
+                        if (val.indexOf('3') > -1) rhythmMute[2] |= 4;
+                        if (val.indexOf('4') > -1) rhythmMute[2] |= 8;
+                        if (val.indexOf('5') > -1) rhythmMute[2] |= 16;
+                        if (val.indexOf('6') > -1) rhythmMute[2] |= 32;
+                        rhythmMute[2] = (~rhythmMute[2]) & 0b0011_1111;
+                    }
+                }
+                case "opnb2adpcmamute" -> {
+                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                        String val = tag.getItem2().toLowerCase().trim();
+
+                        rhythmMute[3] = 0;
+                        if (val.indexOf('1') > -1) rhythmMute[3] |= 1;
+                        if (val.indexOf('2') > -1) rhythmMute[3] |= 2;
+                        if (val.indexOf('3') > -1) rhythmMute[3] |= 4;
+                        if (val.indexOf('4') > -1) rhythmMute[3] |= 8;
+                        if (val.indexOf('5') > -1) rhythmMute[3] |= 16;
+                        if (val.indexOf('6') > -1) rhythmMute[3] |= 32;
+                        rhythmMute[3] = (~rhythmMute[3]) & 0b0011_1111;
+                    }
                 }
             }
         }

@@ -23,7 +23,7 @@ public class Msub {
     private final MUCInfo mucInfo;
     public Muc88 muc88;
 
-    public int[] scores = {
+    public final int[] scores = {
             0, 0, 0, 0, 0, 0
     };
 
@@ -79,7 +79,7 @@ public class Msub {
             0
     };
 
-    public int[] TONES = {
+    public final int[] TONES = {
             0x63, 0, // 'c'
             0x64, 2, // 'd'
             0x65, 4, // 'e'
