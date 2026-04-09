@@ -162,7 +162,7 @@ public class SoundWork {
         pvMode = value;
     }
 
-    private final int muTop = 5;
+    private static final int muTop = 5;
 
     public int getMuTop() {
         return muTop;

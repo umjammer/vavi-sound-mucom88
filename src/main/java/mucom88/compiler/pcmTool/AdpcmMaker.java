@@ -7,8 +7,7 @@ import java.util.function.Function;
 
 import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
-
-import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
+import vavi.util.ByteUtil;
 
 
 public class AdpcmMaker {
@@ -107,7 +106,7 @@ public class AdpcmMaker {
         List<Byte> raw = fileManager.getRawData();
         if (raw != null) dst.addAll(raw);
 
-        return toByteArray(dst);
+        return ByteUtil.toByteArray(dst);
     }
 
     private static List<Byte> MakeHeader(Config config, PCMFileManager fileManager, List<Byte> dst) {

@@ -24,7 +24,7 @@ import static mucom88.common.Common.charset;
 class Program {
     private static String srcFile;
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         int fnIndex = analyzeOption(args);
 
         if (args.length != fnIndex + 1) {
@@ -139,7 +139,7 @@ class Program {
         try {
             strm = new FileStream(fn, FileMode.Open, FileAccess.Read, FileShare.Read);
         } catch (IOException e) {
-            e.printStackTrace();
+            Debug.printStackTrace(e);
             strm = null;
         }
 
