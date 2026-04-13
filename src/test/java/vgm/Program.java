@@ -29,7 +29,7 @@ class Program {
     private static int loop = 2;
     private static List<Tuple<String, String>> tags = null;
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         int fnIndex = analyzeOption(args);
 
         if (args == null || args.length != fnIndex + 1) {
@@ -118,7 +118,7 @@ Debug.printf(Level.INFO, "%-16s : %s", tag.getItem1(), tag.getItem2());
             driver.stopMusic();
             driver.stopRendering();
         } catch (Exception e) {
-            e.printStackTrace();
+            Debug.printStackTrace(e);
         } finally {
             if (writer != null) {
                 writer.close(tags, opnaMasterClock, opnbMasterClock, opmMasterClock);

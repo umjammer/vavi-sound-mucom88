@@ -3,7 +3,7 @@ package mucom88.compiler.pcmTool;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
+import vavi.util.ByteUtil;
 
 
 // https://wiki.neogeodev.org/index.php?title=ADPCM_codecs
@@ -234,7 +234,7 @@ public class EncAdpcmA {
             }
         }
 
-        return toByteArray(outBuffer);
+        return ByteUtil.toByteArray(outBuffer);
     }
 }
 

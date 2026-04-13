@@ -37,7 +37,7 @@ class Program {
     private static WaveWriter ww = null;
     private static int loop = 2;
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
 
         int fnIndex = analyzeOption(args);
 
@@ -108,7 +108,7 @@ class Program {
                 chip.option = new Object[] {GetApplicationFolder()};
                 chips.add(chip);
             }
-            mds = new MDSound(SamplingRate, samplingBuffer, chips);
+            mds = new MDSound();
 
             List<ChipAction> actions = new ArrayList<>();
             MucomChipAction action;
@@ -161,7 +161,7 @@ class Program {
             drv.stopMusic();
             drv.stopRendering();
         } catch (Exception e) {
-            e.printStackTrace();
+            Debug.printStackTrace(e);
         } finally {
             if (ww != null) {
                 ww.close();
@@ -230,7 +230,7 @@ class Program {
 
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Debug.printStackTrace(ex);
         }
 
         return count;

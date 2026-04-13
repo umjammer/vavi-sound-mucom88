@@ -291,7 +291,7 @@ public class Work {
     public int muNum = 0; // b MUSIC number being compiled
     public int otoDat = 1; // w Contains the address top where FM tones are stored
     public int ssgDat = 3; // w SSG...
-    public final int muTop = 5; // w Music data (including address table) Start address
+    public static final int muTop = 5; // w Music data (including address table) Start address
     public CompilerInfo compilerInfo = null;
     public int quantize = 0;
     public int beforeQuantize = 0;

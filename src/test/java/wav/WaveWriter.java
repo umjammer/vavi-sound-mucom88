@@ -7,8 +7,7 @@ import dotnet4j.io.FileAccess;
 import dotnet4j.io.FileMode;
 import dotnet4j.io.FileStream;
 import dotnet4j.io.SeekOrigin;
-
-import static dotnet4j.util.compat.CollectionUtilities.toByteArray;
+import vavi.util.ByteUtil;
 
 
 public class WaveWriter {
@@ -88,7 +87,7 @@ public class WaveWriter {
         des.add((byte) ((len & 0xff000000) >> 24));
 
         // output
-        dest.write(toByteArray(des), 0, des.size());
+        dest.write(ByteUtil.toByteArray(des), 0, des.size());
     }
 
     public void close() {

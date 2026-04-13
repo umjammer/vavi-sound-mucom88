@@ -119,7 +119,6 @@ if (dest.length == 0) {
         } catch (MubException | MucException ex) {
             System.err.println(ex.getMessage());
         } catch (Exception ex) {
-            ex.printStackTrace();
 Debug.println(Level.SEVERE, ex.getMessage());
 Debug.println(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
         }
@@ -135,7 +134,7 @@ Debug.println(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
         try {
             strm = new FileStream(fn, FileMode.Open, FileAccess.Read, FileShare.Read);
         } catch (IOException e) {
-            e.printStackTrace();
+            Debug.printStackTrace(e);
             strm = null;
         }
 
