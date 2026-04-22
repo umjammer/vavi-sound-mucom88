@@ -2196,7 +2196,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         }
 
         work.pg.volume = work.pg.mData[work.hl++].dat;
-logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.DEBUG, "work.pg.volume: " + work.pg.volume);
         STVOL();
     }
 
@@ -2207,7 +2207,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             return;
         }
         work.pg.volume = e;
-logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.DEBUG, "work.pg.volume: " + work.pg.volume);
     }
 
     public void VOLDRM() {
@@ -2221,7 +2221,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         }
 
         work.pg.volume = a;
-logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.DEBUG, "work.pg.volume: " + work.pg.volume);
         DVOLSET();
 //VOLDR1:
         int b = 6;

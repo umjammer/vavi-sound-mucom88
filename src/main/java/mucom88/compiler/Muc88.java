@@ -29,7 +29,7 @@ public class Muc88 {
 
     private static final Logger logger = getLogger(Muc88.class.getName());
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     public Msub msub = null;
     public Expand expand = null;

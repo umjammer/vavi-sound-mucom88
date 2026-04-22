@@ -1,11 +1,12 @@
-package console;
+package mucom88.console;
 
 import java.io.OutputStream;
+import java.lang.System.Logger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
+import java.lang.System.Logger.Level;
 
 import dotnet4j.io.BufferedStream;
 import dotnet4j.io.File;
@@ -26,10 +27,13 @@ import vavi.util.serdes.Serdes;
 
 public class Program {
 
-    private static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+    private static final Logger logger = System.getLogger(Program.class.getName());
+
+    private static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     private static String srcFile;
     private static boolean isXml = false;
+    public static boolean isTest = false;
 
     /**
      *
@@ -39,7 +43,7 @@ public class Program {
         int fnIndex = analyzeOption(args);
 
         if (args.length < 1 + fnIndex) {
-            Debug.printf(Level.INFO, rb.getString("I0600"));
+            logger.log(Level.INFO, rb.getString("I0600"));
             return;
         }
 
@@ -48,8 +52,8 @@ public class Program {
             compile(args[fnIndex], (args.length > fnIndex + 1 ? args[fnIndex + 1] : null));
 
         } catch (Exception ex) {
-            Debug.printf(Level.SEVERE, ex.getMessage());
-            Debug.printf(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
+            logger.log(Level.ERROR, ex.getMessage());
+            logger.log(Level.ERROR, Arrays.toString(ex.getStackTrace()));
         }
     }
 
@@ -78,9 +82,9 @@ public class Program {
                 } else {
                     destFileName = path.getParent().resolve(getCompledFilename(path)).toString();
                 }
-Debug.println(Level.FINE, srcFile + " -> " + destFileName);
+logger.log(Level.DEBUG, srcFile + " -> " + destFileName);
                 if (!Files.exists(path)) {
-                    Debug.printf(Level.SEVERE, String.format(rb.getString("E0601"), srcFile));
+                    logger.log(Level.ERROR, String.format(rb.getString("E0601"), srcFile));
                     return;
                 }
 
@@ -109,7 +113,7 @@ Debug.println(Level.FINE, srcFile + " -> " + destFileName);
                     dest = compiler.compile(sourceMML, Program::appendFileReaderCallback);
                 }
 if (dest.length == 0) {
- Debug.println(Level.WARNING, "no data");
+ logger.log(Level.WARNING, "no data");
 }
                 try (OutputStream sw = Files.newOutputStream(Path.of(destFileName))) {
                     for (var d : dest)
@@ -119,8 +123,8 @@ if (dest.length == 0) {
         } catch (MubException | MucException ex) {
             System.err.println(ex.getMessage());
         } catch (Exception ex) {
-Debug.println(Level.SEVERE, ex.getMessage());
-Debug.println(Level.SEVERE, Arrays.toString(ex.getStackTrace()));
+            logger.log(Level.ERROR, ex.getMessage());
+            logger.log(Level.ERROR, Arrays.toString(ex.getStackTrace()));
         }
     }
 

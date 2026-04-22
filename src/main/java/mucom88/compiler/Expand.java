@@ -9,7 +9,7 @@ import mucom88.common.MUCInfo;
 
 public class Expand {
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     private final Work work;
     private final MUCInfo mucInfo;

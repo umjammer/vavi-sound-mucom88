@@ -32,7 +32,7 @@ public class Compiler implements ICompiler {
 
     private static final Logger logger = getLogger(Compiler.class.getName());
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     private byte[] srcBuf = null;
     private MUCInfo mucInfo = new MUCInfo();
@@ -67,7 +67,7 @@ public class Compiler implements ICompiler {
     }
 
     public void init() {
-        // mucInfo = new MUCInfo();
+        //mucInfo = new MUCInfo();
         work = new Work();
         muc88 = new Muc88(work, mucInfo);
         msub = new Msub(work, mucInfo);

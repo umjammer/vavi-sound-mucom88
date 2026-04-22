@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 
 public class MubException extends RuntimeException {
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     public MubException(String message) {
         super(message);

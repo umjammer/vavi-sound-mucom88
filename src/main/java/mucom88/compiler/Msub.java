@@ -17,7 +17,7 @@ public class Msub {
 
     private static final Logger logger = getLogger(Msub.class.getName());
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     private final Work work;
     private final MUCInfo mucInfo;
