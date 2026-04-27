@@ -85,6 +85,16 @@ public class MUCInfo {
         voice = value;
     }
 
+    private String artwork;
+
+    public String getArtwork() {
+        return artwork;
+    }
+
+    public void setArtwork(String value) {
+        artwork = value;
+    }
+
     private String[] pcm = new String[6];
 
     public String[] getPcm() {
@@ -312,7 +322,7 @@ public class MUCInfo {
     public int incAndGetSrcCPtr() {
         return ++srcCPtr;
     }
-    public void decSrcCPtr() {
+    public void getAndDecSrcCPtr() {
         srcCPtr--;
     }
     public void setSrcCPtr(int value) {
@@ -626,6 +636,7 @@ public class MUCInfo {
         mucom88 = "";
         date = "";
         voice = "";
+        artwork = "";
         for (int i = 0; i < 6; i++) {
             pcm[i] = "";
             pcmAt[i].clear();

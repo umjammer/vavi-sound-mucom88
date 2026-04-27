@@ -8,10 +8,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
 import mucom88.console.Program;
-import org.junit.jupiter.api.BeforeAll;
+import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
+import vavix.util.Checksum;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -20,10 +25,6 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import vavi.util.Debug;
-import vavi.util.properties.annotation.Property;
-import vavi.util.properties.annotation.PropsEntity;
-import vavix.util.Checksum;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,9 +47,25 @@ public class TestCase {
     double volume = 0.2;
 
     @Property
-    String file;
+    String mub;
+    @Property
+    String muc;
 
-    static Path outDir;
+    @Property
+    String mucDir;
+    @Property
+    String mubDir;
+    @Property
+    String outDir;
+
+    @Property
+    String mucom;
+    @Property
+    String mucomDotNet;
+
+    static ThreadLocal<Path> outPath = new ThreadLocal<>();
+    static ThreadLocal<Path> mucDirPath = new ThreadLocal<>();
+    static ThreadLocal<Path> mubDirPath = new ThreadLocal<>();
 
     @BeforeEach
     void setup() throws Exception {
@@ -56,25 +73,21 @@ public class TestCase {
             PropsEntity.Util.bind(this);
         }
 
-Debug.println("volume: " + volume);
-    }
-
-    @BeforeAll
-    static void setupAll() throws IOException {
-        outDir = Path.of("tmp/out");
-        if (!Files.exists(outDir)) {
-            Files.createDirectories(outDir);
+        outPath.set(Path.of(outDir));
+        if (!Files.exists(outPath.get())) {
+            Files.createDirectories(outPath.get());
         }
+
+        mucDirPath.set(Path.of(mucDir));
+        mubDirPath.set(Path.of(mubDir));
+
+        System.setProperty("mucom88.volume", String.valueOf(volume));
+Debug.println("volume: " + System.getProperty("mucom88.volume"));
     }
 
-    /** .muc files from sample dir */
-    static Stream<Arguments> sources() throws IOException {
-        return Files.list(Path.of("src/test/resources/samples/")).filter(p -> p.toString().endsWith(".muc")).map(Arguments::arguments);
-    }
-
-    /** .muc files from test dir */
-    static Stream<Arguments> sources1() throws IOException {
-        return Files.list(Path.of("src/test/resources/test/")).filter(p -> p.toString().endsWith(".muc")).map(Arguments::arguments);
+    /** .muc (mml) files from sample dir */
+    static Stream<Arguments> mucSources() throws IOException {
+        return Files.walk(mucDirPath.get()).filter(p -> p.toString().endsWith(".muc")).map(Arguments::arguments);
     }
 
 //    @Disabled("compiler not finished")
@@ -82,11 +95,11 @@ Debug.println("volume: " + volume);
     @DisplayName("compile .muc at dir to .mub")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test0() throws Exception {
-        Path dir = Path.of("tmp/iwamoo_mucom88muc_2018-2022/");
-        Files.list(dir)
+        Files.walk(mucDirPath.get())
                 .filter(p -> p.toString().endsWith(".muc"))
                 .forEach(p -> {
-                    Path out = dir.resolve(Program.getCompledFilename(p));
+                    Path out = outPath.get().resolve(Program.getCompledFilename(p));
+System.out.println(p + " -> " + out);
                     Program.main(new String[] {
                             p.toString(),
                             out.toString()
@@ -96,10 +109,11 @@ Debug.println("volume: " + volume);
 
     @Disabled("it's compiled by extended mode")
     @ParameterizedTest
-    @MethodSource("sources")
-    @DisplayName("compile .muc at method source to .mub into tmp/out")
+    @MethodSource("mucSources")
+    @DisplayName("compile .muc at method source to .mub into specified dir")
     void test1(Path p) throws Exception {
-        Path out = outDir.resolve(Program.getCompledFilename(p));
+        Path out = Path.of(outDir, Program.getCompledFilename(p));
+System.out.println(p + " -> " + out);
         Program.main(new String[] {
                 p.toString(),
                 out.toString()
@@ -111,21 +125,17 @@ Debug.println("volume: " + volume);
         }
     }
 
-    /** .mub files at out dir */
-    static Stream<Arguments> sources2() throws IOException {
-        return Files.list(outDir).filter(p -> p.toString().endsWith(".mub")).map(Arguments::arguments);
-    }
-
-    /** .mub files at test resources */
-    static Stream<Arguments> sources22() throws IOException {
-        return Files.list(Path.of("src/test/resources/test/")).filter(p -> p.toString().endsWith(".mub")).map(Arguments::arguments);
+    /** .mub (binary) files at out dir */
+    static Stream<Arguments> mubSources() throws IOException {
+        return Files.walk(mubDirPath.get()).filter(p -> p.toString().endsWith(".mub")).map(Arguments::arguments);
     }
 
     @ParameterizedTest
-    @MethodSource("sources22")
+    @MethodSource("mubSources")
     @DisplayName("play .mub at method source")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test2(Path p) throws Exception {
+Debug.println(p);
         mucom88.player.Program.main(new String[] {p.toString()});
     }
 
@@ -133,6 +143,94 @@ Debug.println("volume: " + volume);
     @DisplayName("play .mub")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test3() throws Exception {
-        mucom88.player.Program.main(new String[] {file});
+Debug.println(mub);
+        mucom88.player.Program.main(new String[] {mub});
+    }
+
+    @Test
+    @DisplayName("compile & compare c# & play")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
+    void test4() throws Exception {
+Debug.println(muc);
+        Path testMUC = Path.of("tmp/test_java.muc");
+        Path testMUB = Path.of("tmp/test_java.mub");
+        Path testMUC2 = Path.of("tmp/test_dotnet.muc");
+        Path testMUB2 = Path.of("tmp/test_dotnet.mub");
+
+        Files.copy(Path.of(muc), testMUC, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(Path.of(muc), testMUC2, StandardCopyOption.REPLACE_EXISTING);
+        Files.deleteIfExists(testMUB);
+        Files.deleteIfExists(testMUB2);
+
+Debug.println("c# ----------------------------------------------------------------");
+        // compile c#
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.inheritIO();
+        Process p = pb.command(mucomDotNet, testMUC2.toRealPath().toString()).start();
+        int r = p.waitFor();
+        assertEquals(0, r);
+        assertTrue(Files.exists(testMUB2), "c# compile failed");
+
+Debug.println("java ----------------------------------------------------------------");
+        // compile java
+        mucom88.console.Program.main(new String[] {testMUC.toString()});
+        assertTrue(Files.exists(testMUB), "java compile failed");
+
+Debug.println("compare ----------------------------------------------------------------");
+Debug.println("c#  : " + Files.size(testMUB2));
+Debug.println("java: " + Files.size(testMUB));
+        // compare
+        assertEquals(Files.size(testMUB2), Files.size(testMUB), "java output is different from the original");
+
+        // play
+Debug.println("play ----------------------------------------------------------------");
+        mucom88.player.Program.main(new String[] {testMUB.toString()});
+    }
+
+    @Test
+    @DisplayName("compile & compare native & play")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
+    void test5() throws Exception {
+Debug.println(muc);
+        Path testMUC = Path.of("tmp/test_java.muc");
+        Path testMUB = Path.of("tmp/test_java.mub");
+        Path testMUC2 = Path.of("tmp/test_native.muc");
+        Path testMUB2 = Path.of("tmp/test_native.mub");
+
+        Files.copy(Path.of(muc), testMUC, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(Path.of(muc), testMUC2, StandardCopyOption.REPLACE_EXISTING);
+        Files.deleteIfExists(testMUB);
+        Files.deleteIfExists(testMUB2);
+
+Debug.println("native ----------------------------------------------------------------");
+        // compile native
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.inheritIO();
+        Process p = pb.command(mucom, "-g", testMUC2.toRealPath().toString(), "-o", testMUB2.toString()).start();
+        int r = p.waitFor();
+        assertEquals(0, r);
+        assertTrue(Files.exists(testMUB2), "native compile failed");
+
+Debug.println("java ----------------------------------------------------------------");
+        // compile java
+        mucom88.console.Program.main(new String[] {testMUC.toString()});
+        assertTrue(Files.exists(testMUB), "java compile failed");
+
+Debug.println("compare ----------------------------------------------------------------");
+Debug.println("native: " + Files.size(testMUB2));
+Debug.println("java  : " + Files.size(testMUB));
+        // compare
+//        assertEquals(Files.size(testMUB2), Files.size(testMUB), "java output is different from the original");
+
+        // play
+//        mucom88.player.Program.main(new String[] {testMUB.toString()});
+        mucom88.player.Program.main(new String[] {testMUB2.toString()});
+    }
+
+    @Test
+    @DisplayName("compile .muc")
+    void test6() throws Exception {
+Debug.println(muc);
+        mucom88.console.Program.main(new String[] {muc});
     }
 }

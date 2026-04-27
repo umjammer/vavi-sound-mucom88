@@ -5,6 +5,7 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -14,17 +15,18 @@ import dotnet4j.io.Stream;
 import dotnet4j.util.compat.StringUtilities;
 import dotnet4j.util.compat.Tuple;
 import dotnet4j.util.compat.Tuple3;
+import mucom88.common.Common;
 import mucom88.common.MUCInfo;
 import mucom88.common.MucException;
-import mucom88.common.Common;
 import mucom88.compiler.pcmTool.AdpcmMaker;
 import musicDriverInterface.CompilerInfo;
+import musicDriverInterface.ICompiler;
 import musicDriverInterface.MetaData;
 import musicDriverInterface.MetaData.Tag;
 import musicDriverInterface.MmlDatum;
-import musicDriverInterface.ICompiler;
 
 import static java.lang.System.getLogger;
+import static mdsound.Common.readAllBytes;
 import static mucom88.common.Common.charset;
 
 
@@ -83,7 +85,7 @@ public class Compiler implements ICompiler {
 
     public MmlDatum[] compile(Stream sourceMML, Function<String, Stream> appendFileReaderCallback) {
         try {
-            srcBuf = mdsound.Common.readAllBytes(sourceMML);
+            srcBuf = readAllBytes(sourceMML);
             mucInfo = getMUCInfo(srcBuf);
             mucInfo.setIDE(isIDE);
             mucInfo.setSkipPoint(skipPoint);
@@ -92,7 +94,7 @@ public class Compiler implements ICompiler {
             for (int i = 0; i < 6; i++) pcmData[i] = null;
 
             try (Stream vd = appendFileReaderCallback.apply(StringUtilities.isNullOrEmpty(mucInfo.getVoice()) ? "voice.dat" : mucInfo.getVoice())) {
-                voice = mdsound.Common.readAllBytes(vd);
+                voice = readAllBytes(vd);
             }
 
             String[] pcmDefaultFilenames = {
@@ -113,7 +115,7 @@ public class Compiler implements ICompiler {
                     try (Stream pd = appendFileReaderCallback.apply(StringUtilities.isNullOrEmpty(mucInfo.getPcm()[i])
                             ? pcmDefaultFilenames[i]
                             : mucInfo.getPcm()[i])) {
-                        pcmData[i] = mdsound.Common.readAllBytes(pd);
+                        pcmData[i] = readAllBytes(pd);
                     }
                 }
             }
@@ -126,6 +128,16 @@ public class Compiler implements ICompiler {
             mucInfo.setSrcLinPtr(-1);
             //work.compilerInfo.jumpRow = -1;
             //work.compilerInfo.jumpCol = -1;
+            if (!StringUtilities.isNullOrEmpty(mucInfo.getArtwork())) {
+                String fn = mucInfo.getArtwork();
+                if (fn.charAt(0) == '"' && fn.charAt(fn.length() - 1) == '"') {
+                    fn = fn.substring(1, fn.length() - 2);
+                }
+                try (Stream pd = appendFileReaderCallback.apply(fn)) {
+                    byte[] pic = readAllBytes(pd);
+                    mucInfo.setArtwork(new String(Base64.getDecoder().decode(pic)));
+                }
+            }
 
             // MUCOM88 Initialization
             int ret = muc88.compile(); // vector 0xeea8
@@ -140,7 +152,7 @@ logger.log(Level.DEBUG, "errLine: " + errLine);
                                 mucInfo.getCol(),
                                 rb.getString("E0100").formatted(mucInfo.getRow(), mucInfo.getCol())
                         ));
-                logger.log(Level.ERROR, rb.getString("E0100"), mucInfo.getRow(), mucInfo.getCol());
+                logger.log(Level.ERROR, rb.getString("E0100").formatted(mucInfo.getRow(), mucInfo.getCol()));
                 return null;
             }
 
@@ -209,6 +221,9 @@ logger.log(Level.ERROR, e.getMessage(), e);
                 break;
             case "voice":
                 mucInfo.setVoice(tag.getItem2());
+                break;
+            case "artwork":
+                mucInfo.setArtwork(tag.getItem2());
                 break;
             case "pcm":
                 mucInfo.getPcm()[0] = tag.getItem2();
@@ -362,10 +377,10 @@ logger.log(Level.ERROR, e.getMessage(), e);
             return MUCOMFileType.unknown;
         }
 
-        if (buf[0] == 0x4d
-                && buf[1] == 0x55
-                && buf[2] == 0x43
-                && buf[3] == 0x38) {
+        if (buf[0] == 0x4d &&
+                buf[1] == 0x55 &&
+                buf[2] == 0x43 &&
+                buf[3] == 0x38) {
             return MUCOMFileType.MUB;
         }
 
@@ -521,23 +536,23 @@ logger.log(Level.ERROR, e.getMessage(), e);
             if (isExtendFormat) length = bufferLength;
             mubSize = length;
 
-            System.out.println("- mucom.NET -");
-            System.out.print("[ Total count ]\n" + tCount);
-            System.out.print("[ Loop count  ]\n" + lCount);
+            logger.log(Level.INFO, "- mucom.NET -");
+            logger.log(Level.INFO, "[ Total count ]%n%s%n".formatted(tCount));
+            logger.log(Level.INFO, "[ Loop count  ]%n%s%n".formatted(lCount));
             if (isExtendFormat)
-                System.out.print("[ Buffer count  ]\n" + bCount);
-            System.out.println();
-            System.out.printf("#mucom type    : %s%n", mucInfo.getDriverType());
-            System.out.printf("#MUB Format    : %s%n", isExtendFormat ? "Extend" : "Normal");
-            System.out.println("#Used FM voice : ");
-            System.out.printf("#      @ count : %s%n", work.getUsedFMVoiceNumber().size());
+                logger.log(Level.INFO, "[ Buffer count  ]%n%s%n".formatted(bCount));
+            logger.log(Level.INFO, "");
+            logger.log(Level.INFO, "#mucom type    : %s".formatted(mucInfo.getDriverType()));
+            logger.log(Level.INFO, "#MUB Format    : %s".formatted(isExtendFormat ? "Extend" : "Normal"));
+            logger.log(Level.INFO, "#Used FM voice : ");
+            logger.log(Level.INFO, "#      @ count : %s".formatted(work.getUsedFMVoiceNumber().size()));
             List<Integer> usedFMVoiceNumberList = new ArrayList<>(work.getUsedFMVoiceNumber());
             Collections.sort(usedFMVoiceNumberList);
-            System.out.printf("#      @ list  : %s%n", String.join(" ", usedFMVoiceNumberList.stream().map(String::valueOf).toArray(String[]::new)));
-            System.out.printf("#Data Buffer   : $%05x - $%05x ($%05x)%n", start, start + length - 1, length);
-            System.out.printf("#Max Count     : %s%n", maxCount);
-            System.out.printf("#MML Lines     : %s%n", mucInfo.getLines());
-            System.out.printf("#Data          : %s%n", mubSize);
+            logger.log(Level.INFO, "#      @ list  : %s".formatted(String.join(" ", usedFMVoiceNumberList.stream().map(String::valueOf).toArray(String[]::new))));
+            logger.log(Level.INFO, "#Data Buffer   : $%05x - $%05x ($%05x)".formatted(start, start + length - 1, length));
+            logger.log(Level.INFO, "#Max Count     : %s".formatted(maxCount));
+            logger.log(Level.INFO, "#MML Lines     : %s".formatted(mucInfo.getLines()));
+            logger.log(Level.INFO, "#Data          : %s".formatted(mubSize));
 
             return saveMusic(length, pcmFlag, isExtendFormat);
         } catch (MucException me) {
@@ -704,7 +719,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
                 if (tag.getItem1() != null && !tag.getItem1().isEmpty() && tag.getItem1().charAt(0) == '*') continue;
                 if (StringUtilities.isNullOrEmpty(tag.getItem1()) && !StringUtilities.isNullOrEmpty(tag.getItem2()) && tag.getItem2().trim().charAt(0) == '*')
                     continue;
-                byte[] b = "#%s %s\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(charset);
+                byte[] b = "#%s %s\r\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(charset);
                 footSize += b.length;
                 for (byte bd : b) dat.add(new MmlDatum(bd & 0xff));
             }
@@ -765,20 +780,22 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         dat.add(new MmlDatum(0x05)); // Count of variable length header information.
         dat.add(new MmlDatum(Work.MAXChips)); // Number of sound sources to use (0~)
 
-        dat.add(new MmlDatum(Work.MAXCH * Work.MAXChips)); // Total number of parts to be used (0~)
-        dat.add(new MmlDatum(0x00));
+        int n = Work.MAXCH * Work.MAXChips; // Total number of parts to be used (0~)
+        dat.add(new MmlDatum(n & 0xff));
+        dat.add(new MmlDatum((n & 0xff00) >> 8));
 
-        int n = 0;
+        n = 0;
         for (int i = 0; i < Work.MAXChips; i++) {
             for (int j = 0; j < Work.MAXCH; j++) {
                 for (int k = 0; k < Work.MAXPG; k++) {
-                    if (work.getBufCount()[i][j][k] > 1) n++;
+//                    if (work.getBufCount()[i][j][k] > 1)
+                        n++;
                 }
             }
         }
 
         dat.add(new MmlDatum(n)); // Total number of pages to be used (0~)
-        dat.add(new MmlDatum(0x00));
+        dat.add(new MmlDatum((n & 0xff00) >> 8));
 
         int instSets = 0;
         for (int i = 0; i < Work.MAXChips; i++) instSets += work.otoNum[i];
@@ -923,7 +940,9 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         for (int i = 0; i < Work.MAXChips; i++) {
             for (int j = 0; j < Work.MAXCH; j++) {
                 n = 0;
-                for (int pg = 0; pg < Work.MAXPG; pg++) if (work.getBufCount()[i][j][pg] > 1) n++;
+                for (int pg = 0; pg < Work.MAXPG; pg++)
+//                    if (work.getBufCount()[i][j][pg] > 1)
+                        n++;
                 dat.add(new MmlDatum(n)); // Number of pages (0-)
             }
         }
@@ -933,7 +952,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         for (int i = 0; i < Work.MAXChips; i++)
             for (int j = 0; j < Work.MAXCH; j++)
                 for (int pg = 0; pg < Work.MAXPG; pg++) {
-                    if (work.getBufCount()[i][j][pg] < 2) continue;
+//                    if (work.getBufCount()[i][j][pg] < 2) continue;
 
                     n = work.getBufCount()[i][j][pg];
                     dat.add(new MmlDatum(n & 0xff)); // Page size (0~)
@@ -1035,7 +1054,12 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             int tagSize = 0;
             for (Tuple<String, String> tag : tags) {
                 if (tag.getItem1() != null && !tag.getItem1().isEmpty() && tag.getItem1().charAt(0) == '*') continue;
-                byte[] b = "#%s %s\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(charset);
+                byte[] b;
+                if (tag.getItem1().equals("artwork")) {
+                    b = "#%s %s\n".formatted(tag.getItem1(), mucInfo.getArtwork()).getBytes(charset);
+                } else {
+                    b = "#%s %s\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(charset);
+                }
                 tagSize += b.length;
                 for (byte bd : b) dat.add(new MmlDatum(bd & 0xff));
             }

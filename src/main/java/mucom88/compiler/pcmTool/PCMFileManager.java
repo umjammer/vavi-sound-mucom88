@@ -31,7 +31,7 @@ public class PCMFileManager {
         PCMFileInfo fi = new PCMFileInfo(itemList, appendFileReaderCallback);
         dicFile.remove(fi.getNumber() - 1);
         dicFile.put(fi.getNumber() - 1, fi);
-        if (fi.getLength() > -1) fi.Encode(config.FormatType);
+        if (fi.getLength() > -1) fi.encode(config.FormatType);
     }
 
     public List<Byte> getRawData() {

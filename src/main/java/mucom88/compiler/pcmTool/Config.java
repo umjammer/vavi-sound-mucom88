@@ -18,7 +18,7 @@ public class Config {
         return FormatType;
     }
 
-    public void Add(String lin) {
+    public void add(String lin) {
         if (StringUtilities.isNullOrEmpty(lin)) return;
         if (lin.length() < 3) return;
         if (lin.charAt(0) != '#') return;

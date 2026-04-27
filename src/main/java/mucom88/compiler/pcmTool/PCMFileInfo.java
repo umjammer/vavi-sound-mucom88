@@ -63,7 +63,7 @@ public class PCMFileInfo {
 
     private boolean[] is16bit;
 
-    public PCMFileInfo(List<String> itemList, Function<String, Stream> appendFileReaderCallback/* = null*/) {
+    public PCMFileInfo(List<String> itemList, Function<String, Stream> appendFileReaderCallback /* = null */) {
         if (itemList == null) return;
 
         int n;
@@ -97,7 +97,7 @@ public class PCMFileInfo {
 
         byte[] buf;
         try (Stream pd = appendFileReaderCallback.apply(fileName)) {
-            buf = ReadAllBytes(pd);
+            buf = readAllBytes(pd);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -106,8 +106,8 @@ public class PCMFileInfo {
             if (File.exists(fileName)) {
                 boolean[] isRaw = new boolean[1];
                 int[] samplerate = new int[1];
-                raw = GetPCMDataFromFile("", fileName, volume, /*out*/ isRaw, /*out*/ is16bit, /*out*/ samplerate);
-                if (raw != null) length = (short) raw.length;
+                raw = getPCMDataFromFile("", fileName, volume, /* out */ isRaw, /* out */ is16bit, /* out */ samplerate);
+                if (raw != null) length = raw.length & 0xffff;
                 else
                     throw new MucException("Fail get pcm data from file[%s].".formatted(fileName));
             } else {
@@ -116,18 +116,17 @@ public class PCMFileInfo {
         } else {
             boolean[] isRaw = new boolean[1];
             int[] samplerate = new int[1];
-            raw = GetPCMDataFromFile(buf, volume, /*out*/ isRaw, /*out*/ is16bit, /*out*/ samplerate);
-            if (raw != null) length = (short) raw.length;
+            raw = getPCMDataFromFile(buf, volume, /* out */ isRaw, /* out */ is16bit, /* out */ samplerate);
+            if (raw != null) length = raw.length & 0xffff;
             else
                 throw new MucException("Fail get pcm data from file[%s].".formatted(fileName));
         }
-
     }
 
     /**
      * Read binary from a stream in bulk
      */
-    private static byte[] ReadAllBytes(Stream stream) {
+    private static byte[] readAllBytes(Stream stream) {
         if (stream == null) return null;
 
         var buf = new byte[8192];
@@ -143,7 +142,7 @@ public class PCMFileInfo {
         }
     }
 
-    public void Encode(FormatType formatType) {
+    public void encode(FormatType formatType) {
         EncAdpcmA enc = new EncAdpcmA();
 
         switch (formatType) {
@@ -161,7 +160,7 @@ public class PCMFileInfo {
         length = encData.length;
     }
 
-    public static byte[] GetPCMDataFromFile(String path, String fileName, int vol, /*out*/ boolean[] isRaw, /*out*/ boolean[] is16bit, /*out*/ int[] samplerate) {
+    public static byte[] getPCMDataFromFile(String path, String fileName, int vol, /* out */ boolean[] isRaw, /* out */ boolean[] is16bit, /* out */ int[] samplerate) {
         String fnPcm = Path.combine(path, fileName).replace('\\', Path.DirectorySeparatorChar).replace('/', Path.DirectorySeparatorChar);
 
         isRaw[0] = false;
@@ -181,10 +180,10 @@ public class PCMFileInfo {
             return buf;
         }
 
-        return GetPCMDataFromFile(buf, vol, /*out*/ isRaw, /*out*/ is16bit, /*out*/ samplerate);
+        return getPCMDataFromFile(buf, vol, /* out */ isRaw, /* out */ is16bit, /* out */ samplerate);
     }
 
-    public static byte[] GetPCMDataFromFile(byte[] buf, int vol, /*out*/ boolean[] isRaw, /*out*/ boolean[] is16bit, /*out*/ int[] samplerate) {
+    public static byte[] getPCMDataFromFile(byte[] buf, int vol, /* out */ boolean[] isRaw, /* out */ boolean[] is16bit, /* out */ int[] samplerate) {
         isRaw[0] = false;
         is16bit[0] = false;
         samplerate[0] = 8000;
@@ -247,8 +246,8 @@ public class PCMFileInfo {
 
                     is16bit[0] = bitswidth == 16;
 
-                    int blockalign = (buf[p + 12] & 0xff) + (buf[p + 13] & 0xff) * 0x100;
-                    if (blockalign != (is16bit[0] ? 2 : 1)) {
+                    int blockAlign = (buf[p + 12] & 0xff) + (buf[p + 13] & 0xff) * 0x100;
+                    if (blockAlign != (is16bit[0] ? 2 : 1)) {
                         logger.log(Level.ERROR, "Unknown block-align.");
                         return null;
                     }
@@ -282,8 +281,7 @@ public class PCMFileInfo {
                 for (int i = 0; i < des.length; i += 2) {
                     // 16bit wav files are signed data so you can change the volume as is
                     int b = (int) ((short) ((des[i] & 0xff) | ((des[i + 1] & 0xff) << 8)) * vol * 0.01);
-                    b = (b > 0x7fff) ? 0x7fff : b;
-                    b = (b < -0x8000) ? -0x8000 : b;
+                    b = Math.clamp(b, -0x8000, 0x7fff);
                     des[i] = (byte) (b & 0xff);
                     des[i + 1] = (byte) ((b & 0xff00) >> 8);
                 }
@@ -294,9 +292,8 @@ public class PCMFileInfo {
                     // let it Signed
                     d -= 0x80;
                     d = (int) (d * vol * 0.01);
-                    //clip
-                    d = (d > 127) ? 127 : d;
-                    d = (d < -128) ? -128 : d;
+                    // clip
+                    d = Math.clamp(d, -128, 127);
                     // let it Unsigned
                     d += 0x80;
 

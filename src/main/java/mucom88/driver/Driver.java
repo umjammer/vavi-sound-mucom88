@@ -176,7 +176,7 @@ public class Driver implements IDriver {
             pcmStartPos[5] = 0;
         }
 
-        work.isDotNET = isDotNETFromTAG();
+        work.isDotNET = isExtendMucomFromTAG();
         work.SSGExtend = isSSGExtendFromTAG();
 
         writeOPNAP = lstChipWrite.get(0);
@@ -270,13 +270,17 @@ public class Driver implements IDriver {
         pcm[v] = ByteUtil.toByteArray(dest);
     }
 
-    private boolean isDotNETFromTAG() {
+    private boolean isExtendMucomFromTAG() {
         if (tags == null) return false;
+
         for (Tuple<String, String> tag : tags) {
-            if (tag.getItem1().equals("driver")) {
-                if (tag.getItem2().equalsIgnoreCase("mucomdotnet")) {
-                    return true;
-                }
+            if (tag.getItem1().equals("driver")) continue;
+
+            String drv = tag.getItem2().toLowerCase().trim();
+            if (drv.equals("mucomdotnet") ||
+                    drv.equals("mucom88em") ||
+                    drv.equals("mucom88e")) {
+                return true;
             }
         }
 
@@ -614,24 +618,28 @@ logger.log(Level.TRACE, "Stop rendering.");
                 fnVoiceDat[0] = tag.getItem2();
                 break;
             case "pcm":
+            case "pcm_1st":
+            case "pcmopna_p":
                 fnPcm[0] = tag.getItem2();
                 break;
-            case "pcmOPNA_P":
-                fnPcm[0] = tag.getItem2();
-                break;
-            case "pcmOPNA_S":
+            case "pcm_2nd":
+            case "pcmopna_s":
                 fnPcm[1] = tag.getItem2();
                 break;
-            case "pcmOPNB_B_P":
+            case "pcm_3rd":
+            case "pcmopnb_b_p":
                 fnPcm[2] = tag.getItem2();
                 break;
-            case "pcmOPNB_B_S":
+            case "pcm_4th":
+            case "pcmopnb_b_s":
                 fnPcm[3] = tag.getItem2();
                 break;
-            case "pcmOPNB_A_P":
+            case "pcm_5th":
+            case "pcmopnb_a_p":
                 fnPcm[4] = tag.getItem2();
                 break;
-            case "pcmOPNB_A_S":
+            case "pcm_6th":
+            case "pcmopnb_a_s":
                 fnPcm[5] = tag.getItem2();
                 break;
             }
@@ -721,6 +729,9 @@ logger.log(Level.TRACE, "Stop rendering.");
                 break;
             case "driver":
                 metaData.add(Tag.DriverName, tag.getItem2());
+                break;
+            case "artwork":
+                metaData.add(Tag.Artwork, tag.getItem2());
                 break;
             }
         }

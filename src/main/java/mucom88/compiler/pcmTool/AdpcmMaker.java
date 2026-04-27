@@ -79,7 +79,7 @@ public class AdpcmMaker {
             if (StringUtilities.isNullOrEmpty(lin)) continue;
             if (lin.charAt(0) != '#') continue;
 
-            config.Add(lin);
+            config.add(lin);
         }
 
         return config;
@@ -243,13 +243,13 @@ public class AdpcmMaker {
 
         int num = fileManager.getCount();
         head.add((byte) num);
-        head.add((byte) (num >> 8));
+        head.add((byte) (num >>> 8));
 
         for (int i = 0; i <= num; i++) {
             head.addAll(fileManager.getName(i)); // instrument name 16byte
             head.add((byte) 3);
             head.add((byte) (fileManager.getVolume(i)));
-            head.add((byte) (fileManager.getVolume(i) >> 8));
+            head.add((byte) (fileManager.getVolume(i) >>> 8));
             int length = fileManager.getLengthAddress(i);
             if (length < 1) {
                 head.add((byte) 0);
@@ -257,14 +257,14 @@ public class AdpcmMaker {
                 head.add((byte) 0);
                 head.add((byte) 0);
             } else {
-                short stAdr = (short) (ptr >> 8);
+                short stAdr = (short) (ptr >>> 8);
                 ptr += length - 1;
-                short edAdr = (short) (ptr >> 8);
+                short edAdr = (short) (ptr >>> 8);
                 ptr++;
                 head.add((byte) (stAdr));
-                head.add((byte) (stAdr >> 8));
+                head.add((byte) (stAdr >>> 8));
                 head.add((byte) (edAdr));
-                head.add((byte) (edAdr >> 8));
+                head.add((byte) (edAdr >>> 8));
             }
         }
         return head;
