@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Supplier;
 
-import dotnet4j.util.compat.Tuple;
-import dotnet4j.util.compat.Tuple3;
-import dotnet4j.util.compat.Tuple4;
 import mucom88.common.Common;
 import mucom88.common.MUCInfo;
 import mucom88.common.MucException;
@@ -20,6 +17,9 @@ import musicDriverInterface.MmlDatum;
 import musicDriverInterface.MmlDatum.MMLType;
 import musicDriverInterface.common.AutoExtendList;
 import vavi.util.ByteUtil;
+import vavi.util.compat.Tuple;
+import vavi.util.compat.Tuple3;
+import vavi.util.compat.Tuple4;
 
 import static java.lang.System.getLogger;
 import static mucom88.common.Common.charset;

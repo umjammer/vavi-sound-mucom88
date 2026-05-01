@@ -1,13 +1,13 @@
 package wav;
 
+import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
-import dotnet4j.io.File;
-import dotnet4j.io.Path;
-import dotnet4j.util.compat.StringUtilities;
-import dotnet4j.util.compat.Tuple;
 import mdsound.Instrument;
 import mdsound.MDSound;
 import mdsound.instrument.Ym2151Inst;
@@ -18,45 +18,58 @@ import mucom88.driver.Driver;
 import mucom88.driver.MubHeader;
 import musicDriverInterface.ChipAction;
 import musicDriverInterface.ChipDatum;
-import musicDriverInterface.MmlDatum;
 import musicDriverInterface.IDriver;
+import musicDriverInterface.MmlDatum;
 import vavi.util.Debug;
+import vavi.util.compat.Tuple;
+
+import static vavi.util.compat.Util.changeExtension;
+import static vavi.util.compat.Util.isNullOrEmpty;
 
 
 class Program {
 
+    private static final Logger logger = System.getLogger(Program.class.getName());
+
     private static final int SamplingRate = 55467; // 44100;
     private static final int samplingBuffer = 1024;
-    private static final short[] frames = new short[samplingBuffer * 4];
-    private static MDSound mds = null;
-    private static final short[] emuRenderBuf = new short[2];
-    private static IDriver drv = null;
+    private final short[] frames = new short[samplingBuffer * 4];
+    private MDSound mds = null;
+    private final short[] emuRenderBuf = new short[2];
+    private IDriver drv = null;
     private static int opmMasterClock = 3579545;
     private static final int opnaMasterClock = 7987200;
     private static final int opnbMasterClock = 8000000;
-    private static WaveWriter ww = null;
-    private static int loop = 2;
+    private WaveWriter ww = null;
+    private int loop = 2;
 
     static void main(String[] args) {
-
-        int fnIndex = analyzeOption(args);
+        Program app = new Program();
+        int fnIndex = app.analyzeOption(args);
 
         if (args == null || args.length != fnIndex + 1) {
             throw new IllegalArgumentException("at least one argument is needed(.mub file)");
         }
-        if (!File.exists(args[fnIndex])) {
+        if (!Files.exists(Path.of(args[fnIndex]))) {
             throw new IllegalArgumentException("file not found");
         }
 
         try {
+
+            app.run(args[fnIndex]);
+
+        } catch (Exception e) {
+            logger.log(Level.ERROR, e.getMessage(), e);
+        }
+    }
+
+    private void run(String fn) throws IOException {
+        try {
             ww = new WaveWriter(SamplingRate);
-            ww.open(Path.combine(
-                    Path.getDirectoryName(args[fnIndex]),
-                    Path.getFileNameWithoutExtension(args[fnIndex]) + ".wav")
-            );
+            ww.open(changeExtension(fn, ".wav"));
 
             List<MmlDatum> temp = new ArrayList<>();
-            byte[] srcBuf = File.readAllBytes(args[fnIndex]);
+            byte[] srcBuf = Files.readAllBytes(Path.of(fn));
             for (byte b : srcBuf) temp.add(new MmlDatum(b & 0xff));
             MmlDatum[] buf = temp.toArray(MmlDatum[]::new);
 
@@ -79,7 +92,7 @@ class Program {
                 chip.setVolumes.put("SSG", ym2608::setVolume);
                 chip.setVolumes.put("RHYTHM", ym2608::setVolume);
                 chip.setVolumes.put("ADPCM", ym2608::setVolume);
-                chip.option = new Object[] {GetApplicationFolder()};
+                chip.option = new Object[] {getApplicationFolder()};
                 chips.add(chip);
             }
             Ym2610Inst ym2610 = Instrument.getInstrument(Ym2610Inst.class);
@@ -94,7 +107,7 @@ class Program {
                 chip.setVolumes.put("SSG", ym2610::setVolume);
                 chip.setVolumes.put("ADPCMA", ym2610::setVolume);
                 chip.setVolumes.put("ADPCMB", ym2610::setVolume);
-                chip.option = new Object[] {GetApplicationFolder()};
+                chip.option = new Object[] {getApplicationFolder()};
                 chips.add(chip);
             }
             Ym2151Inst ym2151 = Instrument.getInstrument(Ym2151Inst.class);
@@ -105,26 +118,26 @@ class Program {
                 chip.samplingRate = SamplingRate;
                 chip.clock = opmMasterClock;
                 chip.volume = 0;
-                chip.option = new Object[] {GetApplicationFolder()};
+                chip.option = new Object[] {getApplicationFolder()};
                 chips.add(chip);
             }
             mds = new MDSound();
 
             List<ChipAction> actions = new ArrayList<>();
             MucomChipAction action;
-            action = new MucomChipAction(Program::writeOPNAP, null, Program::OPNAWaitSend);
+            action = new MucomChipAction(this::writeOPNAP, null, Program::OPNAWaitSend);
             actions.add(action);
-            action = new MucomChipAction(Program::writeOPNAS, null, null);
+            action = new MucomChipAction(this::writeOPNAS, null, null);
             actions.add(action);
-            action = new MucomChipAction(Program::writeOPNBP, Program::writeOPNBAdpcmP, null);
+            action = new MucomChipAction(this::writeOPNBP, this::writeOPNBAdpcmP, null);
             actions.add(action);
-            action = new MucomChipAction(Program::writeOPNBS, Program::writeOPNBAdpcmS, null);
+            action = new MucomChipAction(this::writeOPNBS, this::writeOPNBAdpcmS, null);
             actions.add(action);
-            action = new MucomChipAction(Program::writeOPMP, null, null);
+            action = new MucomChipAction(this::writeOPMP, null, null);
             actions.add(action);
 
             drv = new Driver();
-            drv.init(actions, buf, null, false, true, false, args[fnIndex]);
+            drv.init(actions, buf, null, false, true, false, fn);
 
             drv.setLoopCount(loop);
 
@@ -132,7 +145,7 @@ class Program {
             if (tags != null) {
                 for (Tuple<String, String> tag : tags) {
                     if (tag.getItem1().isEmpty()) continue;
-                    Debug.printf(Level.INFO, "%-16s : %s", tag.getItem1(), tag.getItem2());
+                    logger.log(Level.INFO, "%-16s : %s".formatted(tag.getItem1(), tag.getItem2()));
                 }
             }
 
@@ -154,14 +167,13 @@ class Program {
                     break;
                 }
 
-//Debug.printf(Level.FINEST, String.format("%d  %d",frames[0],frames[1]));
+//logger.log(Level.TRACE, String.format("%d  %d",frames[0],frames[1]));
                 ww.write(frames, 0, samplingBuffer);
             }
 
             drv.stopMusic();
             drv.stopRendering();
-        } catch (Exception e) {
-            Debug.printStackTrace(e);
+
         } finally {
             if (ww != null) {
                 ww.close();
@@ -169,7 +181,7 @@ class Program {
         }
     }
 
-    private static int analyzeOption(String[] args) {
+    private int analyzeOption(String[] args) {
         int i = 0;
         loop = 2;
 
@@ -183,7 +195,7 @@ class Program {
                 try {
                     loop = Integer.parseInt(op.substring(2));
                 } catch (NumberFormatException e) {
-                    Debug.println(Level.WARNING, e);
+                    logger.log(Level.WARNING, e);
                     loop = 2;
                 }
             }
@@ -194,31 +206,30 @@ class Program {
         return i;
     }
 
-    public static String GetApplicationFolder() {
-        String path = Path.getDirectoryName(System.getProperty("user.dir"));
-        if (!StringUtilities.isNullOrEmpty(path)) {
+    public static String getApplicationFolder() {
+        String path = System.getProperty("user.dir");
+        if (!isNullOrEmpty(path)) {
             path += path.charAt(path.length() - 1) == '\\' ? "" : "\\";
         }
         return path;
     }
 
-    private static void writeOPNA(ChipDatum dat) {
+    private void writeOPNA(ChipDatum dat) {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, "! r%d c%d", md.linePos.row, md.linePos.col);
+                logger.log(Level.TRACE, "! r%d c%d", md.linePos.row, md.linePos.col);
             }
         }
         if (dat.address == -1) return;
-        //Debug.printf(Level.FINEST, "FM P%d Out:adr[%02x] val[%02x]", (int)dat.address, (int)dat.data,dat.port);
+        //logger.log(Level.TRACE, "FM P%d Out:adr[%02x] val[%02x]", (int)dat.address, (int)dat.data,dat.port);
         mds.write(Ym2608Inst.class, (byte) 0, dat.port, dat.address, dat.data);
     }
 
     private static void OPNAWaitSend(long elapsed, int size) {
-        return;
     }
 
-    private static int EmuCallback(short[] buffer, int offset, int count) {
+    private int EmuCallback(short[] buffer, int offset, int count) {
         try {
             long bufCnt = count / 2;
 
@@ -236,84 +247,82 @@ class Program {
         return count;
     }
 
-    private static void writeOPNAP(ChipDatum dat) {
+    private void writeOPNAP(ChipDatum dat) {
         writeOPNA(0, dat);
     }
 
-    private static void writeOPNAS(ChipDatum dat) {
+    private void writeOPNAS(ChipDatum dat) {
         writeOPNA(1, dat);
     }
 
-    private static void writeOPNBP(ChipDatum dat) {
+    private void writeOPNBP(ChipDatum dat) {
         writeOPNB(0, dat);
     }
 
-    private static void writeOPNBS(ChipDatum dat) {
+    private void writeOPNBS(ChipDatum dat) {
         writeOPNB(1, dat);
     }
 
-    private static void writeOPMP(ChipDatum dat) {
+    private void writeOPMP(ChipDatum dat) {
         writeOPM(0, dat);
     }
 
-    private static void writeOPNBAdpcmP(byte[] pcmData, int s, int e) {
+    private void writeOPNBAdpcmP(byte[] pcmData, int s, int e) {
         if (s == 0) writeOPNBAdpcmA(0, pcmData);
         else writeOPNBAdpcmB(0, pcmData);
     }
 
-    private static void writeOPNBAdpcmS(byte[] pcmData, int s, int e) {
+    private void writeOPNBAdpcmS(byte[] pcmData, int s, int e) {
         if (s == 0) writeOPNBAdpcmA(1, pcmData);
         else writeOPNBAdpcmB(1, pcmData);
     }
 
-    private static void writeOPNA(int chipId, ChipDatum dat) {
+    private void writeOPNA(int chipId, ChipDatum dat) {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, "! OPNA i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
+                logger.log(Level.TRACE, "! OPNA i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
             }
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, "Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
+        logger.log(Level.TRACE, "Out ChipA:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
 
         mds.write(Ym2608Inst.class, chipId, dat.port, dat.address, dat.data);
     }
 
-    private static void writeOPNB(int chipId, ChipDatum dat) {
+    private void writeOPNB(int chipId, ChipDatum dat) {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, "! OPNB i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
+                logger.log(Level.TRACE, "! OPNB i%d r%d c%d".formatted(chipId, md.linePos.row, md.linePos.col));
             }
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, "Out ChipB:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
+        logger.log(Level.TRACE, "Out ChipB:%d Port:%d adr:[%02x] val[%02x]".formatted(chipId, dat.port, dat.address, dat.data));
 
         mds.write(Ym2610Inst.class, chipId, dat.port, dat.address, dat.data);
     }
 
-    private static void writeOPNBAdpcmA(int chipId, byte[] pcmData) {
+    private void writeOPNBAdpcmA(int chipId, byte[] pcmData) {
         mds.inst(Ym2610Inst.class).writeAdpcmA(chipId, pcmData);
-
     }
 
-    private static void writeOPNBAdpcmB(int chipId, byte[] pcmData) {
+    private void writeOPNBAdpcmB(int chipId, byte[] pcmData) {
         mds.inst(Ym2610Inst.class).writeAdpcmB(chipId, pcmData);
-
     }
 
-    private static void writeOPM(int chipId, ChipDatum dat) {
+    private void writeOPM(int chipId, ChipDatum dat) {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
-                Debug.printf(Level.FINEST, "! OPM i%d r%d c%d", chipId, md.linePos.row, md.linePos.col);
+                logger.log(Level.TRACE, "! OPM i%d r%d c%d".formatted(chipId, md.linePos.row, md.linePos.col));
             }
         }
 
         if (dat.address == -1) return;
-        Debug.printf(Level.FINEST, "Out OPMChip:%d Port:%d adr:[%02x] val[%02x]", chipId, dat.port, dat.address, dat.data);
+        logger.log(Level.TRACE, "Out OPMChip:%d Port:%d adr:[%02x] val[%02x]".formatted(chipId, dat.port, dat.address, dat.data));
 
         mds.write(Ym2151Inst.class, chipId, 0, dat.address, dat.data);
     }

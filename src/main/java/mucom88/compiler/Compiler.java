@@ -1,6 +1,9 @@
 package mucom88.compiler;
 
 import java.awt.Point;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
@@ -11,10 +14,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 
-import dotnet4j.io.Stream;
-import dotnet4j.util.compat.StringUtilities;
-import dotnet4j.util.compat.Tuple;
-import dotnet4j.util.compat.Tuple3;
 import mucom88.common.Common;
 import mucom88.common.MUCInfo;
 import mucom88.common.MucException;
@@ -24,10 +23,12 @@ import musicDriverInterface.ICompiler;
 import musicDriverInterface.MetaData;
 import musicDriverInterface.MetaData.Tag;
 import musicDriverInterface.MmlDatum;
+import vavi.util.compat.Tuple;
+import vavi.util.compat.Tuple3;
 
 import static java.lang.System.getLogger;
-import static mdsound.Common.readAllBytes;
 import static mucom88.common.Common.charset;
+import static vavi.util.compat.Util.isNullOrEmpty;
 
 
 public class Compiler implements ICompiler {
@@ -83,9 +84,9 @@ public class Compiler implements ICompiler {
         expand.muc88 = muc88;
     }
 
-    public MmlDatum[] compile(Stream sourceMML, Function<String, Stream> appendFileReaderCallback) {
+    public MmlDatum[] compile(InputStream sourceMML, Function<String, InputStream> appendFileReaderCallback) {
         try {
-            srcBuf = readAllBytes(sourceMML);
+            srcBuf = sourceMML.readAllBytes();
             mucInfo = getMUCInfo(srcBuf);
             mucInfo.setIDE(isIDE);
             mucInfo.setSkipPoint(skipPoint);
@@ -93,8 +94,8 @@ public class Compiler implements ICompiler {
             voice = null;
             for (int i = 0; i < 6; i++) pcmData[i] = null;
 
-            try (Stream vd = appendFileReaderCallback.apply(StringUtilities.isNullOrEmpty(mucInfo.getVoice()) ? "voice.dat" : mucInfo.getVoice())) {
-                voice = readAllBytes(vd);
+            try (InputStream vd = appendFileReaderCallback.apply(isNullOrEmpty(mucInfo.getVoice()) ? "voice.dat" : mucInfo.getVoice())) {
+                voice = vd != null ? vd.readAllBytes() : null;
             }
 
             String[] pcmDefaultFilenames = {
@@ -112,10 +113,10 @@ public class Compiler implements ICompiler {
                 }
 
                 if (pcmData[i] == null) {
-                    try (Stream pd = appendFileReaderCallback.apply(StringUtilities.isNullOrEmpty(mucInfo.getPcm()[i])
+                    try (InputStream pd = appendFileReaderCallback.apply(isNullOrEmpty(mucInfo.getPcm()[i])
                             ? pcmDefaultFilenames[i]
                             : mucInfo.getPcm()[i])) {
-                        pcmData[i] = readAllBytes(pd);
+                        pcmData[i] = pd != null ? pd.readAllBytes() : null;
                     }
                 }
             }
@@ -128,13 +129,13 @@ public class Compiler implements ICompiler {
             mucInfo.setSrcLinPtr(-1);
             //work.compilerInfo.jumpRow = -1;
             //work.compilerInfo.jumpCol = -1;
-            if (!StringUtilities.isNullOrEmpty(mucInfo.getArtwork())) {
+            if (!isNullOrEmpty(mucInfo.getArtwork())) {
                 String fn = mucInfo.getArtwork();
                 if (fn.charAt(0) == '"' && fn.charAt(fn.length() - 1) == '"') {
                     fn = fn.substring(1, fn.length() - 2);
                 }
-                try (Stream pd = appendFileReaderCallback.apply(fn)) {
-                    byte[] pic = readAllBytes(pd);
+                try (InputStream pd = appendFileReaderCallback.apply(fn)) {
+                    byte[] pic = pd.readAllBytes();
                     mucInfo.setArtwork(new String(Base64.getDecoder().decode(pic)));
                 }
             }
@@ -174,16 +175,16 @@ logger.log(Level.ERROR, e.getMessage(), e);
         return null;
     }
 
-    public boolean compile(Stream sourceMML, Stream destCompiledBin, Function<String, Stream> appendFileReaderCallback) {
+    public boolean compile(InputStream sourceMML, ByteArrayOutputStream destCompiledBin, Function<String, InputStream> appendFileReaderCallback) {
         var data = compile(sourceMML, appendFileReaderCallback);
         if (data == null) {
             return false;
         }
         for (MmlDatum datum : data) {
             if (datum == null) {
-                destCompiledBin.writeByte((byte) 0);
+                destCompiledBin.write((byte) 0);
             } else {
-                destCompiledBin.writeByte((byte) (datum.dat & 0xff));
+                destCompiledBin.write((byte) (datum.dat & 0xff));
             }
         }
         return true;
@@ -208,7 +209,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
                 mucInfo.setAuthor(tag.getItem2());
                 break;
             case "comment":
-                if (StringUtilities.isNullOrEmpty(mucInfo.getComment()))
+                if (isNullOrEmpty(mucInfo.getComment()))
                     mucInfo.setComment(tag.getItem2());
                 else
                     mucInfo.addComment("\n" + tag.getItem2());
@@ -717,7 +718,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         if (tags != null) {
             for (Tuple<String, String> tag : tags) {
                 if (tag.getItem1() != null && !tag.getItem1().isEmpty() && tag.getItem1().charAt(0) == '*') continue;
-                if (StringUtilities.isNullOrEmpty(tag.getItem1()) && !StringUtilities.isNullOrEmpty(tag.getItem2()) && tag.getItem2().trim().charAt(0) == '*')
+                if (isNullOrEmpty(tag.getItem1()) && !isNullOrEmpty(tag.getItem2()) && tag.getItem2().trim().charAt(0) == '*')
                     continue;
                 byte[] b = "#%s %s\r\n".formatted(tag.getItem1(), tag.getItem2()).getBytes(charset);
                 footSize += b.length;
@@ -1141,7 +1142,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         return metaData;
     }
 
-    private static byte[] getPackedPCM(int i, java.util.List<String> list, Function<String, Stream> appendFileReaderCallback) {
+    private static byte[] getPackedPCM(int i, List<String> list, Function<String, InputStream> appendFileReaderCallback) throws IOException {
         AdpcmMaker adpcmMaker = new AdpcmMaker(i, list, appendFileReaderCallback);
         return adpcmMaker.make();
     }

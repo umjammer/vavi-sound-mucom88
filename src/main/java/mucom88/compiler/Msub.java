@@ -5,10 +5,10 @@ import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-import dotnet4j.util.compat.Tuple;
 import mucom88.common.MUCInfo;
 import mucom88.common.MucException;
 import musicDriverInterface.MmlDatum;
+import vavi.util.compat.Tuple;
 
 import static java.lang.System.getLogger;
 

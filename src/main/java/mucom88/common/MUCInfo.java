@@ -1,15 +1,15 @@
 package mucom88.common;
 
 import java.awt.Point;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dotnet4j.io.Path;
-import dotnet4j.util.compat.Tuple;
 import musicDriverInterface.MmlDatum;
 import musicDriverInterface.common.AutoExtendList;
+import vavi.util.compat.Tuple;
 
 
 public class MUCInfo {
@@ -233,7 +233,7 @@ public class MUCInfo {
 
     public void setFnSrc(String value) {
         _fnSrc = value;
-        _fnSrcOnlyFile = Path.getFileName(value);
+        _fnSrcOnlyFile = Path.of(value).getFileName().toString();
     }
 
     private String _fnSrcOnlyFile = null;

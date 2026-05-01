@@ -1,13 +1,15 @@
 package mucom88.compiler.pcmTool;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import dotnet4j.io.Stream;
-import dotnet4j.util.compat.StringUtilities;
 import vavi.util.ByteUtil;
+
+import static vavi.util.compat.Util.isNullOrEmpty;
 
 
 public class AdpcmMaker {
@@ -15,24 +17,24 @@ public class AdpcmMaker {
     private String[] src;
     private int i = -1;
     private List<String> list = null;
-    private Function<String, Stream> appendFileReaderCallback = null;
+    private Function<String, InputStream> appendFileReaderCallback = null;
 
     public AdpcmMaker(String[] src) {
         this.src = src;
     }
 
-    public AdpcmMaker(int i, List<String> list, Function<String, Stream> appendFileReaderCallback) {
+    public AdpcmMaker(int i, List<String> list, Function<String, InputStream> appendFileReaderCallback) {
         this.i = i;
         this.list = list;
         this.appendFileReaderCallback = appendFileReaderCallback;
     }
 
-    public byte[] make() {
+    public byte[] make() throws IOException {
         Config config;
         PCMFileManager fileManager;
         if (i == -1) {
             config = GetConfig();
-            fileManager = GetPCMFiles(config);
+            fileManager = getPCMFiles(config);
             return make(config, fileManager);
         } else {
             config = new Config();
@@ -45,9 +47,9 @@ public class AdpcmMaker {
             fileManager = new PCMFileManager(config, appendFileReaderCallback);
             for (String line : list) {
                 String lin = line.trim();
-                if (StringUtilities.isNullOrEmpty(lin)) continue;
+                if (isNullOrEmpty(lin)) continue;
                 lin = CutComment(lin).trim();
-                if (StringUtilities.isNullOrEmpty(lin)) continue;
+                if (isNullOrEmpty(lin)) continue;
 
                 fileManager.add(lin);
             }
@@ -76,7 +78,7 @@ public class AdpcmMaker {
 
         for (String line : src) {
             String lin = line.trim();
-            if (StringUtilities.isNullOrEmpty(lin)) continue;
+            if (isNullOrEmpty(lin)) continue;
             if (lin.charAt(0) != '#') continue;
 
             config.add(lin);
@@ -85,12 +87,12 @@ public class AdpcmMaker {
         return config;
     }
 
-    private PCMFileManager GetPCMFiles(Config config) {
+    private PCMFileManager getPCMFiles(Config config) throws IOException {
         PCMFileManager filemanager = new PCMFileManager(config, null);
 
         for (String line : src) {
             String lin = line.trim();
-            if (StringUtilities.isNullOrEmpty(lin)) continue;
+            if (isNullOrEmpty(lin)) continue;
             if (lin.charAt(0) != '@') continue;
             if (lin.length() > 1) continue;
 

@@ -3,9 +3,9 @@ package mucom88.common;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import dotnet4j.util.compat.TriConsumer;
 import musicDriverInterface.ChipAction;
 import musicDriverInterface.ChipDatum;
+import vavi.util.compat.TriConsumer;
 
 
 public class MucomChipAction implements ChipAction {

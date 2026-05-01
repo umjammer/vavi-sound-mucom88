@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import dotnet4j.util.compat.StringUtilities;
-import dotnet4j.util.compat.Tuple;
 import mucom88.common.Common;
 import mucom88.common.MubException;
 import musicDriverInterface.MmlDatum;
 import vavi.util.ByteUtil;
+import vavi.util.compat.Tuple;
 
 import static java.lang.System.getLogger;
 import static mucom88.common.Common.charset;
+import static vavi.util.compat.Util.isNullOrEmpty;
 
 
 public class MubHeader {
@@ -305,17 +305,17 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
 
         for (var tag : tags) {
             if (tag == null) continue;
-            if (StringUtilities.isNullOrEmpty(tag.getItem1())) continue;
+            if (isNullOrEmpty(tag.getItem1())) continue;
 
             switch (tag.getItem1().toLowerCase().trim()) {
                 case "carriercorrection" -> {
-                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                    if (!isNullOrEmpty(tag.getItem2())) {
                         String val = tag.getItem2().toLowerCase().trim();
                         carrierCorrection = val.equals("yes") || val.equals("y") || val.equals("1") || val.equals("true") || val.equals("t");
                     }
                 }
                 case "opmclockmode" -> {
-                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                    if (!isNullOrEmpty(tag.getItem2())) {
                         String val = tag.getItem2().toLowerCase().trim();
 
                         opmClockMode = enmOPMClockMode.normal;
@@ -325,13 +325,13 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
                     }
                 }
                 case "ssgextend" -> {
-                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                    if (!isNullOrEmpty(tag.getItem2())) {
                         String val = tag.getItem2().toLowerCase().trim();
                         SSGExtend = val.equals("on") || val.equals("yes") || val.equals("y") || val.equals("1") || val.equals("true") || val.equals("t");
                     }
                 }
                 case "opna1rhythmmute" -> {
-                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                    if (!isNullOrEmpty(tag.getItem2())) {
                         String val = tag.getItem2().toLowerCase().trim();
                         rhythmMute[0] = 0;
                         if (val.indexOf('b') > -1) rhythmMute[0] |= 1;
@@ -344,7 +344,7 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
                     }
                 }
                 case "opna2rhythmmute" -> {
-                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                    if (!isNullOrEmpty(tag.getItem2())) {
                         String val = tag.getItem2().toLowerCase().trim();
 
                         rhythmMute[1] = 0;
@@ -358,7 +358,7 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
                     }
                 }
                 case "opnb1adpcmamute" -> {
-                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                    if (!isNullOrEmpty(tag.getItem2())) {
                         String val = tag.getItem2().toLowerCase().trim();
 
                         rhythmMute[2] = 0;
@@ -372,7 +372,7 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
                     }
                 }
                 case "opnb2adpcmamute" -> {
-                    if (!StringUtilities.isNullOrEmpty(tag.getItem2())) {
+                    if (!isNullOrEmpty(tag.getItem2())) {
                         String val = tag.getItem2().toLowerCase().trim();
 
                         rhythmMute[3] = 0;

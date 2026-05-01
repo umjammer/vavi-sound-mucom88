@@ -1,18 +1,19 @@
 package mucom88.compiler.pcmTool;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Function;
 
-import dotnet4j.io.File;
-import dotnet4j.io.MemoryStream;
-import dotnet4j.io.Path;
-import dotnet4j.io.Stream;
 import mucom88.common.MucException;
 
 import static java.lang.System.getLogger;
+import static vavi.util.compat.Util.getExtension;
 
 
 public class PCMFileInfo {
@@ -63,7 +64,7 @@ public class PCMFileInfo {
 
     private boolean[] is16bit;
 
-    public PCMFileInfo(List<String> itemList, Function<String, Stream> appendFileReaderCallback /* = null */) {
+    public PCMFileInfo(List<String> itemList, Function<String, InputStream> appendFileReaderCallback /* = null */) throws IOException {
         if (itemList == null) return;
 
         int n;
@@ -96,14 +97,14 @@ public class PCMFileInfo {
         if (itemList.size() > 3) volume = Integer.parseInt(itemList.get(3));
 
         byte[] buf;
-        try (Stream pd = appendFileReaderCallback.apply(fileName)) {
-            buf = readAllBytes(pd);
+        try (InputStream pd = appendFileReaderCallback.apply(fileName)) {
+            buf = pd.readAllBytes();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
 
         if (buf == null) {
-            if (File.exists(fileName)) {
+            if (Files.exists(Path.of(fileName))) {
                 boolean[] isRaw = new boolean[1];
                 int[] samplerate = new int[1];
                 raw = getPCMDataFromFile("", fileName, volume, /* out */ isRaw, /* out */ is16bit, /* out */ samplerate);
@@ -120,25 +121,6 @@ public class PCMFileInfo {
             if (raw != null) length = raw.length & 0xffff;
             else
                 throw new MucException("Fail get pcm data from file[%s].".formatted(fileName));
-        }
-    }
-
-    /**
-     * Read binary from a stream in bulk
-     */
-    private static byte[] readAllBytes(Stream stream) {
-        if (stream == null) return null;
-
-        var buf = new byte[8192];
-        try (var ms = new MemoryStream()) {
-            while (true) {
-                var r = stream.read(buf, 0, buf.length);
-                if (r < 1) {
-                    break;
-                }
-                ms.write(buf, 0, r);
-            }
-            return ms.toArray();
         }
     }
 
@@ -160,22 +142,22 @@ public class PCMFileInfo {
         length = encData.length;
     }
 
-    public static byte[] getPCMDataFromFile(String path, String fileName, int vol, /* out */ boolean[] isRaw, /* out */ boolean[] is16bit, /* out */ int[] samplerate) {
-        String fnPcm = Path.combine(path, fileName).replace('\\', Path.DirectorySeparatorChar).replace('/', Path.DirectorySeparatorChar);
+    public static byte[] getPCMDataFromFile(String path, String fileName, int vol, /* out */ boolean[] isRaw, /* out */ boolean[] is16bit, /* out */ int[] samplerate) throws IOException {
+        Path fnPcm = Path.of(path, fileName);
 
         isRaw[0] = false;
         is16bit[0] = false;
         samplerate[0] = 8000;
 
-        if (!File.exists(fnPcm)) {
+        if (!Files.exists(fnPcm)) {
             logger.log(Level.ERROR, "File not found.");
             return null;
         }
 
         // Loading a file
-        byte[] buf = File.readAllBytes(fnPcm);
+        byte[] buf = Files.readAllBytes(fnPcm);
 
-        if (!Path.getExtension(fileName).toUpperCase().trim().equals(".WAV")) {
+        if (!getExtension(fileName).toUpperCase().trim().equals(".WAV")) {
             isRaw[0] = true;
             return buf;
         }

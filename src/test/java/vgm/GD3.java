@@ -4,8 +4,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import dotnet4j.util.compat.StringUtilities;
 import vavi.util.ByteUtil;
+
+import static vavi.util.compat.Util.isNullOrEmpty;
 
 
 public class GD3 {
@@ -46,51 +47,51 @@ public class GD3 {
         dat.add((byte) 0x00);
 
         // trackName
-        if (!StringUtilities.isNullOrEmpty(trackName))
+        if (!isNullOrEmpty(trackName))
             for (byte b : trackName.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);
 
-        if (!StringUtilities.isNullOrEmpty(trackNameJ))
+        if (!isNullOrEmpty(trackNameJ))
             for (byte b : trackNameJ.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);
 
         // gameName
-        if (!StringUtilities.isNullOrEmpty(gameName))
+        if (!isNullOrEmpty(gameName))
             for (byte b : gameName.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);
 
-        if (!StringUtilities.isNullOrEmpty(gameNameJ))
+        if (!isNullOrEmpty(gameNameJ))
             for (byte b : gameNameJ.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);
 
         // systemName
-        if (!StringUtilities.isNullOrEmpty(systemName))
+        if (!isNullOrEmpty(systemName))
             for (byte b : systemName.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);
 
-        if (!StringUtilities.isNullOrEmpty(systemNameJ))
+        if (!isNullOrEmpty(systemNameJ))
             for (byte b : systemNameJ.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);
 
         // composer
-        if (!StringUtilities.isNullOrEmpty(composer))
+        if (!isNullOrEmpty(composer))
             for (byte b : composer.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);
 
-        if (!StringUtilities.isNullOrEmpty(composerJ))
+        if (!isNullOrEmpty(composerJ))
             for (byte b : composerJ.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);
 
         // converted
-        if (!StringUtilities.isNullOrEmpty(converted))
+        if (!isNullOrEmpty(converted))
             for (byte b : converted.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);
@@ -101,7 +102,7 @@ public class GD3 {
         dat.add((byte) 0x00);
 
         // notes
-        if (!StringUtilities.isNullOrEmpty(notes))
+        if (!isNullOrEmpty(notes))
             for (byte b : notes.getBytes(StandardCharsets.UTF_16)) dat.add(b);
         dat.add((byte) 0x00);
         dat.add((byte) 0x00);

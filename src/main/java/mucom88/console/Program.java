@@ -1,28 +1,22 @@
 package mucom88.console;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.ResourceBundle;
-import java.lang.System.Logger.Level;
 
-import dotnet4j.io.BufferedStream;
-import dotnet4j.io.File;
-import dotnet4j.io.FileAccess;
-import dotnet4j.io.FileMode;
-import dotnet4j.io.FileShare;
-import dotnet4j.io.FileStream;
-import dotnet4j.io.IOException;
-import dotnet4j.io.MemoryStream;
-import dotnet4j.io.Stream;
 import mucom88.common.MubException;
 import mucom88.common.MucException;
 import mucom88.compiler.Compiler;
 import musicDriverInterface.MmlDatum;
-import vavi.util.Debug;
 import vavi.util.serdes.Serdes;
+
+import static vavi.util.compat.Util.changeExtension;
 
 
 public class Program {
@@ -31,8 +25,8 @@ public class Program {
 
     private static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
-    private static String srcFile;
-    private static boolean isXml = false;
+    private String srcFile;
+    private boolean isXml = false;
     public static boolean isTest = false;
 
     /**
@@ -40,7 +34,8 @@ public class Program {
      * @param args
      */
     public static void main(String[] args) {
-        int fnIndex = analyzeOption(args);
+        Program app = new Program();
+        int fnIndex = app.analyzeOption(args);
 
         if (args.length < 1 + fnIndex) {
             logger.log(Level.INFO, rb.getString("I0600"));
@@ -49,7 +44,7 @@ public class Program {
 
         try {
 
-            compile(args[fnIndex], (args.length > fnIndex + 1 ? args[fnIndex + 1] : null));
+            app.compile(args[fnIndex], (args.length > fnIndex + 1 ? args[fnIndex + 1] : null));
 
         } catch (Exception ex) {
             logger.log(Level.ERROR, ex.getMessage());
@@ -61,13 +56,13 @@ public class Program {
         return p.getFileName().toString().replaceFirst("\\.muc$", ".mub");
     }
 
-    static void compile(String srcFile, String destFile/* = null*/) {
+    void compile(String srcFile, String destFile /* = null */) {
         try {
             Path path = Path.of(srcFile);
             if (path.getFileName().toString().lastIndexOf('.') == -1)
                 path = Path.of(srcFile + ".muc");
 
-            Program.srcFile = path.toAbsolutePath().toString();
+            this.srcFile = path.toAbsolutePath().toString();
 
             Compiler compiler = new Compiler();
             compiler.init();
@@ -89,28 +84,25 @@ logger.log(Level.DEBUG, srcFile + " -> " + destFileName);
                 }
 
                 boolean isSuccess;
-                try (FileStream sourceMML = new FileStream(srcFile, FileMode.Open, FileAccess.Read, FileShare.Read);
-                     MemoryStream destCompiledBin = new MemoryStream();
-                     Stream bufferedDestStream = new BufferedStream(destCompiledBin)) {
-                    isSuccess = compiler.compile(sourceMML, bufferedDestStream, Program::appendFileReaderCallback);
+                try (InputStream sourceMML = Files.newInputStream(Path.of(srcFile));
+                     ByteArrayOutputStream destCompiledBin = new ByteArrayOutputStream()) {
+                    isSuccess = compiler.compile(sourceMML, destCompiledBin, this::appendFileReaderCallback);
 
                     if (isSuccess) {
-                        bufferedDestStream.flush();
-                        byte[] destbuf = destCompiledBin.toArray();
-                        File.writeAllBytes(destFileName, destbuf);
+                        destCompiledBin.flush();
+                        byte[] destbuf = destCompiledBin.toByteArray();
+                        Files.write(Path.of(destFileName), destbuf);
                     }
                 }
             } else {
-                String destFileName = dotnet4j.io.Path.combine(
-                        dotnet4j.io.Path.getDirectoryName(dotnet4j.io.Path.getFullPath(srcFile)),
-                        "%s.xml".formatted(dotnet4j.io.Path.getFileNameWithoutExtension(srcFile)));
+                String destFileName = changeExtension(srcFile, ".xml");
                 if (destFile != null) {
                     destFileName = destFile;
                 }
                 MmlDatum[] dest;
 
-                try (FileStream sourceMML = new FileStream(srcFile, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                    dest = compiler.compile(sourceMML, Program::appendFileReaderCallback);
+                try (InputStream sourceMML = Files.newInputStream(Path.of(srcFile))) {
+                    dest = compiler.compile(sourceMML, this::appendFileReaderCallback);
                 }
 if (dest.length == 0) {
  logger.log(Level.WARNING, "no data");
@@ -128,24 +120,27 @@ if (dest.length == 0) {
         }
     }
 
-    private static Stream appendFileReaderCallback(String arg) {
+    private InputStream appendFileReaderCallback(String arg) {
 
-        String fn = dotnet4j.io.Path.combine(dotnet4j.io.Path.getDirectoryName(srcFile), arg);
+        Path fn = Path.of(srcFile).getParent().resolve(arg);
 
-        if (!File.exists(fn)) return null;
+        if (!Files.exists(fn)) {
+logger.log(Level.WARNING, "file not found: " + fn);
+            return null;
+        }
 
-        FileStream strm;
+        InputStream strm;
         try {
-            strm = new FileStream(fn, FileMode.Open, FileAccess.Read, FileShare.Read);
-        } catch (IOException e) {
-            Debug.printStackTrace(e);
+            strm = Files.newInputStream(fn);
+        } catch (java.io.IOException e) {
+logger.log(Level.ERROR, e.getMessage(), e);
             strm = null;
         }
 
         return strm;
     }
 
-    private static int analyzeOption(String[] args) {
+    private int analyzeOption(String[] args) {
         if (args.length < 1) return 0;
 
         int i = 0;

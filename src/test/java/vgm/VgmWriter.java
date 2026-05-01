@@ -1,23 +1,23 @@
 package vgm;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
-import dotnet4j.io.FileAccess;
-import dotnet4j.io.FileMode;
-import dotnet4j.io.FileStream;
-import dotnet4j.io.SeekOrigin;
-import dotnet4j.util.compat.Tuple;
-
-import static dotnet4j.util.compat.CollectionUtilities.toIntArray;
-import vavi.util.Debug;
+import vavi.util.compat.Tuple;
 
 
 public class VgmWriter {
-    private FileStream dest = null;
+
+    private static final Logger logger = System.getLogger(VgmWriter.class.getName());
+
+    private RandomAccessFile dest = null;
     private long waitCounter = 0;
-    public static final byte[] hDat = new byte[] {
+
+    public static final byte[] hDat = {
             // 00 'Vgm '          Eof offset           version number
             0x56, 0x67, 0x6d, 0x20, 0x00, 0x00, 0x00, 0x00, 0x71, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             // 10                 GD3 offset(no use)   Total # samples
@@ -60,7 +60,7 @@ public class VgmWriter {
 
     public long totalSample;
 
-    public void writeYM2608(int v, byte port, byte address, byte data) {
+    public void writeYM2608(int v, byte port, byte address, byte data) throws IOException {
         if (dest == null) return;
         if (useChips[0 + v] == 0) return;
 
@@ -68,11 +68,11 @@ public class VgmWriter {
             totalSample += waitCounter;
 
             // wait command output
-            Debug.printf(Level.FINEST, "wait:%d", waitCounter);
+            logger.log(Level.TRACE, "wait:%d".formatted(waitCounter));
 
             if (waitCounter <= 882 * 3) {
                 while (waitCounter > 882) {
-                    dest.writeByte((byte) 0x63);
+                    dest.write((byte) 0x63);
                     waitCounter -= 882;
                 }
                 while (waitCounter > 735) {
@@ -91,15 +91,14 @@ public class VgmWriter {
             waitCounter = 0;
         }
 
-        Debug.printf(Level.FINEST, "p:%d a:%d d:%d", port, address, data);
+        logger.log(Level.TRACE, "p:%d a:%d d:%d", port, address, data);
 
         dest.writeByte((byte) ((v == 0 ? 0x56 : 0xa6) + (port & 1)));
         dest.writeByte(address);
         dest.writeByte(data);
-
     }
 
-    public void writeYM2610(int v, byte port, byte address, byte data) {
+    public void writeYM2610(int v, byte port, byte address, byte data) throws IOException {
         if (dest == null) return;
 
         if (useChips[2 + v] == 0) return;
@@ -108,7 +107,7 @@ public class VgmWriter {
             totalSample += waitCounter;
 
             // wait command output
-            Debug.printf(Level.FINEST, "wait:%d", waitCounter);
+            logger.log(Level.TRACE, "wait:%d", waitCounter);
 
             if (waitCounter <= 882 * 3) {
                 while (waitCounter > 882) {
@@ -131,7 +130,7 @@ public class VgmWriter {
             waitCounter = 0;
         }
 
-        Debug.printf(Level.FINEST, "p:%d a:%d d:%d", port, address, data);
+        logger.log(Level.TRACE, "p:%d a:%d d:%d", port, address, data);
 
         dest.writeByte((byte) ((v == 0 ? 0x58 : 0xa8) + (port & 1)));
         dest.writeByte(address);
@@ -139,7 +138,7 @@ public class VgmWriter {
 
     }
 
-    public void writeYM2151(int v, byte address, byte data) {
+    public void writeYM2151(int v, byte address, byte data) throws IOException {
         if (dest == null) return;
         if (useChips[4 + v] == 0) return;
 
@@ -147,7 +146,7 @@ public class VgmWriter {
             totalSample += waitCounter;
 
             // wait command output
-            Debug.printf(Level.FINEST, "wait:%d", waitCounter);
+            logger.log(Level.TRACE, "wait:%d", waitCounter);
 
             if (waitCounter <= 882 * 3) {
                 while (waitCounter > 882) {
@@ -170,7 +169,7 @@ public class VgmWriter {
             waitCounter = 0;
         }
 
-        Debug.printf(Level.FINEST, "a:%d d:%d", address, data);
+        logger.log(Level.TRACE, "a:%d d:%d", address, data);
 
         dest.writeByte((byte) (v == 0 ? 0x54 : 0xa4));
         dest.writeByte(address);
@@ -178,7 +177,7 @@ public class VgmWriter {
 
     }
 
-    public void close(List<Tuple<String, String>> tags, int opnaMasterClock, int opnbMasterClock, int opmMasterClock) {
+    public void close(List<Tuple<String, String>> tags, int opnaMasterClock, int opnbMasterClock, int opmMasterClock) throws IOException {
         if (dest == null) return;
 
         // Adjusting the header and footer
@@ -187,13 +186,13 @@ public class VgmWriter {
         dest.writeByte((byte) 0x66);
 
         // Total # samples
-        dest.position(0x18);
+        dest.seek(0x18);
         dest.writeByte((byte) (totalSample & 0xff));
         dest.writeByte((byte) ((totalSample >> 8) & 0xff));
         dest.writeByte((byte) ((totalSample >> 16) & 0xff));
         dest.writeByte((byte) ((totalSample >> 24) & 0xff));
 
-        //tag
+        // tag
         if (tags != null) {
             GD3 gd3 = new GD3();
             for (Tuple<String, String> tag : tags) {
@@ -223,13 +222,13 @@ public class VgmWriter {
             }
 
             byte[] tagBytes = gd3.make();
-            dest.seek(0, SeekOrigin.End);
-            long gd3ofs = dest.getLength() - 0x14;
+            dest.seek(dest.length());
+            long gd3ofs = dest.length() - 0x14;
             for (byte b : tagBytes) dest.writeByte(b);
 
             // Tag offset
             if (tagBytes.length > 0) {
-                dest.position(0x14);
+                dest.seek(0x14);
                 dest.writeByte((byte) (gd3ofs & 0xff));
                 dest.writeByte((byte) ((gd3ofs >> 8) & 0xff));
                 dest.writeByte((byte) ((gd3ofs >> 16) & 0xff));
@@ -238,28 +237,28 @@ public class VgmWriter {
         }
 
         // EOF offset
-        dest.position(0x4);
-        dest.writeByte((byte) ((dest.getLength() - 4) & 0xff));
-        dest.writeByte((byte) (((dest.getLength() - 4) >> 8) & 0xff));
-        dest.writeByte((byte) (((dest.getLength() - 4) >> 16) & 0xff));
-        dest.writeByte((byte) (((dest.getLength() - 4) >> 24) & 0xff));
+        dest.seek(0x4);
+        dest.writeByte((byte) ((dest.length() - 4) & 0xff));
+        dest.writeByte((byte) (((dest.length() - 4) >> 8) & 0xff));
+        dest.writeByte((byte) (((dest.length() - 4) >> 16) & 0xff));
+        dest.writeByte((byte) (((dest.length() - 4) >> 24) & 0xff));
 
         // YM2608 offset
-        dest.position(0x48);
+        dest.seek(0x48);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
 
         // YM2610 offset
-        dest.position(0x4c);
+        dest.seek(0x4c);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
 
         // YM2151 offset
-        dest.position(0x30);
+        dest.seek(0x30);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
         dest.writeByte((byte) 0);
@@ -270,7 +269,7 @@ public class VgmWriter {
             switch (useChips[i]) {
             case 1:
             case 2:
-                dest.position(0x48);
+                dest.seek(0x48);
                 dest.writeByte((byte) (opnaMasterClock >> 0));
                 dest.writeByte((byte) (opnaMasterClock >> 8));
                 dest.writeByte((byte) (opnaMasterClock >> 16));
@@ -279,7 +278,7 @@ public class VgmWriter {
                 break;
             case 3:
             case 4:
-                dest.position(0x4c);
+                dest.seek(0x4c);
                 dest.writeByte((byte) (opnbMasterClock >> 0));
                 dest.writeByte((byte) (opnbMasterClock >> 8));
                 dest.writeByte((byte) (opnbMasterClock >> 16));
@@ -287,7 +286,7 @@ public class VgmWriter {
                 else dest.writeByte((byte) 0x40);
                 break;
             case 5:
-                dest.position(0x30);
+                dest.seek(0x30);
                 dest.writeByte((byte) (opmMasterClock >> 0));
                 dest.writeByte((byte) (opmMasterClock >> 8));
                 dest.writeByte((byte) (opmMasterClock >> 16));
@@ -301,22 +300,21 @@ public class VgmWriter {
         dest = null;
     }
 
-    public void open(String fullPath) {
+    public void open(String fullPath) throws IOException {
         if (dest != null) close(null, 0, 0, 0);
-        dest = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+        dest = new RandomAccessFile(fullPath, "rw");
 
         List<Byte> des = new ArrayList<>();
 
         // Header Output
         dest.write(hDat, 0, hDat.length);
-
     }
 
     public void incrementWaitCOunter() {
         waitCounter++;
     }
 
-    public void writeAdpcm(int chipId, byte[] adpcmData) {
+    public void writeAdpcm(int chipId, byte[] adpcmData) throws IOException {
         if (useChips[chipId] == 0 || adpcmData == null || adpcmData.length < 1) return;
 
         dest.writeByte((byte) 0x67);
@@ -326,7 +324,7 @@ public class VgmWriter {
         writePCMData(chipId, adpcmData);
     }
 
-    public void writeYM2610SetAdpcmA(int chipId, byte[] pcmData) {
+    public void writeYM2610SetAdpcmA(int chipId, byte[] pcmData) throws IOException {
         dest.writeByte((byte) 0x67);
         dest.writeByte((byte) 0x66);
         dest.writeByte((byte) 0x82);
@@ -334,7 +332,7 @@ public class VgmWriter {
         writePCMData(chipId, pcmData);
     }
 
-    public void writeYM2610SetAdpcmB(int chipId, byte[] pcmData) {
+    public void writeYM2610SetAdpcmB(int chipId, byte[] pcmData) throws IOException {
 
         dest.writeByte((byte) 0x67);
         dest.writeByte((byte) 0x66);
@@ -343,7 +341,7 @@ public class VgmWriter {
         writePCMData(chipId, pcmData);
     }
 
-    private void writePCMData(int chipId, byte[] pcmData) {
+    private void writePCMData(int chipId, byte[] pcmData) throws IOException {
         int size = pcmData.length;
 
         long sizeOfData = size + 8 + chipId * 0x8000_0000L;
@@ -368,14 +366,14 @@ public class VgmWriter {
         }
     }
 
-    public void useChipsFromMub(byte[] buf) {
-        List<Integer> ret = new ArrayList<>();
-        ret.add(1); // 1: OPNA
-        ret.add(0); // 0: unuse
-        ret.add(0);
-        ret.add(0);
-        ret.add(0);
-        useChips = toIntArray(ret);
+    public void useChipsFromMub(byte[] buf) throws IOException {
+        useChips = new int[] {
+                1, // 1: OPNA
+                0, // 0: unuse
+                0,
+                0,
+                0
+        };
 
         //dest.writeByte(0x56); dest.writeByte(0x29); dest.writeByte(0x82);
         //writeAdpcm(0, new byte[65536]);
@@ -437,12 +435,7 @@ public class VgmWriter {
             }
         }
 
-        ret.clear();
-        ret.add(0);
-        ret.add(0);
-        ret.add(0);
-        ret.add(0);
-        ret.add(0);
+        int[] ret = {0, 0 ,0, 0, 0};
 
         if (chipsCount > 0) {
             if (partCount[0] > 0) {
@@ -450,7 +443,7 @@ public class VgmWriter {
                 for (int i = 0; i < partCount[0]; i++) {
                     n += pageCount[0][i];
                 }
-                if (n > 0) ret.set(0, 1);
+                if (n > 0) ret[0] = 1;
             }
         }
 
@@ -461,7 +454,7 @@ public class VgmWriter {
                     n += pageCount[1][i];
                 }
                 if (n > 0) {
-                    ret.set(1, 2);
+                    ret[1] = 2;
                     dest.writeByte((byte) 0xa6);
                     dest.writeByte((byte) 0x29);
                     dest.writeByte((byte) 0x82);
@@ -475,7 +468,7 @@ public class VgmWriter {
                 for (int i = 0; i < partCount[2]; i++) {
                     n += pageCount[2][i];
                 }
-                if (n > 0) ret.set(2, 3);
+                if (n > 0) ret[2] = 3;
             }
         }
 
@@ -485,7 +478,7 @@ public class VgmWriter {
                 for (int i = 0; i < partCount[3]; i++) {
                     n += pageCount[3][i];
                 }
-                if (n > 0) ret.set(3, 4);
+                if (n > 0) ret[3] = 4;
             }
         }
 
@@ -495,10 +488,10 @@ public class VgmWriter {
                 for (int i = 0; i < partCount[4]; i++) {
                     n += pageCount[4][i];
                 }
-                if (n > 0) ret.set(4, 5);
+                if (n > 0) ret[4] = 5;
             }
         }
 
-        useChips = toIntArray(ret);
+        useChips = ret;
     }
 }
