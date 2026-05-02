@@ -1,4 +1,4 @@
-package vgm;
+package mucom88.vgm;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

@@ -85,23 +85,13 @@ public class Driver implements IDriver {
             lstChipWriteAdpcm.add(ca::writePCMData);
             lstChipWaitSend.add(ca::waitSend);
         }
-        initT(lstChipWrite, lstChipWriteAdpcm, lstChipWaitSend, srcBuf, additionalOption, appendFileReaderCallback);
-    }
 
-    private void init(List<Consumer<ChipDatum>> lstChipWrite, List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm, List<BiConsumer<Long, Integer>> opnaWaitSend, boolean notSoundBoard2, byte[] srcBuf, boolean isLoadADPCM, boolean loadADPCMOnly, Function<String, InputStream> appendFileReaderCallback) {
-        if (srcBuf == null || srcBuf.length < 1) return;
-        List<MmlDatum> bl = new ArrayList<>();
-        for (byte b : srcBuf) bl.add(new MmlDatum(b & 0xff));
-        initT(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, bl.toArray(MmlDatum[]::new), new Object[] {notSoundBoard2, isLoadADPCM, loadADPCMOnly}, appendFileReaderCallback);
-    }
+        if (srcBuf == null || srcBuf.length < 1) throw new IllegalArgumentException("src is null");
 
-    private void initT(List<Consumer<ChipDatum>> lstChipWrite, List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm, List<BiConsumer<Long, Integer>> chipWaitSend, MmlDatum[] srcBuf, Object addtionalOption, Function<String, InputStream> appendFileReaderCallback) {
-        if (srcBuf == null || srcBuf.length < 1) return;
-
-        boolean notSoundBoard2 = (boolean) ((Object[]) addtionalOption)[0];
-        boolean isLoadADPCM = (boolean) ((Object[]) addtionalOption)[1];
-        boolean loadADPCMOnly = (boolean) ((Object[]) addtionalOption)[2];
-        String filename = (String) ((Object[]) addtionalOption)[3];
+        boolean notSoundBoard2 = (boolean) ((Object[]) additionalOption)[0];
+        boolean isLoadADPCM = (boolean) ((Object[]) additionalOption)[1];
+        boolean loadADPCMOnly = (boolean) ((Object[]) additionalOption)[2];
+        String filename = (String) ((Object[]) additionalOption)[3];
         appendFileReaderCallback = appendFileReaderCallback != null ? appendFileReaderCallback : createAppendFileReaderCallback(Path.of(filename).getParent().toString());
 
         work = new Work();
@@ -149,7 +139,7 @@ public class Driver implements IDriver {
         writeOPNBAdpcmBP = lstChipWriteAdpcm.get(2);
         writeOPNBAdpcmAS = lstChipWriteAdpcm.get(3);
         writeOPNBAdpcmBS = lstChipWriteAdpcm.get(3);
-        waitSendOPNA = chipWaitSend.getFirst();
+        waitSendOPNA = lstChipWaitSend.getFirst();
 
         // Transmit PCM
         if (pcm != null) {

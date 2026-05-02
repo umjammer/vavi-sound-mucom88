@@ -1,4 +1,4 @@
-package vgm;
+package mucom88.vgm;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -22,7 +22,8 @@ import static vavi.util.compat.Util.changeExtension;
 import static vavi.util.compat.Util.isNullOrEmpty;
 
 
-class Program {
+public class Program {
+
     private static final Logger logger = System.getLogger(Program.class.getName());
 
     private static final int SamplingRate = 44100; // vgm format freq
@@ -35,7 +36,7 @@ class Program {
     private int loop = 2;
     private List<Tuple<String, String>> tags = null;
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
         Program app = new Program();
         int fnIndex = app.analyzeOption(args);
 

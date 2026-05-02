@@ -1,4 +1,4 @@
-package vgm;
+package mucom88.vgm;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

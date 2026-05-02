@@ -1,4 +1,4 @@
-package wav;
+package mucom88.wav;
 
 import java.io.IOException;
 import java.lang.System.Logger;
@@ -27,7 +27,7 @@ import static vavi.util.compat.Util.changeExtension;
 import static vavi.util.compat.Util.isNullOrEmpty;
 
 
-class Program {
+public class Program {
 
     private static final Logger logger = System.getLogger(Program.class.getName());
 
@@ -43,7 +43,7 @@ class Program {
     private WaveWriter ww = null;
     private int loop = 2;
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
         Program app = new Program();
         int fnIndex = app.analyzeOption(args);
 

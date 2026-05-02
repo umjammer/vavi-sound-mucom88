@@ -49,6 +49,7 @@ public class Program {
         } catch (Exception ex) {
             logger.log(Level.ERROR, ex.getMessage());
             logger.log(Level.ERROR, Arrays.toString(ex.getStackTrace()));
+            if (isTest) throw ex;
         }
     }
 
@@ -86,7 +87,19 @@ logger.log(Level.DEBUG, srcFile + " -> " + destFileName);
                 boolean isSuccess;
                 try (InputStream sourceMML = Files.newInputStream(Path.of(srcFile));
                      ByteArrayOutputStream destCompiledBin = new ByteArrayOutputStream()) {
-                    isSuccess = compiler.compile(sourceMML, destCompiledBin, this::appendFileReaderCallback);
+                    var data = compiler.compile(sourceMML, this::appendFileReaderCallback);
+                    if (data == null) {
+                        isSuccess = false;
+                    } else {
+                        for (MmlDatum datum : data) {
+                            if (datum == null) {
+                                destCompiledBin.write((byte) 0);
+                            } else {
+                                destCompiledBin.write((byte) (datum.dat & 0xff));
+                            }
+                        }
+                        isSuccess = true;
+                    }
 
                     if (isSuccess) {
                         destCompiledBin.flush();

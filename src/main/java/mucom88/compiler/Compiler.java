@@ -1,7 +1,6 @@
 package mucom88.compiler;
 
 import java.awt.Point;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
@@ -49,16 +48,6 @@ public class Compiler implements ICompiler {
     private final List<Tuple<Integer, String>> basSrc = new ArrayList<>();
     private final List<MmlDatum> dat = new ArrayList<>();
 
-    private String outFileName;
-
-    public String getOutFileName() {
-        return outFileName;
-    }
-
-    public void setOutFileName(String value) {
-        outFileName = value;
-    }
-
     private Point skipPoint = Common.EmptyPoint;
 
     private boolean isIDE = false;
@@ -69,6 +58,7 @@ public class Compiler implements ICompiler {
         MUC
     }
 
+    @Override
     public void init() {
         //mucInfo = new MUCInfo();
         work = new Work();
@@ -84,6 +74,7 @@ public class Compiler implements ICompiler {
         expand.muc88 = muc88;
     }
 
+    @Override
     public MmlDatum[] compile(InputStream sourceMML, Function<String, InputStream> appendFileReaderCallback) {
         try {
             srcBuf = sourceMML.readAllBytes();
@@ -173,21 +164,6 @@ logger.log(Level.ERROR, e.getMessage(), e);
         }
 
         return null;
-    }
-
-    public boolean compile(InputStream sourceMML, ByteArrayOutputStream destCompiledBin, Function<String, InputStream> appendFileReaderCallback) {
-        var data = compile(sourceMML, appendFileReaderCallback);
-        if (data == null) {
-            return false;
-        }
-        for (MmlDatum datum : data) {
-            if (datum == null) {
-                destCompiledBin.write((byte) 0);
-            } else {
-                destCompiledBin.write((byte) (datum.dat & 0xff));
-            }
-        }
-        return true;
     }
 
     public MUCInfo getMUCInfo(byte[] buf) {
@@ -369,6 +345,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
         return mucInfo;
     }
 
+    @Override
     public CompilerInfo getCompilerInfo() {
         return work.compilerInfo;
     }
@@ -1074,6 +1051,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         return 0;
     }
 
+    @Override
     public void setCompileSwitch(Object... param) {
         this.isIDE = false;
         this.skipPoint = Common.EmptyPoint;
@@ -1105,6 +1083,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         }
     }
 
+    @Override
     public MetaData getMetaData(byte[] srcBuf) {
         List<Tuple<String, String>> tags = getTagsFromMUC(srcBuf);
 

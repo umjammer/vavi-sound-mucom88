@@ -1,4 +1,4 @@
-package wav;
+package mucom88.wav;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
