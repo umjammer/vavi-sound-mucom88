@@ -34,7 +34,8 @@ currently this project has no good player, use [vavi-sound-mdplayer](https://git
 
 ## TODO
 
- * compiler
+ * ~~compiler~~
+   * works similarly to the original c# version, but both are NG  
  * adpcm?
  * ~~spi~~
 

@@ -341,3 +341,4 @@ healthchecksdb
 output
 /tmp/
 local.properties
+AGENTS.md
