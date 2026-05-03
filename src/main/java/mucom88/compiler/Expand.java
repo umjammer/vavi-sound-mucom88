@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import mucom88.common.MUCInfo;
+import mucom88.common.MucException;
 
 
 public class Expand {
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
+
+    public static final String NumPattern = "0123456789+-.$abcdefABCDEF";
 
     private final Work work;
     private final MUCInfo mucInfo;
@@ -59,10 +62,13 @@ public class Expand {
         this.mucInfo = mucInfo;
     }
 
+    private boolean warningToneFormatFlag = false;
+
     public void FVTEXT(int vn) {
         int fvfg;
         int fmlib1 = 1; // 0x6001;
         boolean found = false;
+        boolean warningFlag;
 
         for (int i = 0; i < mucInfo.getBasSrc().size(); i++) {
             if (mucInfo.getBasSrc().get(i) == null) continue;
@@ -91,16 +97,21 @@ public class Expand {
 
             if (fvfg == '%') {
                 // reading when %(25bytes format)
-
                 for (int row = 0; row < 6; row++) {
                     i++;
                     srcCPtr[0] = 1;
                     for (int col = 0; col < 4; col++) {
                         int v = msub.readData(mucInfo.getBasSrc().get(i), /* ref */ srcCPtr);
                         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                            muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
+                            if (!warningToneFormatFlag) muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
+                            warningToneFormatFlag = true;
                         }
-                        srcCPtr[0]++; // SKIP','
+                        if (skipSpaceAndTab(i, /* ref */ srcCPtr)) {
+                            if (!warningToneFormatFlag) muc88.writeWarning(rb.getString("W0800"), i, srcCPtr[0]); // There is a possibility that it cannot be loaded by mucom88.
+                            warningToneFormatFlag = true;
+                        }
+                        if (NumPattern.indexOf(getMoji(i, srcCPtr[0])) < 0)
+                            srcCPtr[0]++; // SKIP','
                         mucInfo.getMmlVoiceDataWork().set(fmlib1++, (byte) (v & 0xff));
                     }
                 }
@@ -137,7 +148,12 @@ public class Expand {
                         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
                             muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
-                        srcCPtr[0]++; // skip ','
+                        if (skipSpaceAndTab(i, /* ref */ srcCPtr)) {
+                            if (!warningToneFormatFlag) muc88.writeWarning(rb.getString("W0800"), i, srcCPtr[0]); // There is a possibility that it cannot be loaded by mucom88
+                            warningToneFormatFlag = true;
+                        }
+                        if (NumPattern.indexOf(getMoji(i, srcCPtr[0])) < 0)
+                            srcCPtr[0]++; // skip ','
                         voi.add((byte) (v & 0xff));
                     }
                 }
@@ -167,7 +183,14 @@ public class Expand {
                         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
                             muc88.writeWarning(rb.getString("W0409"), i, srcCPtr[0]);
                         }
-                        srcCPtr[0]++; // skip ','
+
+                        if (skipSpaceAndTab(i, /* ref */ srcCPtr)) {
+                            if (!warningToneFormatFlag) muc88.writeWarning(rb.getString("W0800"), i, srcCPtr[0]); // There is a possibility that it cannot be loaded by mucom88
+                            warningToneFormatFlag = true;
+                        }
+                        if (NumPattern.indexOf(getMoji(i, srcCPtr[0])) < 0)
+                            srcCPtr[0]++; // skip ','
+
                         mucInfo.getMmlVoiceDataWork().set(fmlib1++, (byte) (v & 0xff));
                     }
                 }
@@ -207,7 +230,7 @@ public class Expand {
         // Get the definition number
         int n = msub.readData(mucInfo.getBasSrc().get(srcRow[0]), /* ref */ srcCPtr);
         if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-            muc88.writeWarning(rb.getString("Wxxxx"), srcRow[0], srcCPtr[0]);
+            muc88.writeWarning(rb.getString("E0800"), srcRow[0], srcCPtr[0]); // The format is invalid. Check for spaces and commas.
         }
         if (!work.getUseSSGVoice().contains(n)) return;
 
@@ -216,22 +239,47 @@ public class Expand {
 
             srcRow[0]++;
             if (mucInfo.getBasSrc().size() == srcRow[0]) {
-                muc88.writeWarning(rb.getString("Wxxxx"), srcRow[0], srcCPtr[0]);
-                return;
+                throw new MucException(rb.getString("E0800"), srcRow[0], srcCPtr[0]); // The format is invalid. Check for spaces and commas.
             }
 
             srcCPtr[0] = 1;
             for (int col = 0; col < 16; col++) {
                 v[row * 16 + col] = (byte) (msub.readData(mucInfo.getBasSrc().get(srcRow[0]), /* ref */ srcCPtr) & 0xff);
                 if (mucInfo.getCarry() || mucInfo.getErrSign()) {
-                    muc88.writeWarning(rb.getString("Wxxxx"), srcRow[0], srcCPtr[0]);
+                    throw new MucException(rb.getString("E0800"), srcRow[0], srcCPtr[0]); // The format is invalid. Check for spaces and commas.
                 }
-                srcCPtr[0]++;// SKIP','
+
+                if (skipSpaceAndTab(srcRow[0], /* ref */ srcCPtr)) {
+                    if (!warningToneFormatFlag) muc88.writeWarning(rb.getString("W0800"), srcRow[0], srcCPtr[0]); // There is a possibility that it cannot be loaded by mucom88
+                    warningToneFormatFlag = true;
+                }
+                if (NumPattern.indexOf(getMoji(srcRow[0], srcCPtr[0])) < 0)
+                    srcCPtr[0]++;// SKIP','
             }
         }
 
         mucInfo.getSsgVoice().remove(n);
         mucInfo.getSsgVoice().put(n, v);
+    }
+
+    private boolean skipSpaceAndTab(int srcRow, /* ref */ int[] srcCPtr) {
+        boolean ret = false;
+        char c = getMoji(srcRow, srcCPtr[0]);
+
+        while (c == ' ' || c == 0x9) {
+            srcCPtr[0]++;
+            ret = true;
+            c = getMoji(srcRow, srcCPtr[0]);
+        }
+
+        return ret;
+    }
+
+    private char getMoji(int srcRow, int srcCPtr) {
+        char c = srcCPtr < mucInfo.getBasSrc().get(srcRow).getItem2().length()
+                ? mucInfo.getBasSrc().get(srcRow).getItem2().charAt(srcCPtr)
+                : (char) 0;
+        return c;
     }
 
     /**

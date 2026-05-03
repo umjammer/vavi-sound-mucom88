@@ -2,7 +2,7 @@ package mucom88.driver;
 
 import java.util.Map;
 
-import dotnet4j.util.compat.Tuple;
+import vavi.util.compat.Tuple;
 import musicDriverInterface.MmlDatum;
 
 

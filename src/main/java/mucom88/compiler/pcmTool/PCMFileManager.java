@@ -1,37 +1,37 @@
 package mucom88.compiler.pcmTool;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import dotnet4j.io.Stream;
-import dotnet4j.util.compat.StringUtilities;
-
 import static mucom88.common.Common.charset;
+import static vavi.util.compat.Util.isNullOrEmpty;
 
 
 public class PCMFileManager {
 
     private final Map<Integer, PCMFileInfo> dicFile = new HashMap<>();
     private final Config config;
-    private final Function<String, Stream> appendFileReaderCallback;
+    private final Function<String, InputStream> appendFileReaderCallback;
 
-    public PCMFileManager(Config config, Function<String, Stream> appendFileReaderCallback /* = null */) {
+    public PCMFileManager(Config config, Function<String, InputStream> appendFileReaderCallback /* = null */) {
         this.config = config;
         this.appendFileReaderCallback = appendFileReaderCallback;
     }
 
-    public void add(String lin) {
-        if (StringUtilities.isNullOrEmpty(lin)) return;
+    public void add(String lin) throws IOException {
+        if (isNullOrEmpty(lin)) return;
         if (lin.length() < 3) return;
 
         List<String> itemList = analyzeLine(lin);
         PCMFileInfo fi = new PCMFileInfo(itemList, appendFileReaderCallback);
         dicFile.remove(fi.getNumber() - 1);
         dicFile.put(fi.getNumber() - 1, fi);
-        if (fi.getLength() > -1) fi.Encode(config.FormatType);
+        if (fi.getLength() > -1) fi.encode(config.FormatType);
     }
 
     public List<Byte> getRawData() {
@@ -57,7 +57,7 @@ public class PCMFileManager {
     public List<Byte> getName(int i, int v) {
         List<Byte> ret = new ArrayList<>();
 
-        if (!dicFile.containsKey(i) || dicFile.get(i) == null || StringUtilities.isNullOrEmpty(dicFile.get(i).getName())) {
+        if (!dicFile.containsKey(i) || dicFile.get(i) == null || isNullOrEmpty(dicFile.get(i).getName())) {
             for (int n = 0; n < v; n++) ret.add((byte) 0);
             return ret;
         }
@@ -90,7 +90,7 @@ public class PCMFileManager {
     public List<Byte> getName(int i) {
         List<Byte> ret = new ArrayList<>();
 
-        if (!dicFile.containsKey(i) || dicFile.get(i) == null || StringUtilities.isNullOrEmpty(dicFile.get(i).getName())) {
+        if (!dicFile.containsKey(i) || dicFile.get(i) == null || isNullOrEmpty(dicFile.get(i).getName())) {
             ret.add((byte) 0);
             return ret;
         }
@@ -139,7 +139,7 @@ public class PCMFileManager {
             item.append(lin.charAt(pos++));
         }
 
-        if (!StringUtilities.isNullOrEmpty(item.toString())) {
+        if (!isNullOrEmpty(item.toString())) {
             itemList.add(item.toString().trim());
         }
 

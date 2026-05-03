@@ -310,6 +310,18 @@ public class Work {
     public int porOldNote = -1;
     public int porPin = 0;
 
+    private int macroShift = 0;
+
+    public int getMacroShift() {
+        return macroShift;
+    }
+
+    public void setMacroShift(int value) {
+        macroShift = value;
+    }
+
+    public int color = -1;
+
     /**
      * Index of each chip
      */
@@ -317,7 +329,7 @@ public class Work {
 
     /**
      * Allocated channels for each chip
-     * For the full track list, see COMNOW
+     * For the full track list, see #COMNOW
      */
     public int chipCh = 0;
 

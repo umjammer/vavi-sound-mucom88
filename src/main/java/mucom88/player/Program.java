@@ -2,6 +2,7 @@ package mucom88.player;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +15,6 @@ import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
-import dotnet4j.io.File;
-import dotnet4j.util.compat.StopWatch;
-import dotnet4j.util.compat.Tuple;
 import mdsound.Instrument;
 import mdsound.MDSound;
 import mdsound.instrument.Ym2151Inst;
@@ -29,12 +27,17 @@ import musicDriverInterface.ChipAction;
 import musicDriverInterface.ChipDatum;
 import musicDriverInterface.IDriver;
 import musicDriverInterface.MmlDatum;
-import vavi.util.ByteUtil;
+import vavi.util.Debug;
+import vavi.util.compat.Tuple;
 
 import static java.lang.System.getLogger;
 import static vavi.sound.SoundUtil.volume;
 
 
+/**
+ * system property
+ * <li>{@code mucom88.volume} ... volume</li>
+ */
 public class Program {
 
     private static final Logger logger = getLogger(Program.class.getName());
@@ -59,82 +62,77 @@ public class Program {
         }
     }
 
-    private static SourceDataLine audioOutput = null;
-    private static Thread threadMain = null;
-    private static StopWatch sw = null;
-    private static double swFreq = 0;
-    public static boolean threadClosed = false;
-    private static final Object lockObj = new Object();
-    private static boolean _trdStopped = true;
-    private static boolean threadStopped;
-
-    public boolean getTrdStopped() {
-        synchronized (lockObj) {
-            return _trdStopped;
-        }
-    }
-
-    public void setTrdStopped(boolean value) {
-        synchronized (lockObj) {
-            _trdStopped = value;
-        }
-    }
+    private SourceDataLine audioOutput = null;
+    private Thread threadMain = null;
+    public boolean threadClosed = false;
+    private boolean threadStopped;
 
     private static final int SamplingRate = 55467; // 44100;
     private static final int SamplingBuffer = 1024;
-    private static final short[] frames = new short[SamplingBuffer * 4];
-    private static MDSound mds = null;
-    private static final short[] emuRenderBuf = new short[2];
-    private static IDriver driver = null;
+    private MDSound mds = null;
+    private final short[] emuRenderBuf = new short[2];
+    private IDriver driver = null;
     private static int opmMasterClock = 3579545;
     private static final int opnaMasterClock = 7987200;
     private static final int opnbMasterClock = 8000000;
-    private static int device = 0;
-    private static int loop = 0;
+    private int device = 0;
+    private int loop = 0;
 
-    private static boolean loadADPCMOnly = false;
-    private static boolean isLoadADPCM = true;
+    private boolean loadADPCMOnly = false;
+    private boolean isLoadADPCM = true;
 
-    private static RSoundChip rsc;
+    private RSoundChip rsc;
 
     public static void main(String[] args) {
-
-        int fnIndex = analyzeOption(args);
+        Program app = new Program();
+        int fnIndex = app.analyzeOption(args);
 
         if (args.length != fnIndex + 1) {
             logger.log(Level.TRACE, "one argument is needed (.mub file)");
             System.exit(-1);
         }
-        if (!File.exists(args[fnIndex])) {
+        if (!Files.exists(Path.of(args[fnIndex]))) {
             logger.log(Level.TRACE, "file not found");
             System.exit(-1);
         }
 
+        try {
+
+            app.play(args[fnIndex]);
+
+        } catch (Exception e) {
+            logger.log(Level.ERROR, e.getMessage(), e);
+        }
+    }
+
+    private void play(String fn) throws Exception {
         rsc = checkDevice();
 
         try {
-
             int latency = 1000;
 
             switch (device) {
             case 0:
                 audioOutput = AudioSystem.getSourceDataLine(new AudioFormat(SamplingRate, 16, 2, true, false));
                 audioOutput.open();
+                volume(audioOutput, Double.parseDouble(System.getProperty("mucom88.volume", "0.2")));
+                threadMain = new Thread(this::emuPlayback);
+                threadMain.setPriority(Thread.MAX_PRIORITY);
+                threadMain.setDaemon(true);
+                threadMain.setName("trdEmu");
                 break;
             case 1:
             case 2:
-                threadMain = new Thread(Program::realCallback);
+                threadMain = new Thread(this::realCallback);
                 threadMain.setPriority(Thread.MAX_PRIORITY);
                 threadMain.setDaemon(true);
                 threadMain.setName("trdVgmReal");
-                sw = StopWatch.startNew();
-                swFreq = StopWatch.Frequency;
                 break;
             }
 
             List<MmlDatum> temp = new ArrayList<>();
-logger.log(Level.DEBUG, args[fnIndex]);
-            byte[] srcBuf = File.readAllBytes(args[fnIndex]);
+logger.log(Level.DEBUG, fn);
+            byte[] srcBuf = Files.readAllBytes(Path.of(fn));
             for (byte b : srcBuf) temp.add(new MmlDatum(b & 0xff));
             MmlDatum[] buf = temp.toArray(MmlDatum[]::new);
 
@@ -185,17 +183,19 @@ logger.log(Level.DEBUG, args[fnIndex]);
                 chip.option = null;
                 chips.add(chip);
             }
+
             mds = new MDSound();
+            mds.init(SamplingRate, 1024, chips);
 
             List<ChipAction> actions = new ArrayList<>();
-            actions.add(new MucomChipAction(Program::writeOPNAP, null, Program::sendOPNAWait));
-            actions.add(new MucomChipAction(Program::writeOPNAS, null, null));
-            actions.add(new MucomChipAction(Program::writeOPNBP, Program::writeOPNBAdpcmP, null));
-            actions.add(new MucomChipAction(Program::writeOPNBS, Program::writeOPNBAdpcmS, null));
-            actions.add(new MucomChipAction(Program::writeOPMP, null, null));
+            actions.add(new MucomChipAction(this::writeOPNAP, null, Program::sendOPNAWait));
+            actions.add(new MucomChipAction(this::writeOPNAS, null, null));
+            actions.add(new MucomChipAction(this::writeOPNBP, this::writeOPNBAdpcmP, null));
+            actions.add(new MucomChipAction(this::writeOPNBS, this::writeOPNBAdpcmS, null));
+            actions.add(new MucomChipAction(this::writeOPMP, null, null));
 
             driver = new Driver();
-            driver.init(actions, buf, null, false, isLoadADPCM, loadADPCMOnly, args[fnIndex]);
+            driver.init(actions, buf, null, false, isLoadADPCM, loadADPCMOnly, fn);
 
             if (header.SSGExtend) {
 //                mds.ChangeYM2608_PSGMode(0, 1); // new impl @see "TAG106"
@@ -223,9 +223,6 @@ logger.log(Level.DEBUG, args[fnIndex]);
 
             switch (device) {
             case 0:
-                audioOutput.start();
-                volume(audioOutput, 0.2f);
-                break;
             case 1:
             case 2:
                 threadMain.start();
@@ -239,16 +236,16 @@ logger.log(Level.DEBUG, args[fnIndex]);
             while (true) {
                 Thread.yield();
                 if (KeyboardHook.kbhit()) {
+Debug.println("KBHIT");
                     break;
                 }
-
-                emu();
 
                 // If the status is 0 (done) or less than 0 (error), exit the loop.
                 if (driver.getStatus() <= 0) {
                     if (driver.getStatus() == 0) {
                         Thread.sleep((int) (latency * 2.0)); // Wait for latency * 2 until the actual voice is fully pronounced
                     }
+Debug.println("STATUS: " + driver.getStatus());
                     break;
                 }
             }
@@ -277,6 +274,26 @@ logger.log(Level.DEBUG, args[fnIndex]);
         }
     }
 
+    private void emuPlayback() {
+        audioOutput.start();
+        short[] buf = new short[SamplingBuffer * 2];
+        byte[] byteBuf = new byte[buf.length * 2];
+        threadStopped = false;
+        try {
+            while (!threadClosed) {
+                emu(buf, 0, buf.length);
+                for (int i = 0; i < buf.length; i++) {
+                    byteBuf[i * 2] = (byte) (buf[i] & 0xff);
+                    byteBuf[i * 2 + 1] = (byte) ((buf[i] >> 8) & 0xff);
+                }
+                audioOutput.write(byteBuf, 0, byteBuf.length);
+            }
+        } catch (Exception e) {
+            logger.log(Level.ERROR, e.getMessage(), e);
+        }
+        threadStopped = true;
+    }
+
     private static void sendOPNAWait(long elapsed, int size) {
         // nothing to do for emu
     }
@@ -286,7 +303,7 @@ logger.log(Level.DEBUG, args[fnIndex]);
         return null;
     }
 
-    private static int analyzeOption(String[] args) {
+    private int analyzeOption(String[] args) {
         int i = 0;
 
         device = 0;
@@ -341,26 +358,24 @@ logger.log(Level.DEBUG, "path: [" + path + "]");
         return path.toString();
     }
 
-    private static void emu() {
+    private void emu(short[] buffer, int offset, int count) {
         try {
-            byte[] buffer = new byte[16];
+            int bufCnt = count / 2;
 
-            for (int i = 0; i < buffer.length / 4; i++) {
-                int r = mds.update(emuRenderBuf, 0, 2, Program::doOneFrame);
+            for (int i = 0; i < bufCnt; i++) {
+                int r = mds.update(emuRenderBuf, 0, 2, this::doOneFrame);
 
-                ByteUtil.writeLeShort(emuRenderBuf[0], buffer, i * 4 + 0);
-                ByteUtil.writeLeShort(emuRenderBuf[1], buffer, i * 4 + 2);
+                buffer[offset + i * 2 + 0] = emuRenderBuf[0];
+                buffer[offset + i * 2 + 1] = emuRenderBuf[1];
 //logger.log(Level.TRACE, "%04x, %04x".formatted(emuRenderBuf[0], emuRenderBuf[1]));
             }
-
-            audioOutput.write(buffer, 0, buffer.length);
         } catch (Exception ex) {
             logger.log(Level.ERROR, ex.getMessage(), ex);
         }
     }
 
-    private static void realCallback() {
-        double o = sw.getElapsedMilliseconds() / swFreq;
+    private void realCallback() {
+        double o = System.currentTimeMillis() / 2000_000_000.;
         double step = 1 / (double) SamplingRate;
 
         threadStopped = false;
@@ -368,7 +383,7 @@ logger.log(Level.DEBUG, "path: [" + path + "]");
             while (!threadClosed) {
                 Thread.yield();
 
-                double el1 = sw.getElapsedMilliseconds() / swFreq;
+                double el1 = System.currentTimeMillis() / 2000_000_000.;
                 if (el1 - o < step) continue;
                 if (el1 - o >= step * SamplingRate / 100.0) { // Threshold 10ms
                     do {
@@ -386,42 +401,41 @@ logger.log(Level.DEBUG, "path: [" + path + "]");
         threadStopped = true;
     }
 
-    private static void doOneFrame() {
+    private void doOneFrame() {
         driver.render();
     }
 
-    private static void writeOPNAP(ChipDatum dat) {
+    private void writeOPNAP(ChipDatum dat) {
         writeOPNA(0, dat);
     }
 
-    private static void writeOPNAS(ChipDatum dat) {
+    private void writeOPNAS(ChipDatum dat) {
         writeOPNA(1, dat);
     }
 
-    private static void writeOPNBP(ChipDatum dat) {
+    private void writeOPNBP(ChipDatum dat) {
         writeOPNB(0, dat);
     }
 
-    private static void writeOPNBS(ChipDatum dat) {
+    private void writeOPNBS(ChipDatum dat) {
         writeOPNB(1, dat);
     }
 
-    private static void writeOPMP(ChipDatum dat) {
+    private void writeOPMP(ChipDatum dat) {
         writeOPM(0, dat);
     }
 
-    private static void writeOPNBAdpcmP(byte[] pcmData, int s, int e) {
+    private void writeOPNBAdpcmP(byte[] pcmData, int s, int e) {
         if (s == 0) writeOPNBAdpcmA(0, pcmData);
         else writeOPNBAdpcmB(0, pcmData);
     }
 
-    private static void writeOPNBAdpcmS(byte[] pcmData, int s, int e) {
+    private void writeOPNBAdpcmS(byte[] pcmData, int s, int e) {
         if (s == 0) writeOPNBAdpcmA(1, pcmData);
         else writeOPNBAdpcmB(1, pcmData);
     }
 
-
-    private static void writeOPNA(int chipId, ChipDatum dat) {
+    private void writeOPNA(int chipId, ChipDatum dat) {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
@@ -443,7 +457,7 @@ logger.log(Level.TRACE, "Out ChipA:%d Port:%d adr:[%02x] val[%02x]".formatted(ch
         }
     }
 
-    private static void writeOPNB(int chipId, ChipDatum dat) {
+    private void writeOPNB(int chipId, ChipDatum dat) {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
@@ -465,7 +479,7 @@ logger.log(Level.TRACE, "Out ChipB:%d Port:%d adr:[%02x] val[%02x]".formatted(ch
         }
     }
 
-    private static void writeOPM(int chipId, ChipDatum dat) {
+    private void writeOPM(int chipId, ChipDatum dat) {
         if (dat != null && dat.additionalData != null) {
             MmlDatum md = (MmlDatum) dat.additionalData;
             if (md.linePos != null) {
@@ -489,7 +503,7 @@ if (dat.address == 0x27) {
         }
     }
 
-    private static void writeOPNBAdpcmA(int chipId, byte[] pcmData) {
+    private void writeOPNBAdpcmA(int chipId, byte[] pcmData) {
         switch (device) {
         case 0:
             mds.inst(Ym2610Inst.class).writeAdpcmA(chipId, pcmData);
@@ -500,7 +514,7 @@ if (dat.address == 0x27) {
         }
     }
 
-    private static void writeOPNBAdpcmB(int chipId, byte[] pcmData) {
+    private void writeOPNBAdpcmB(int chipId, byte[] pcmData) {
         switch (device) {
         case 0:
             mds.inst(Ym2610Inst.class).writeAdpcmB(chipId, pcmData);

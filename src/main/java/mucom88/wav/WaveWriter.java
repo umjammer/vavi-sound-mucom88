@@ -1,27 +1,26 @@
-package wav;
+package mucom88.wav;
 
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
-import dotnet4j.io.FileAccess;
-import dotnet4j.io.FileMode;
-import dotnet4j.io.FileStream;
-import dotnet4j.io.SeekOrigin;
 import vavi.util.ByteUtil;
 
 
 public class WaveWriter {
-    private FileStream dest = null;
+
+    private RandomAccessFile dest = null;
     private int len = 0;
     private final int sampleFreq;
 
-    public WaveWriter(int samplingFreq/*=44100*/) {
+    public WaveWriter(int samplingFreq /* = 44100 */) {
         sampleFreq = samplingFreq;
     }
 
-    public void open(String fullPath) {
+    public void open(String fullPath) throws IOException {
         if (dest != null) close();
-        dest = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+        dest = new RandomAccessFile(fullPath, "rw");
 
         List<Byte> des = new ArrayList<>();
         len = 0;
@@ -90,17 +89,17 @@ public class WaveWriter {
         dest.write(ByteUtil.toByteArray(des), 0, des.size());
     }
 
-    public void close() {
+    public void close() throws IOException {
         if (dest == null) return;
 
-        dest.seek(4, SeekOrigin.Begin);
+        dest.seek(4);
         int fsize = len + 36;
         dest.writeByte((byte) ((fsize & 0xff) >> 0));
         dest.writeByte((byte) ((fsize & 0xff00) >> 8));
         dest.writeByte((byte) ((fsize & 0xff0000) >> 16));
         dest.writeByte((byte) ((fsize & 0xff000000) >> 24));
 
-        dest.seek(40, SeekOrigin.Begin);
+        dest.seek(40);
         dest.writeByte((byte) ((len & 0xff) >> 0));
         dest.writeByte((byte) ((len & 0xff00) >> 8));
         dest.writeByte((byte) ((len & 0xff0000) >> 16));
@@ -110,7 +109,7 @@ public class WaveWriter {
         dest = null;
     }
 
-    public void write(short[] buffer, int offset, int sampleCount) {
+    public void write(short[] buffer, int offset, int sampleCount) throws IOException {
         if (dest == null) return;
 
         for (int i = 0; i < sampleCount; i++) {

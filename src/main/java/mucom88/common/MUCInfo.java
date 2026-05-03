@@ -1,15 +1,15 @@
 package mucom88.common;
 
 import java.awt.Point;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dotnet4j.io.Path;
-import dotnet4j.util.compat.Tuple;
 import musicDriverInterface.MmlDatum;
 import musicDriverInterface.common.AutoExtendList;
+import vavi.util.compat.Tuple;
 
 
 public class MUCInfo {
@@ -83,6 +83,16 @@ public class MUCInfo {
 
     public void setVoice(String value) {
         voice = value;
+    }
+
+    private String artwork;
+
+    public String getArtwork() {
+        return artwork;
+    }
+
+    public void setArtwork(String value) {
+        artwork = value;
     }
 
     private String[] pcm = new String[6];
@@ -223,7 +233,7 @@ public class MUCInfo {
 
     public void setFnSrc(String value) {
         _fnSrc = value;
-        _fnSrcOnlyFile = Path.getFileName(value);
+        _fnSrcOnlyFile = Path.of(value).getFileName().toString();
     }
 
     private String _fnSrcOnlyFile = null;
@@ -312,7 +322,7 @@ public class MUCInfo {
     public int incAndGetSrcCPtr() {
         return ++srcCPtr;
     }
-    public void decSrcCPtr() {
+    public void getAndDecSrcCPtr() {
         srcCPtr--;
     }
     public void setSrcCPtr(int value) {
@@ -626,6 +636,7 @@ public class MUCInfo {
         mucom88 = "";
         date = "";
         voice = "";
+        artwork = "";
         for (int i = 0; i < 6; i++) {
             pcm[i] = "";
             pcmAt[i].clear();

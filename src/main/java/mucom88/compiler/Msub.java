@@ -5,10 +5,10 @@ import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-import dotnet4j.util.compat.Tuple;
 import mucom88.common.MUCInfo;
 import mucom88.common.MucException;
 import musicDriverInterface.MmlDatum;
+import vavi.util.compat.Tuple;
 
 import static java.lang.System.getLogger;
 
@@ -17,7 +17,7 @@ public class Msub {
 
     private static final Logger logger = getLogger(Msub.class.getName());
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("lang/message");
+    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     private final Work work;
     private final MUCInfo mucInfo;
@@ -76,6 +76,8 @@ public class Msub {
             0x7b,  // '{' Portamento Start
             0x23,  // '#' FLAG SET
             0x5f,  // '_' Local portamento
+//            (byte) '~', // Reverse TIE
+            (byte) '\'', // Memo
             0
     };
 
@@ -94,6 +96,7 @@ public class Msub {
         this.mucInfo = mucInfo;
     }
 
+    /** REDATA */
     public int readData(Tuple<Integer, String> lin, /* ref */ int[] srcCPtr) {
         mucInfo.setErrSign(false);
 
@@ -104,7 +107,7 @@ public class Msub {
         work.minUsf = 0;
 
 //READ0: FIRST CHECK
-        int ch;
+        char ch;
 
         do {
             if (lin.getItem2().length() == srcCPtr[0]) {
@@ -116,14 +119,14 @@ public class Msub {
             srcCPtr[0]++;
         } while (ch == ' ' || ch == '\t');
 
-        if (ch == '$') {
+        if (ch == '$') { // 0x24
             work.hexFg = 1;
             srcCPtr[0]++;
 //            goto READ7;
-        } else if (ch == '-') {
+        } else if (ch == '-') { // 0x2d
             ch = lin.getItem2().length() > srcCPtr[0] ? lin.getItem2().charAt(srcCPtr[0]) : 0;
             srcCPtr[0]++;
-            if (ch < '0' || ch > '9') {
+            if (ch < '0' || ch > '9') { // 0x30 0x39
 //                goto READE; // If 0 or more characters, next
                 work.setSecCom(ch);
 logger.log(Level.DEBUG, "not valid number: " + ch);
@@ -133,9 +136,9 @@ logger.log(Level.DEBUG, "not valid number: " + ch);
             work.minUsf = 1;   // SET MINUS FLAG
 //            goto READ7;
         } else {
-            if (ch < '0' || ch > '9') {
+            if (ch < '0' || ch > '9') { // 0x30 0x39
 //                goto READE; // If 0 or more characters, next
-logger.log(Level.DEBUG, "not valid number: " + ch + ", " + lin.getItem2() + ", " + srcCPtr[0]);
+logger.log(Level.DEBUG, "not valid number: " + ch + ", \"" + lin.getItem2() + "\", " + srcCPtr[0]);
                 work.setSecCom(ch);
                 mucInfo.setCarry(true); // NON DATA
                 return 0;
@@ -173,7 +176,7 @@ READF: {
             scores[4] = scores[5];
 
             ch -= 0x30; // A= 0 - 9
-            scores[4] = (byte) ch;
+            scores[4] = ch & 0xff;
             srcCPtr[0]++; // NEXT TEXT
             digit--;
 
@@ -264,6 +267,19 @@ logger.log(Level.DEBUG, "over 7 digits");
         muc88.DispHex4(work.mData, 36);
     }
 
+    public void MWRITE(MmlDatum cmdNo, MmlDatum... cmdDats) {
+        mucInfo.getBufDst().set(work.mData++, cmdNo);
+
+        for (MmlDatum d : cmdDats) {
+            mucInfo.getBufDst().set(work.mData++, d);
+            if (work.mData - work.getBufStartPtr() > 0xffff) {
+                throw new MucException(rb.getString("E0200"), mucInfo.getRow(), mucInfo.getCol());
+            }
+        }
+
+        muc88.DispHex4(work.mData, 36);
+    }
+
     public int ERRT(Tuple<Integer, String> lin, /* ref */ int[] ptr, String cmdMsg) {
         ptr[0]++;
         int n = readData(lin, /* ref */ ptr);
@@ -294,16 +310,18 @@ logger.log(Level.DEBUG, lin.getItem2());
         return 0;
     }
 
+    private int oldNote = 0;
+
     /**
      * @after error: {@link MUCInfo#getCarry()} true
      * @return 0: error
      */
     public int STTONE() {
-        int c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
+        char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
                 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
                 : 0;
 
-        logger.log(Level.TRACE, String.valueOf(c));
+        logger.log(Level.TRACE, String.valueOf((char) c));
 
         for (int[] i = new int[1]; i[0] < 7; i[0]++) {
             if (c == TONES[i[0] * 2]) {
@@ -312,7 +330,12 @@ logger.log(Level.DEBUG, lin.getItem2());
             }
         }
 
-logger.log(Level.DEBUG, "error: %d not in %s".formatted(c, Arrays.toString(TONES)));
+        if (c == 'x') {
+            mucInfo.setCarry(false);
+            return TONEXT2();
+        }
+
+logger.log(Level.DEBUG, "error: %c not in %s".formatted(c, Arrays.toString(TONES)));
         mucInfo.setCarry(true);
         return 0;
     }
@@ -322,7 +345,7 @@ logger.log(Level.DEBUG, "error: %d not in %s".formatted(c, Arrays.toString(TONES
         int[] o = new int[] {work.octave};
 
         mucInfo.incAndGetSrcCPtr();
-        int c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
+        char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
                 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
                 : (char) 0;
 
@@ -345,7 +368,7 @@ logger.log(Level.DEBUG, "error: %d not in %s".formatted(c, Arrays.toString(TONES
             }
             n[0]--;
         } else {
-            mucInfo.decSrcCPtr();
+            mucInfo.getAndDecSrcCPtr();
         }
 
         siftKey(/* ref */ o, /* ref */ n);
@@ -353,9 +376,18 @@ logger.log(Level.DEBUG, "error: %d not in %s".formatted(c, Arrays.toString(TONES
         return (((o[0] & 0xf) << 4) | (n[0] & 0xf)) & 0xff;
     }
 
+    private byte TONEXT2() {
+        int[] n = {oldNote};
+        int[] o = {work.octave};
+
+        siftKey(/* ref */ o, /* ref */ n);
+        mucInfo.setCarry(false);
+        return (byte) (((o[0] & 0xf) << 4) | (n[0] & 0xf));
+    }
+
     /** KEYSIFT */
     public void siftKey(/* ref */ int[] oct, /* ref */ int[] n) {
-        int shift = (byte) work.siftDat + (byte) work.siftDa2;
+        int shift = (work.siftDat & 0xff) + (work.siftDa2 & 0xff);
         if (shift == 0) return;
 
         //mucInfo.Carry = (oct * 12 + n > 0xff);
@@ -403,8 +435,7 @@ logger.log(Level.DEBUG, "error: %d not in %s".formatted(c, Arrays.toString(TONES
         }
         n = n & 0xff;
 
-        if (mucInfo.getCarry()) // Could not read the value
-        {
+        if (mucInfo.getCarry()) { // Could not read the value
             ptr[0]--;
             n = work.count;
         } else {

@@ -3,9 +3,8 @@ package mucom88.compiler.pcmTool;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 
-import dotnet4j.util.compat.StringUtilities;
-
 import static java.lang.System.getLogger;
+import static vavi.util.compat.Util.isNullOrEmpty;
 
 
 public class Config {
@@ -18,8 +17,8 @@ public class Config {
         return FormatType;
     }
 
-    public void Add(String lin) {
-        if (StringUtilities.isNullOrEmpty(lin)) return;
+    public void add(String lin) {
+        if (isNullOrEmpty(lin)) return;
         if (lin.length() < 3) return;
         if (lin.charAt(0) != '#') return;
 

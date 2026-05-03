@@ -2,10 +2,10 @@ package mucom88.driver;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,28 +13,20 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import dotnet4j.io.File;
-import dotnet4j.io.FileAccess;
-import dotnet4j.io.FileMode;
-import dotnet4j.io.FileShare;
-import dotnet4j.io.FileStream;
-import dotnet4j.io.Path;
-import dotnet4j.io.Stream;
-import dotnet4j.util.compat.StringUtilities;
-import dotnet4j.util.compat.TriConsumer;
-import dotnet4j.util.compat.Tuple;
 import mucom88.common.MubException;
 import musicDriverInterface.ChipAction;
 import musicDriverInterface.ChipDatum;
-import musicDriverInterface.MetaData;
 import musicDriverInterface.IDriver;
+import musicDriverInterface.MetaData;
 import musicDriverInterface.MetaData.Tag;
 import musicDriverInterface.MmlDatum;
 import vavi.util.ByteUtil;
-import vavi.util.serdes.Serdes;
+import vavi.util.compat.TriConsumer;
+import vavi.util.compat.Tuple;
 
 import static java.lang.System.getLogger;
 import static mucom88.common.Common.charset;
+import static vavi.util.compat.Util.isNullOrEmpty;
 
 
 public class Driver implements IDriver {
@@ -79,7 +71,11 @@ public class Driver implements IDriver {
         MusicSTART, MusicSTOP, FaDeOut, EFfeCt, RETurnWork
     }
 
-    public void init(List<ChipAction> chipsConsumer, MmlDatum[] srcBuf, Function<String, Stream> appendFileReaderCallback, Object... additionalOption) {
+    /**
+     * @param additionalOption 0: notSoundBoard2, 1: isLoadADPCM, 2: loadADPCMOnly, 3: filename
+     */
+    @Override
+    public void init(List<ChipAction> chipsConsumer, MmlDatum[] srcBuf, Function<String, InputStream> appendFileReaderCallback, Object... additionalOption) {
         List<Consumer<ChipDatum>> lstChipWrite = new ArrayList<>();
         List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm = new ArrayList<>();
         List<BiConsumer<Long, Integer>> lstChipWaitSend = new ArrayList<>();
@@ -89,59 +85,14 @@ public class Driver implements IDriver {
             lstChipWriteAdpcm.add(ca::writePCMData);
             lstChipWaitSend.add(ca::waitSend);
         }
-        initT(lstChipWrite, lstChipWriteAdpcm, lstChipWaitSend, srcBuf, additionalOption, appendFileReaderCallback);
-    }
 
-    private void init(
-            String fileName,
-            List<Consumer<ChipDatum>> lstChipWrite,
-            List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm,
-            List<BiConsumer<Long, Integer>> opnaWaitSend,
-            boolean notSoundBoard2, boolean isLoadADPCM, boolean loadADPCMOnly, Function<String, Stream> appendFileReaderCallback/* =null*/) {
+        if (srcBuf == null || srcBuf.length < 1) throw new IllegalArgumentException("src is null");
 
-        if (!Path.getExtension(fileName).equalsIgnoreCase(".xml")) {
-            byte[] srcBuf = File.readAllBytes(fileName);
-            if (srcBuf.length < 1) return;
-            init(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, notSoundBoard2, srcBuf, isLoadADPCM, loadADPCMOnly, appendFileReaderCallback != null ? appendFileReaderCallback : createAppendFileReaderCallback(Path.getDirectoryName(fileName)));
-        } else {
-            try (InputStream sr = Files.newInputStream(java.nio.file.Path.of(fileName))) {
-                List<MmlDatum> s = new ArrayList<>();
-                while (sr.available() > 0) {
-                    MmlDatum m = new MmlDatum();
-                    s.add(Serdes.Util.deserialize(sr, m));
-                }
-                initT(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, s.toArray(MmlDatum[]::new), new Object[] {notSoundBoard2, isLoadADPCM, loadADPCMOnly}, appendFileReaderCallback);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-    }
-
-    private void init(String fileName, List<Consumer<ChipDatum>> lstChipWrite, List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm, List<BiConsumer<Long, Integer>> opnaWaitSend, boolean notSoundBoard2, byte[] srcBuf, boolean isLoadADPCM, boolean loadADPCMOnly) {
-        if (srcBuf == null || srcBuf.length < 1) return;
-        init(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, notSoundBoard2, srcBuf, isLoadADPCM, loadADPCMOnly, createAppendFileReaderCallback(Path.getDirectoryName(fileName)));
-    }
-
-    private void init(List<Consumer<ChipDatum>> lstChipWrite, List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm, List<BiConsumer<Long, Integer>> opnaWaitSend, boolean notSoundBoard2, byte[] srcBuf, boolean isLoadADPCM, boolean loadADPCMOnly, Function<String, Stream> appendFileReaderCallback) {
-        if (srcBuf == null || srcBuf.length < 1) return;
-        List<MmlDatum> bl = new ArrayList<>();
-        for (byte b : srcBuf) bl.add(new MmlDatum(b & 0xff));
-        initT(lstChipWrite, lstChipWriteAdpcm, opnaWaitSend, bl.toArray(MmlDatum[]::new), new Object[] {notSoundBoard2, isLoadADPCM, loadADPCMOnly}, appendFileReaderCallback);
-    }
-
-    private void init(String fileName, List<Consumer<ChipDatum>> lstChipWrite, List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm, List<BiConsumer<Long, Integer>> chipWaitSend, MmlDatum[] srcBuf, Object addtionalOption) {
-        if (srcBuf == null || srcBuf.length < 1) return;
-        initT(lstChipWrite, lstChipWriteAdpcm, chipWaitSend, srcBuf, addtionalOption, createAppendFileReaderCallback(Path.getDirectoryName(fileName)));
-    }
-
-    private void initT(List<Consumer<ChipDatum>> lstChipWrite, List<TriConsumer<byte[], Integer, Integer>> lstChipWriteAdpcm, List<BiConsumer<Long, Integer>> chipWaitSend, MmlDatum[] srcBuf, Object addtionalOption, Function<String, Stream> appendFileReaderCallback) {
-        if (srcBuf == null || srcBuf.length < 1) return;
-
-        boolean notSoundBoard2 = (boolean) ((Object[]) addtionalOption)[0];
-        boolean isLoadADPCM = (boolean) ((Object[]) addtionalOption)[1];
-        boolean loadADPCMOnly = (boolean) ((Object[]) addtionalOption)[2];
-        String filename = (String) ((Object[]) addtionalOption)[3];
-        appendFileReaderCallback = appendFileReaderCallback != null ? appendFileReaderCallback : createAppendFileReaderCallback(Path.getDirectoryName(filename));
+        boolean notSoundBoard2 = (boolean) ((Object[]) additionalOption)[0];
+        boolean isLoadADPCM = (boolean) ((Object[]) additionalOption)[1];
+        boolean loadADPCMOnly = (boolean) ((Object[]) additionalOption)[2];
+        String filename = (String) ((Object[]) additionalOption)[3];
+        appendFileReaderCallback = appendFileReaderCallback != null ? appendFileReaderCallback : createAppendFileReaderCallback(Path.of(filename).getParent().toString());
 
         work = new Work();
         header = new MubHeader(srcBuf);
@@ -176,7 +127,7 @@ public class Driver implements IDriver {
             pcmStartPos[5] = 0;
         }
 
-        work.isDotNET = isDotNETFromTAG();
+        work.isDotNET = isExtendMucomFromTAG();
         work.SSGExtend = isSSGExtendFromTAG();
 
         writeOPNAP = lstChipWrite.get(0);
@@ -188,7 +139,7 @@ public class Driver implements IDriver {
         writeOPNBAdpcmBP = lstChipWriteAdpcm.get(2);
         writeOPNBAdpcmAS = lstChipWriteAdpcm.get(3);
         writeOPNBAdpcmBS = lstChipWriteAdpcm.get(3);
-        waitSendOPNA = chipWaitSend.getFirst();
+        waitSendOPNA = lstChipWaitSend.getFirst();
 
         // Transmit PCM
         if (pcm != null) {
@@ -270,13 +221,17 @@ public class Driver implements IDriver {
         pcm[v] = ByteUtil.toByteArray(dest);
     }
 
-    private boolean isDotNETFromTAG() {
+    private boolean isExtendMucomFromTAG() {
         if (tags == null) return false;
+
         for (Tuple<String, String> tag : tags) {
-            if (tag.getItem1().equals("driver")) {
-                if (tag.getItem2().equalsIgnoreCase("mucomdotnet")) {
-                    return true;
-                }
+            if (tag.getItem1().equals("driver")) continue;
+
+            String drv = tag.getItem2().toLowerCase().trim();
+            if (drv.equals("mucomdotnet") ||
+                    drv.equals("mucom88em") ||
+                    drv.equals("mucom88e")) {
+                return true;
             }
         }
 
@@ -297,16 +252,19 @@ public class Driver implements IDriver {
         return false;
     }
 
-    private static Function<String, Stream> createAppendFileReaderCallback(String dir) {
+    private static Function<String, InputStream> createAppendFileReaderCallback(String dir) {
         return fileName -> {
-            if (!StringUtilities.isNullOrEmpty(dir)) {
-                var path = Path.combine(dir, fileName);
-                if (File.exists(path)) {
-                    return new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            try {
+                if (!isNullOrEmpty(dir)) {
+                    Path path = Path.of(dir, fileName);
+                    if (Files.exists(path)) {
+                        return Files.newInputStream(path);
+                    }
                 }
-            }
-            if (File.exists(fileName)) {
-                return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                if (Files.exists(Path.of(fileName))) {
+                    return Files.newInputStream(Path.of(fileName));
+                }
+            } catch (IOException _) {
             }
             return null;
         };
@@ -614,36 +572,40 @@ logger.log(Level.TRACE, "Stop rendering.");
                 fnVoiceDat[0] = tag.getItem2();
                 break;
             case "pcm":
+            case "pcm_1st":
+            case "pcmopna_p":
                 fnPcm[0] = tag.getItem2();
                 break;
-            case "pcmOPNA_P":
-                fnPcm[0] = tag.getItem2();
-                break;
-            case "pcmOPNA_S":
+            case "pcm_2nd":
+            case "pcmopna_s":
                 fnPcm[1] = tag.getItem2();
                 break;
-            case "pcmOPNB_B_P":
+            case "pcm_3rd":
+            case "pcmopnb_b_p":
                 fnPcm[2] = tag.getItem2();
                 break;
-            case "pcmOPNB_B_S":
+            case "pcm_4th":
+            case "pcmopnb_b_s":
                 fnPcm[3] = tag.getItem2();
                 break;
-            case "pcmOPNB_A_P":
+            case "pcm_5th":
+            case "pcmopnb_a_p":
                 fnPcm[4] = tag.getItem2();
                 break;
-            case "pcmOPNB_A_S":
+            case "pcm_6th":
+            case "pcmopnb_a_s":
                 fnPcm[5] = tag.getItem2();
                 break;
             }
         }
     }
 
-    private byte[] getFMVoiceFromFile(int id, Function<String, Stream> appendFileReaderCallback) {
+    private byte[] getFMVoiceFromFile(int id, Function<String, InputStream> appendFileReaderCallback) {
         try {
-            fnVoiceDat[id] = StringUtilities.isNullOrEmpty(fnVoiceDat[id]) ? "voice.dat" : fnVoiceDat[id];
+            fnVoiceDat[id] = isNullOrEmpty(fnVoiceDat[id]) ? "voice.dat" : fnVoiceDat[id];
 
-            try (Stream vd = appendFileReaderCallback.apply(fnVoiceDat[id])) {
-                return mdsound.Common.readAllBytes(vd);
+            try (InputStream vd = appendFileReaderCallback.apply(fnVoiceDat[id])) {
+                return vd != null ? vd.readAllBytes() : null;
             }
         } catch (Exception e) {
             logger.log(Level.ERROR, e.getMessage(), e);
@@ -660,12 +622,12 @@ logger.log(Level.TRACE, "Stop rendering.");
             "mucompcm_4th_A.bin"
     };
 
-    private byte[] getPCMDataFromFile(int id, Function<String, Stream> appendFileReaderCallback) {
+    private byte[] getPCMDataFromFile(int id, Function<String, InputStream> appendFileReaderCallback) {
         try {
-            fnPcm[id] = StringUtilities.isNullOrEmpty(fnPcm[id]) ? defaultPCMFileName[id] : fnPcm[id];
+            fnPcm[id] = isNullOrEmpty(fnPcm[id]) ? defaultPCMFileName[id] : fnPcm[id];
 
-            try (Stream pd = appendFileReaderCallback.apply(fnPcm[id])) {
-                return mdsound.Common.readAllBytes(pd);
+            try (InputStream pd = appendFileReaderCallback.apply(fnPcm[id])) {
+                return pd != null ? pd.readAllBytes() : null;
             }
         } catch (Exception e) {
             logger.log(Level.ERROR, e.getMessage(), e);
@@ -721,6 +683,9 @@ logger.log(Level.TRACE, "Stop rendering.");
                 break;
             case "driver":
                 metaData.add(Tag.DriverName, tag.getItem2());
+                break;
+            case "artwork":
+                metaData.add(Tag.Artwork, tag.getItem2());
                 break;
             }
         }
