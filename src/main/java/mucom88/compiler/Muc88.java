@@ -3053,26 +3053,26 @@ logger.log(Level.DEBUG, mucInfo.getLin().getItem2());
             return STCL5(n, w); // SSG
         }
         if (tp == ChannelType.FM) {
-            // 音色グラデーション機能解析
+            // Tone gradation function analysis
             skipSpaceAndTab();
             c = getMoji();
             if (c == ',') { // && mucInfo.DriverType == MUCInfo.enmDriverType.DotNet)
                 // @n1,n2,n3
                 int n1, n2, n3,n4;
                 n1 = n;
-                n3 = 1; // 初期値1
-                n4 = 1; // 初期値1(リセットする)
+                n3 = 1; // Initial value 1
+                n4 = 1; // Initial value 1 (reset)
                 ptr[0] = mucInfo.getSrcCPtr();
 
-                // 第2引数
+                // Second argument
                 n2 = msub.ERRT(mucInfo.getLin(), /* ref */ ptr, rb.getString("E0488"));
                 if (mucInfo.getErrSign()) throw new MucException(rb.getString("E0489"), mucInfo.getRow(), mucInfo.getCol());
                 mucInfo.setSrcCPtr(ptr[0]);
                 skipSpaceAndTab();
 
                 c = getMoji();
-                if (c == ',') { // 第３引数は省略可
-                    // 第3引数
+                if (c == ',') { // The third argument is optional.
+                    // Third argument
                     ptr[0] = mucInfo.getSrcCPtr();
                     n3 = msub.ERRT(mucInfo.getLin(), /* ref */ ptr, rb.getString("E0488"));
                     if (mucInfo.getErrSign()) throw new MucException(rb.getString("E0489"), mucInfo.getRow(), mucInfo.getCol());
@@ -3080,8 +3080,8 @@ logger.log(Level.DEBUG, mucInfo.getLin().getItem2());
                     skipSpaceAndTab();
 
                     c = getMoji();
-                    if (c == ',') { // 第4引数は省略可
-                        // 第4引数
+                    if (c == ',') { // The fourth argument is optional.
+                        // Fourth argument
                         ptr[0] = mucInfo.getSrcCPtr();
                         n4 = msub.ERRT(mucInfo.getLin(), /* ref */ ptr, rb.getString("E0488"));
                         if (mucInfo.getErrSign()) throw new MucException(rb.getString("E0489"), mucInfo.getRow(), mucInfo.getCol());
@@ -3090,15 +3090,15 @@ logger.log(Level.DEBUG, mucInfo.getLin().getItem2());
                     }
                 }
 
-                n1 = Math.clamp(n1, 0, 255); // モーフ元音色番号
-                n2 = Math.clamp(n2, 0, 255); // モーフ先音色番号
+                n1 = Math.clamp(n1, 0, 255); // Morph source tone number
+                n2 = Math.clamp(n2, 0, 255); // Morph target timbre number
                 n3 = Math.clamp(n3, 1, 255); // wait Tick
-                n4 = Math.clamp(n4, 0, 1); // リセット
+                n4 = Math.clamp(n4, 0, 1); // Reset
                 STCL2G(n1,n2,n3,n4); // FM
                 return NextAction.fcomp1;
             }
 
-            // 音色番号チェック
+            // Tone number check
             if (mucInfo.getDriverType() != MUCInfo.DriverType.DotNet) {
                 if (n == 0 || n == 1) writeWarning(rb.getString("W0410"), mucInfo.getRow(), mucInfo.getCol());
             }

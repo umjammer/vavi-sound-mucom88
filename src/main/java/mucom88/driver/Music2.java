@@ -42,7 +42,7 @@ public class Music2 {
     private final Consumer<ChipDatum> writeOPNBSRegister;
     private final Consumer<ChipDatum> writeOPMPRegister;
 
-    private final byte[] autoPanTable = new byte[] {2, 3, 1, 3};
+    private final byte[] autoPanTable = {2, 3, 1, 3};
 
     public Music2(Work work,
                   Consumer<ChipDatum> writeOPNAPRegister, Consumer<ChipDatum> writeOPNASRegister,
@@ -104,7 +104,6 @@ public class Music2 {
             SSGOFF();
 
             if (work.getStatus() > 0) work.setStatus(0);
-
         }
     }
 
@@ -269,7 +268,7 @@ public class Music2 {
             cmd[i] = (byte) work.pg.mData[work.hl++].dat;
         }
 
-        // IDE専用コマンド
+        // IDE-specific commands
         switch (cmd[0]) {
             case 0x00 -> { // PartColor
                 outDummy(MMLType.PartColor, List.of(cmd));
@@ -655,11 +654,11 @@ public class Music2 {
     }
 
     // private void TO_NML() {
-    //    Work.soundWork.PLSET1_VAL = 0x38;
-    //    Work.soundWork.PLSET2_VAL = 0x3a;
+    //    work.soundWork.PLSET1_VAL = 0x38;
+    //    work.soundWork.PLSET2_VAL = 0x3a;
 
     //    OPNAData dat = new OPNAData(0, 0x27, 0x3a);
-    //    WriteOPNARegister(dat);
+    //    writeOPNARegister(dat);
     // }
 
     /** ALL MONORAL / H.LFO OFF */
@@ -1777,7 +1776,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
             return;
         }
 
-        // volumeの再設定
+        // Volume reset
         int c = Math.min(work.soundWork.getTOTALV() + work.pg.volume, 20); // INPUT VOLUME
         int e;
         if (work.isDotNET) {
@@ -2163,7 +2162,7 @@ logger.log(Level.TRACE, "%x".formatted(hl + 0xc200));
         if (work.soundWork.getPvMode() == 0) return;
 
         work.pg.volume = work.pcmTables[work.soundWork.getCurrentChip()][a].getItem2()[3] & 0xffff;
-logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.TRACE, "work.pg.volume: " + work.pg.volume);
     }
 
     public void restoreOTOPCM() {
@@ -2181,7 +2180,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         if (work.soundWork.getPvMode() == 0) return;
 
         work.pg.volume = work.pcmTables[work.soundWork.getCurrentChip()][a].getItem2()[3] & 0xffff;
-logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.TRACE, "work.pg.volume: " + work.pg.volume);
     }
 
     /** Tone Setting subroutine (FM) */
@@ -2253,7 +2252,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
         }
 
         work.pg.volume = work.pg.mData[work.hl++].dat;
-logger.log(Level.DEBUG, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.TRACE, "work.pg.volume: " + work.pg.volume);
         if (checkCh3SpecialMode() || work.cd.getCurrentPageNo() == work.pg.getPageNo())
             STVOL();
     }
@@ -2265,7 +2264,7 @@ logger.log(Level.DEBUG, "work.pg.volume: " + work.pg.volume);
             return;
         }
         work.pg.volume = e;
-logger.log(Level.DEBUG, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.TRACE, "work.pg.volume: " + work.pg.volume);
     }
 
     public void VOLDRM() {
@@ -2279,7 +2278,7 @@ logger.log(Level.DEBUG, "work.pg.volume: " + work.pg.volume);
         }
 
         work.pg.volume = a;
-logger.log(Level.DEBUG, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.TRACE, "work.pg.volume: " + work.pg.volume);
         DVOLSET();
 //VOLDR1:
         int b = 6;
@@ -3413,7 +3412,7 @@ logger.log(Level.DEBUG, "work.pg.volume: " + work.pg.volume);
             a &= 0b1111_0000;
             a |= d;
             work.pg.volume = a;
-logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.TRACE, "work.pg.volume: " + work.pg.volume);
 
             List<Object> args = new ArrayList<>();
             args.add(d);
@@ -4351,7 +4350,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             a = work.pg.volume; // KUMA: Get current volume & flags
             a ^= 0b0011_0000; // KUMA: Attack flag: off decay flag: on realized with xor (nice)
             work.pg.volume = a; // TO STATE 2 (DECAY) // KUMA: Update current volume & flags
-logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.TRACE, "work.pg.volume: " + work.pg.volume);
             SOFEV7();
 //            return;
 //SOFEV2:
@@ -4375,7 +4374,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             a = work.pg.volume; // KUMA: Get current volume & flags
             a ^= 0b0110_0000; // KUMA: decay flag:off, sustain flag:on
             work.pg.volume = a; // TO STATE 3 (SUSTAIN) // KUMA: Update current volume & flags
-logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.TRACE, "work.pg.volume: " + work.pg.volume);
             SOFEV7();
 //            return;
         } else {
@@ -4400,7 +4399,7 @@ logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
             a = work.pg.volume; // KUMA: Get current volume & flags
             a &= 0b1000_1111; // KUMA: Resets progress flags used in envelopes
             work.pg.volume = a; // END OF ENVE // KUMA: If SL is reached during KEYON and the counter reaches 0, envelope processing ends.
-logger.log(Level.INFO, "work.pg.volume: " + work.pg.volume);
+logger.log(Level.TRACE, "work.pg.volume: " + work.pg.volume);
             SOFEV7();
         }
     }

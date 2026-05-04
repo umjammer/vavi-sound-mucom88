@@ -185,8 +185,10 @@ Debug.println("java: " + Files.size(testMUB));
         assertEquals(Files.size(testMUB2), Files.size(testMUB), "java output is different from the original");
 
         // play
-Debug.println("play ----------------------------------------------------------------");
+Debug.println("play mub created by java ----------------------------------------------------------------");
         mucom88.player.Program.main(new String[] {testMUB.toString()});
+//Debug.println("play mub created by c# ----------------------------------------------------------------");
+//        mucom88.player.Program.main(new String[] {testMUB2.toString()});
     }
 
     @Test
@@ -225,7 +227,9 @@ Debug.println("java  : " + Files.size(testMUB));
 //        assertEquals(Files.size(testMUB2), Files.size(testMUB), "java output is different from the original");
 
         // play
+//Debug.println("play mub created by java ----------------------------------------------------------------");
 //        mucom88.player.Program.main(new String[] {testMUB.toString()});
+Debug.println("play mub created by native ----------------------------------------------------------------");
         mucom88.player.Program.main(new String[] {testMUB2.toString()});
     }
 

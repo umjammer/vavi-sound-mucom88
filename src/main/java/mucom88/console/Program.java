@@ -138,7 +138,7 @@ if (dest.length == 0) {
         Path fn = Path.of(srcFile).getParent().resolve(arg);
 
         if (!Files.exists(fn)) {
-logger.log(Level.WARNING, "file not found: " + fn);
+logger.log(Level.INFO, "file not found: " + fn);
             return null;
         }
 
