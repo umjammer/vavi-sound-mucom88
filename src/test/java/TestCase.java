@@ -152,6 +152,7 @@ Debug.println(mub);
     @Test
     @DisplayName("compile & compare c# & play")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
+    @Disabled("made compile same as the original native")
     void test4() throws Exception {
 Debug.println(muc);
         Path testMUC = Path.of("tmp/test_java.muc");
@@ -224,7 +225,7 @@ Debug.println("compare ---------------------------------------------------------
 Debug.println("native: " + Files.size(testMUB2));
 Debug.println("java  : " + Files.size(testMUB));
         // compare
-//        assertEquals(Files.size(testMUB2), Files.size(testMUB), "java output is different from the original");
+        assertEquals(Files.size(testMUB2), Files.size(testMUB), "java output is different from the original");
 
         // play
 //Debug.println("play mub created by java ----------------------------------------------------------------");

@@ -183,7 +183,7 @@ public class Muc88 {
         if (mucInfo.getSrcLinPtr() == 0) {
             throw new MucException(rb.getString("E0400"), mucInfo.getRow(), mucInfo.getCol());
         }
-        mucInfo.getAndDecSrcCPtr();
+        mucInfo.setSrcLinPtr(mucInfo.getSrcLinPtr() - 1);
         mucInfo.setLin(mucInfo.getBasSrc().get(mucInfo.getSrcLinPtr()));
 
         return NextAction.fcomp1;
@@ -201,7 +201,7 @@ public class Muc88 {
         if (mucInfo.getSrcLinPtr() == 0) {
             throw new MucException(rb.getString("E0402"), mucInfo.getRow(), mucInfo.getCol());
         }
-        mucInfo.getAndDecSrcCPtr();
+        mucInfo.setSrcLinPtr(mucInfo.getSrcLinPtr() - 1);
         mucInfo.setLin(mucInfo.getBasSrc().get(mucInfo.getSrcLinPtr()));
 
         return NextAction.fcomp1;
