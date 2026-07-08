@@ -3,7 +3,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-mucom88</artifactId>
-  <version>0.0.9</version>
+  <version>0.0.10</version>
 
   <build>
     <plugins>
