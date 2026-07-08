@@ -50,6 +50,20 @@ public class Compiler implements ICompiler {
 
     private Point skipPoint = Common.EmptyPoint;
 
+    /** version reported by the native compiler this port mimics (#mucver tag) */
+    private static final String nativeVersion = "1.7d";
+
+    private static String md5Hex(byte[] buf) {
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("MD5").digest(buf);
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) sb.append("%02x".formatted(b));
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private boolean isIDE = false;
 
     public enum MUCOMFileType {
@@ -375,7 +389,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
      *         item2 is the value, trimmed.
      */
     private List<Tuple<String, String>> getTagsFromMUC(byte[] buf) {
-        var text = Arrays.stream(new String(buf, charset).split("\r\n"))
+        var text = Arrays.stream(new String(buf, charset).split("\r\n|\r|\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
         if (tags != null) tags.clear();
         else tags = new ArrayList<>();
@@ -401,7 +415,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
 
     private int storeBasicSource(byte[] buf) {
         int line = 0;
-        var text = new String(buf, charset).split("\r\n");
+        var text = new String(buf, charset).split("\r\n|\r|\n");
 
         basSrc.clear();
         for (String txt : text) {
@@ -573,9 +587,13 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             }
         }
 
+        // The native compiler reports the data length as ENDADR - MU_NUM + 1, one byte
+        // beyond the music data, and saves that extra byte (0x00) into the mub.
+        boolean nativeCompat = mucInfo.getDriverType() != MUCInfo.DriverType.DotNet;
+
         int dataOffset = 0x50;
-        int dataSize = length;
-        int tagOffset = length + 0x50;
+        int dataSize = length + (nativeCompat ? 1 : 0);
+        int tagOffset = dataSize + 0x50;
 
         dat.clear();
 
@@ -617,10 +635,12 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         dat.add(new MmlDatum(work.jClock & 0xff)); // JCLOCK value (tag position of J command)
         dat.add(new MmlDatum((work.jClock >> 8) & 0xff));
 
-        dat.add(new MmlDatum(work.getJpLine() & 0xff)); // jump line number
-        dat.add(new MmlDatum((work.getJpLine() >> 8) & 0xff));
+        // the native compiler's JPLINE work is 0 unless a J command is used
+        int jpLine = nativeCompat ? Math.max(work.getJpLine(), 0) : work.getJpLine();
+        dat.add(new MmlDatum(jpLine & 0xff)); // jump line number
+        dat.add(new MmlDatum((jpLine >> 8) & 0xff));
 
-        dat.add(new MmlDatum(0)); // extFlags(?)
+        dat.add(new MmlDatum(nativeCompat ? 1 : 0)); // extFlags (1: MUCOM_FLAG_UTF8TAG)
         dat.add(new MmlDatum(0));
 
         dat.add(new MmlDatum(1)); // extSystem(?)
@@ -657,6 +677,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         }
 
         for (int i = 0; i < length; i++) dat.add(mucInfo.getBufDst().get(i));
+        if (nativeCompat) dat.add(new MmlDatum(0)); // the extra byte included in the native data length
 
         dat.set(dataOffset + 0, new MmlDatum(0)); // Number of songs included in the binary - 1
         dat.set(dataOffset + 1, new MmlDatum(work.otoDat & 0xff));
@@ -703,6 +724,16 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
             }
         }
 
+        if (nativeCompat) {
+            // the native compiler terminates the tag lines with a 0x00, then appends
+            // "#mucver"/"#mmlhash" extra info (CMucom::AddExtraInfo)
+            dat.add(new MmlDatum(0));
+            footSize++;
+            byte[] b = "#mucver %s\r\n#mmlhash %s\r\n".formatted(nativeVersion, md5Hex(srcBuf)).getBytes(charset);
+            footSize += b.length;
+            for (byte bd : b) dat.add(new MmlDatum(bd & 0xff));
+        }
+
         if (footSize > 0) {
             dat.add(new MmlDatum(0));
             dat.add(new MmlDatum(0));
@@ -728,7 +759,7 @@ logger.log(Level.DEBUG, "isExtendFormat: " + isExtendFormat);
         if (pcmUse) {
             for (int i = 0; i < pcmSize; i++) dat.add(new MmlDatum(pcmData[0][i] & 0xff));
             if (pcmSize > 0) {
-                pcmPtr = 16 * 3 + 32 + length + footSize;
+                pcmPtr = 16 * 3 + 32 + dataSize + footSize;
                 dat.set(20, new MmlDatum(pcmPtr & 0xff)); // pcmData size(32bit)
                 dat.set(21, new MmlDatum((pcmPtr >> 8) & 0xff));
                 dat.set(22, new MmlDatum((pcmPtr >> 16) & 0xff));

@@ -674,7 +674,7 @@ public class MUCInfo {
         bufTitle = new AutoExtendList<>(Integer.TYPE);
         mmlVoiceDataWork = new AutoExtendList<>(Byte.TYPE);
 
-        driverType = DriverType.DotNet; // .normal;
+        driverType = DriverType.normal; // the native compiler default (the C# port defaults to DotNet)
 //        needNormalMucom = false;
         isIDE = false;
         isExtendFormat = false;

@@ -367,7 +367,7 @@ public class Driver implements IDriver {
         if (tp != 0) return null;
 
         int startAddress = 0;
-        List<ChipDatum> dat = Arrays.asList(
+        List<ChipDatum> dat = new ArrayList<>(Arrays.asList(
                 new ChipDatum(0, 0x29, 0x83), // CH 4-6 ENABLE
                 new ChipDatum(0x1, 0x00, 0x20),
                 new ChipDatum(0x1, 0x00, 0x21),
@@ -385,12 +385,12 @@ public class Driver implements IDriver {
                 new ChipDatum(0x1, 0x05, 0xff),
                 new ChipDatum(0x1, 0x0c, 0xff),
                 new ChipDatum(0x1, 0x0d, 0xff)
-        );
+        ));
 
         // Data Transfer
         int infoSize = pcmStartPos[id];
         for (int i = 0; i < pcm[id].length - infoSize; i++) {
-            dat.add(new ChipDatum(0x1, 0x08, pcm[id][infoSize + i]));
+            dat.add(new ChipDatum(0x1, 0x08, pcm[id][infoSize + i] & 0xff));
             //logger.log(Level.TRACE, "#PCMDATA adr:%04x dat:%02x".formatted((infoSize + i) >> 2, pcmdata[infoSize + i]));
         }
         dat.add(new ChipDatum(0x1, 0x00, 0x00));
@@ -452,7 +452,7 @@ logger.log(Level.TRACE, "Stop rendering.");
     public void writeOPNAPRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
             if (reg.port == 0) {
-                boolean ret = work.timerOPNA1.writeReg((byte) reg.address, (byte) reg.data);
+                boolean ret = work.timerOPNA1 != null ? work.timerOPNA1.writeReg((byte) reg.address, (byte) reg.data) : false;
                 if (ret)
                     work.currentTimer = 0;
             }
@@ -463,7 +463,7 @@ logger.log(Level.TRACE, "Stop rendering.");
     public void writeOPNASRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
             if (reg.port == 0) {
-                boolean ret = work.timerOPNA2.writeReg((byte) reg.address, (byte) reg.data);
+                boolean ret = work.timerOPNA2 != null ? work.timerOPNA2.writeReg((byte) reg.address, (byte) reg.data) : false;
                 if (ret)
                     work.currentTimer = 1;
             }
@@ -474,7 +474,7 @@ logger.log(Level.TRACE, "Stop rendering.");
     public void writeOPNBPRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
             if (reg.port == 0) {
-                boolean ret = work.timerOPNB1.writeReg((byte) reg.address, (byte) reg.data);
+                boolean ret = work.timerOPNB1 != null ? work.timerOPNB1.writeReg((byte) reg.address, (byte) reg.data) : false;
                 if (ret)
                     work.currentTimer = 2;
             }
@@ -485,7 +485,7 @@ logger.log(Level.TRACE, "Stop rendering.");
     public void writeOPNBSRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
             if (reg.port == 0) {
-                boolean ret = work.timerOPNB2.writeReg((byte) reg.address, (byte) reg.data);
+                boolean ret = work.timerOPNB2 != null ? work.timerOPNB2.writeReg((byte) reg.address, (byte) reg.data) : false;
                 if (ret)
                     work.currentTimer = 3;
             }
@@ -495,7 +495,7 @@ logger.log(Level.TRACE, "Stop rendering.");
 
     public void writeOPMPRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
-            boolean ret = work.timerOPM.writeReg((byte) reg.address, (byte) reg.data);
+            boolean ret = work.timerOPM != null ? work.timerOPM.writeReg((byte) reg.address, (byte) reg.data) : false;
             if (ret)
                 work.currentTimer = 4;
             writeOPMP.accept(reg);
@@ -567,6 +567,7 @@ logger.log(Level.TRACE, "Stop rendering.");
     private void getFileNameFromTag() {
         if (tags == null) return;
         for (Tuple<String, String> tag : tags) {
+            // Tag names are in lowercase.
             switch (tag.getItem1()) {
             case "voice":
                 fnVoiceDat[0] = tag.getItem2();
@@ -613,7 +614,7 @@ logger.log(Level.TRACE, "Stop rendering.");
         }
     }
 
-    private static final String[] defaultPCMFileName = new String[] {
+    private static final String[] defaultPCMFileName = {
             "mucompcm.bin",
             "mucompcm_2nd.bin",
             "mucompcm_3rd_B.bin",
@@ -694,7 +695,7 @@ logger.log(Level.TRACE, "Stop rendering.");
     }
 
     private static List<Tuple<String, String>> getTagsByteArray(byte[] buf) {
-        var text = Arrays.stream(new String(buf, charset).split("\r\n"))
+        var text = Arrays.stream(new String(buf, charset).split("\r\n|\r|\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
 
         List<Tuple<String, String>> tags = new ArrayList<>();

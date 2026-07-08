@@ -5,12 +5,11 @@
 
 # vavi-sound-mucom88
 
-<img alt="mucom88" src="https://github.com/user-attachments/assets/a8f0b794-ed79-487a-936d-2073007b91f1" width="240" />
-© <img alt="koshiro" src="https://github.com/user-attachments/assets/bc7f823d-103b-4d85-8906-e8159977b9f3" width="50" />
+<img alt="logo" src="src/test/resources/duke_euphonium.png" width="160" />
 
 🥁 Java version of mucom88.
 
-this is a form of [mucomDotNET](https://github.com/kuma4649/mucomDotNET)
+this is a fork of [mucomDotNET](https://github.com/kuma4649/mucomDotNET)
 
 ## Install
 
@@ -27,10 +26,10 @@ currently this project has no good player, use [vavi-sound-mdplayer](https://git
 
 ### File Types
 
-| name | type | status | desxription |
-|------|------|:------:|-------------|
-| MUS  | MML  |  ✅️?   |             |
-| MUB  | SEQ  |   ✅️   |             |
+| name | type | status | description  |
+|------|------|:------:|--------------|
+| MUS  | MML  |   ✅️   |              |
+| MUB  | SEQ  |   ✅️   |              |
 
 ## TODO
 
@@ -127,4 +126,4 @@ thank you very much.
 
 ---
 
-<sub>image by <a href="https://github.com/onitama/mucom88/wiki">official wiki</a></sub>
+<sub>image designed by @umjammer, drawn by nano banana</sub>

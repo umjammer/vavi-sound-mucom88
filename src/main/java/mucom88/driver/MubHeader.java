@@ -274,7 +274,7 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
     }
 
     private List<Tuple<String, String>> getTagsByteArray(byte[] buf) {
-        var text = Arrays.stream(new String(buf, charset).split("\r\n"))
+        var text = Arrays.stream(new String(buf, charset).split("\r\n|\r|\n"))
                 .filter(x -> x.indexOf("#") == 0).toArray(String[]::new);
 
         List<Tuple<String, String>> tags = new ArrayList<>();
