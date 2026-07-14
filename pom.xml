@@ -3,7 +3,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-mucom88</artifactId>
-  <version>0.0.10</version>
+  <version>0.0.11</version>
 
   <build>
     <plugins>
@@ -53,12 +53,12 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.17</version>
+      <version>1.1.18</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.24</version>
+      <version>1.0.27</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
@@ -74,7 +74,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound-mdi</artifactId>
-      <version>0.0.6</version>
+      <version>0.0.7b</version>
     </dependency>
 
     <dependency>

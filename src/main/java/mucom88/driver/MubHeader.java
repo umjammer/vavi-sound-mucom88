@@ -223,7 +223,7 @@ public class MubHeader {
         srcBuf = buf;
     }
 
-    public MmlDatum[] getDATA() {
+    public MmlDatum[] getData() {
         try {
             if (dataOffset == 0) return null;
             if (srcBuf == null) return null;

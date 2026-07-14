@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -96,7 +97,7 @@ public class Driver implements IDriver {
 
         work = new Work();
         header = new MubHeader(srcBuf);
-        work.mData = getDATA();
+        work.mData = getData();
         work.setHeader(header);
         tags = getTags();
         getFileNameFromTag();
@@ -274,8 +275,8 @@ public class Driver implements IDriver {
     // data Information
     //
 
-    public MmlDatum[] getDATA() {
-        return header.getDATA();
+    public MmlDatum[] getData() {
+        return header.getData();
     }
 
     public List<Tuple<String, String>> getTags() {
@@ -550,9 +551,9 @@ logger.log(Level.TRACE, "Stop rendering.");
         music2.FDO();
     }
 
-    public Object getWork() {
+    public Map<String, Object> getWork() {
         logger.log(Level.TRACE, "Get Work Area");
-        return music2.RETW();
+        return Map.of("work", music2.RETW());
     }
 
     public void shotEffect() {
