@@ -26,15 +26,15 @@ currently this project has no good player, use [vavi-sound-mdplayer](https://git
 
 ### File Types
 
-| name | type | status | description  |
-|------|------|:------:|--------------|
-| MUS  | MML  |   ✅️   |              |
-| MUB  | SEQ  |   ✅️   |              |
+| name | type | status | description     |
+|------|------|:------:|-----------------|
+| MUS  | MML  |   ✅️   | source          |
+| MUB  | SEQ  |   ✅️   | binary sequence |
 
 ## TODO
 
  * ~~compiler~~
-   * works similarly to the original c# version, but both are NG  
+   * ~~works similarly to the original c# version, but both are NG~~ ... use original mode  
  * adpcm?
  * ~~spi~~
 
