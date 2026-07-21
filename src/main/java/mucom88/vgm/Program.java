@@ -36,7 +36,7 @@ public class Program {
     private int loop = 2;
     private List<Tuple<String, String>> tags = null;
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         Program app = new Program();
         int fnIndex = app.analyzeOption(args);
 
