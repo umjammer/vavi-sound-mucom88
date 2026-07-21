@@ -270,12 +270,8 @@ public class Music2 {
 
         // IDE-specific commands
         switch (cmd[0]) {
-            case 0x00 -> { // PartColor
-                outDummy(MMLType.PartColor, List.of(cmd));
-            }
-            case 0x01 -> { // Memo
-                outDummy(MMLType.Lyric, List.of(cmd));
-            }
+            case 0x00 -> outDummy(MMLType.PartColor, List.of(cmd)); // PartColor
+            case 0x01 -> outDummy(MMLType.Lyric, List.of(cmd)); // Memo
         }
     }
 

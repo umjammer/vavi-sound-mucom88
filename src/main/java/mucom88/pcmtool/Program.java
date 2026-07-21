@@ -25,7 +25,7 @@ class Program {
 
     static void main(String[] args) {
         Program app = new Program();
-        int fnIndex = app.analyzeOption(args);
+        int fnIndex = Program.analyzeOption(args);
 
         if (args.length != fnIndex + 1) {
             logger.log(Level.ERROR, "at least one argument is needed(.muc file)");
@@ -46,7 +46,7 @@ class Program {
         }
     }
 
-    private int analyzeOption(String[] args) {
+    private static int analyzeOption(String[] args) {
         int i = 0;
         if (args.length == 0) return i;
 

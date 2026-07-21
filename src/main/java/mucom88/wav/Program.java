@@ -43,7 +43,7 @@ public class Program {
     private WaveWriter ww = null;
     private int loop = 2;
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         Program app = new Program();
         int fnIndex = app.analyzeOption(args);
 

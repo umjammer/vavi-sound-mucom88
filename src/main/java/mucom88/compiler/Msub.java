@@ -321,7 +321,7 @@ logger.log(Level.DEBUG, lin.getItem2());
                 ? mucInfo.getLin().getItem2().charAt(mucInfo.getSrcCPtr())
                 : 0;
 
-        logger.log(Level.TRACE, String.valueOf((char) c));
+        logger.log(Level.TRACE, String.valueOf(c));
 
         for (int[] i = new int[1]; i[0] < 7; i[0]++) {
             if (c == TONES[i[0] * 2]) {
