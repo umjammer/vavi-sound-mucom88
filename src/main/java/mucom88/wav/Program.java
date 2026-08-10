@@ -206,7 +206,7 @@ public class Program {
         return i;
     }
 
-    public static String getApplicationFolder() {
+    private static String getApplicationFolder() {
         String path = System.getProperty("user.dir");
         if (!isNullOrEmpty(path)) {
             path += path.charAt(path.length() - 1) == '\\' ? "" : "\\";

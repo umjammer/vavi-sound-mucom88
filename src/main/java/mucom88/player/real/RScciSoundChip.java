@@ -27,10 +27,10 @@ public class RScciSoundChip extends RSoundChip {
 
     private static final Logger logger = getLogger(RScciSoundChip.class.getName());
 
-    public NScci scci = null;
+    NScci scci = null;
     private NSoundChip realChip = null;
 
-    public RScciSoundChip(int soundLocation, int busID, int soundChip) {
+    RScciSoundChip(int soundLocation, int busID, int soundChip) {
         super(soundLocation, busID, soundChip);
     }
 
@@ -72,7 +72,7 @@ public class RScciSoundChip extends RSoundChip {
      * @return The actual value set
      */
     @Override
-    public int SetMasterClock(int mClock) {
+    public int setMasterClock(int mClock) {
         // SCCI cannot change the clock
 
         return (int) realChip.getSoundChipClock();
@@ -84,7 +84,7 @@ public class RScciSoundChip extends RSoundChip {
     }
 
     @Override
-    public void OPNAWaitSend(long elapsed, int size) {
+    public void opnaWaitSend(long elapsed, int size) {
         // Add additional weight based on size and elapsed time.
         int m = Math.max((int) (size / 20 - elapsed), 0); // 20 Threshold (magic number)
         try { Thread.sleep(m); } catch (InterruptedException e) {}
@@ -104,7 +104,7 @@ public class RScciSoundChip extends RSoundChip {
     }
 
     @Override
-    public RSoundChip CheckDevice() {
+    public RSoundChip checkDevice() {
         SChipType ct = null;
         int iCount;
 
@@ -119,7 +119,7 @@ public class RScciSoundChip extends RSoundChip {
         }
         for (int i = 0; i < iCount; i++) {
             NIRealChip rc = nc86ctl.getChipInterface(i);
-            NIGimic2 gm = rc.QueryInterface();
+            NIGimic2 gm = rc.queryInterface();
             ChipType cct = gm.getModuleType();
             int o;
             if (cct == ChipType.CHIP_YM2608 || cct == ChipType.CHIP_YMF288 || cct == ChipType.CHIP_YM2203) {
@@ -151,8 +151,8 @@ public class RScciSoundChip extends RSoundChip {
             rsc.c86ctl = nc86ctl;
             rsc.init();
 
-            rsc.SetMasterClock(7987200);//SoundBoardII
-            rsc.setSSGVolume((byte) 63);//PC-8801
+            rsc.setMasterClock(7987200); // SoundBoardII
+            rsc.setSSGVolume((byte) 63); // PC-8801
         }
         return rsc;
     }

@@ -1,12 +1,12 @@
 package mucom88.driver;
 
 
-public class OPNAData {
-    public final byte port;
-    public final byte address;
-    public final byte data;
-    public final long time;
-    public Object addtionalData = null;
+class OPNAData {
+    private final byte port;
+    private final byte address;
+    private final byte data;
+    private final long time;
+    private Object addtionalData = null;
 
     public OPNAData(byte port, byte address, byte data, long time /* = 0 */, Object addtionalData /* = null */) {
         this.port = port;

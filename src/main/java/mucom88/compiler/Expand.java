@@ -10,9 +10,9 @@ import mucom88.common.MucException;
 
 public class Expand {
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
+    private static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
-    public static final String NumPattern = "0123456789+-.$abcdefABCDEF";
+    private static final String NumPattern = "0123456789+-.$abcdefABCDEF";
 
     private final Work work;
     private final MUCInfo mucInfo;
@@ -20,7 +20,7 @@ public class Expand {
     public SMon smon = null;
     public Muc88 muc88 = null;
 
-    public static final short[][] FNUMB = {
+    private static final short[][] FNUMB = {
             {
                     0x026A, 0x028F, 0x02B6, 0x02DF,
                     0x030B, 0x0339, 0x036A, 0x039E,
@@ -32,7 +32,7 @@ public class Expand {
                     0x03d3, 0x040e, 0x044b, 0x048d
             }
     };
-    public static final short[][] SNUMB = {
+    private static final short[][] SNUMB = {
             {
                     0x0EE8, 0x0E12, 0x0D48, 0x0C89,
                     0x0BD5, 0x0B2B, 0x0A8A, 0x09F3,
@@ -44,7 +44,7 @@ public class Expand {
                     0x0968, 0x08e1, 0x0861, 0x07E9
             }
     };
-    public static final short[][] FNUMBopm = {
+    private static final short[][] FNUMBopm = {
             {
                     0x0000, 0x0040, 0x0080, 0x00c0,
                     0x0100, 0x0140, 0x0180, 0x01c0,
@@ -77,7 +77,7 @@ public class Expand {
             if (mucInfo.getBasSrc().get(i).getItem2().charAt(0) != ' ') continue;
             if (mucInfo.getBasSrc().get(i).getItem2().charAt(2) != '@') continue;
 
-            int[] srcCPtr = new int[] {3};
+            int[] srcCPtr = {3};
             fvfg = '\0';
             if (mucInfo.getBasSrc().get(i).getItem2().charAt(srcCPtr[0]) == '%') {
                 srcCPtr[0]++;
@@ -208,14 +208,14 @@ public class Expand {
     }
 
     public void SSGTEXT() {
-        for (int[] i = new int[] {0}; i[0] < mucInfo.getBasSrc().size(); i[0]++) {
+        for (int[] i = {0}; i[0] < mucInfo.getBasSrc().size(); i[0]++) {
             if (mucInfo.getBasSrc().get(i[0]) == null) continue;
             if (mucInfo.getBasSrc().get(i[0]).getItem2() == null) continue;
             if (mucInfo.getBasSrc().get(i[0]).getItem2().length() < 4) continue;
             if (mucInfo.getBasSrc().get(i[0]).getItem2().charAt(0) != ' ') continue;
             if (mucInfo.getBasSrc().get(i[0]).getItem2().charAt(2) != '@') continue;
 
-            int[] srcCPtr = new int[] {3};
+            int[] srcCPtr = {3};
             if (mucInfo.getBasSrc().get(i[0]).getItem2().charAt(srcCPtr[0]) == 'W' ||
                     mucInfo.getBasSrc().get(i[0]).getItem2().charAt(srcCPtr[0]) == 'w') {
                 srcCPtr[0]++;

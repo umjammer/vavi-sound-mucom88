@@ -34,10 +34,10 @@ public class Driver implements IDriver {
 
     private static final Logger logger = getLogger(Driver.class.getName());
 
-    public static final int cOPNAMasterClock = 7987200;
-    public static final int cOPNBMasterClock = 8000000;
+    private static final int cOPNAMasterClock = 7987200;
+    private static final int cOPNBMasterClock = 8000000;
     public static final int cOPMMasterClock_X68k = 4000000;
-    public static final int cOPMMasterClock_Normal = 3579545;
+    private static final int cOPMMasterClock_Normal = 3579545;
 
     public final byte[][] pcm = new byte[6][];
     public final int[] pcmStartPos = new int[6];
@@ -186,12 +186,12 @@ public class Driver implements IDriver {
         music2.notSoundBoard2 = notSoundBoard2;
     }
 
-    public void setMuteFlag(int chip, int ch, int page, boolean flg) {
+    private void setMuteFlag(int chip, int ch, int page, boolean flg) {
         if (music2 == null) return;
         music2.setMuteFlag(chip, ch, page, flg);
     }
 
-    public void setAllMuteFlag(boolean flg) {
+    private void setAllMuteFlag(boolean flg) {
         if (music2 == null) return;
         music2.setAllMuteFlag(flg);
     }
@@ -288,7 +288,7 @@ public class Driver implements IDriver {
         return header.getTags();
     }
 
-    public byte[] getPCMFromSrcBuf(int id) {
+    private byte[] getPCMFromSrcBuf(int id) {
         if (header.mupb == null)
             return header.getPCM(id);
         else {
@@ -297,7 +297,7 @@ public class Driver implements IDriver {
         }
     }
 
-    public Tuple<String, short[]>[] getPCMTable(int id) {
+    private Tuple<String, short[]>[] getPCMTable(int id) {
         if (pcm == null) return null;
         if (pcm[id] == null) return null;
 
@@ -363,7 +363,7 @@ public class Driver implements IDriver {
         return pcmTable.toArray(Tuple[]::new);
     }
 
-    public ChipDatum[] getPCMSendData(int c, int id, int tp) {
+    private ChipDatum[] getPCMSendData(int c, int id, int tp) {
         if (pcm == null) return null;
         if (pcm[id] == null) return null;
         if (c != 0) return null;
@@ -455,7 +455,7 @@ logger.log(Level.TRACE, "Stop rendering.");
         }
     }
 
-    public void writeOPNAPRegister(ChipDatum reg) {
+    private void writeOPNAPRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
             if (reg.port == 0) {
                 boolean ret = work.timerOPNA1 != null ? work.timerOPNA1.writeReg((byte) reg.address, (byte) reg.data) : false;
@@ -466,7 +466,7 @@ logger.log(Level.TRACE, "Stop rendering.");
         }
     }
 
-    public void writeOPNASRegister(ChipDatum reg) {
+    private void writeOPNASRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
             if (reg.port == 0) {
                 boolean ret = work.timerOPNA2 != null ? work.timerOPNA2.writeReg((byte) reg.address, (byte) reg.data) : false;
@@ -477,7 +477,7 @@ logger.log(Level.TRACE, "Stop rendering.");
         }
     }
 
-    public void writeOPNBPRegister(ChipDatum reg) {
+    private void writeOPNBPRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
             if (reg.port == 0) {
                 boolean ret = work.timerOPNB1 != null ? work.timerOPNB1.writeReg((byte) reg.address, (byte) reg.data) : false;
@@ -488,7 +488,7 @@ logger.log(Level.TRACE, "Stop rendering.");
         }
     }
 
-    public void writeOPNBSRegister(ChipDatum reg) {
+    private void writeOPNBSRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
             if (reg.port == 0) {
                 boolean ret = work.timerOPNB2 != null ? work.timerOPNB2.writeReg((byte) reg.address, (byte) reg.data) : false;
@@ -499,7 +499,7 @@ logger.log(Level.TRACE, "Stop rendering.");
         }
     }
 
-    public void writeOPMPRegister(ChipDatum reg) {
+    private void writeOPMPRegister(ChipDatum reg) {
         synchronized (lockObjWriteReg) {
             boolean ret = work.timerOPM != null ? work.timerOPM.writeReg((byte) reg.address, (byte) reg.data) : false;
             if (ret)
@@ -508,14 +508,14 @@ logger.log(Level.TRACE, "Stop rendering.");
         }
     }
 
-    public void writeOPNBPAdpcmA(byte[] pcmdata) {
+    private void writeOPNBPAdpcmA(byte[] pcmdata) {
         if (pcmdata == null) return;
         synchronized (lockObjWriteReg) {
             writeOPNBAdpcmAP.accept(pcmdata, 0, 0);
         }
     }
 
-    public void writeOPNBPAdpcmB(byte[] pcmdata) {
+    private void writeOPNBPAdpcmB(byte[] pcmdata) {
         if (pcmdata == null) return;
         synchronized (lockObjWriteReg) {
             writeOPNBAdpcmBP.accept(pcmdata, 1, 0);

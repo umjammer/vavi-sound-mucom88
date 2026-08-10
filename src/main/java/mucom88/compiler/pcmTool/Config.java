@@ -7,14 +7,14 @@ import static java.lang.System.getLogger;
 import static vavi.util.compat.Util.isNullOrEmpty;
 
 
-public class Config {
+class Config {
 
     private static final Logger logger = getLogger(Config.class.getName());
 
-    mucom88.compiler.pcmTool.FormatType FormatType = mucom88.compiler.pcmTool.FormatType.mucom88;
+    FormatType formatType = FormatType.mucom88;
 
-    public mucom88.compiler.pcmTool.FormatType getFormatType() {
-        return FormatType;
+    public FormatType getFormatType() {
+        return formatType;
     }
 
     public void add(String lin) {
@@ -31,15 +31,15 @@ public class Config {
         case "FORMAT":
             String val = value.toUpperCase();
             switch (val) {
-            case "MUCOM88" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucom88;
-            case "MUCOMDOTNET" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNA_ADPCM;
-            case "OPNA" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNA_ADPCM;
-            case "OPNB_B" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
-            case "OPNB_A" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
-            case "OPNB-B" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
-            case "OPNB-A" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
-            case "OPNBB" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMB;
-            case "OPNBA" -> FormatType = mucom88.compiler.pcmTool.FormatType.mucomDotNET_OPNB_ADPCMA;
+            case "MUCOM88" -> formatType = FormatType.mucom88;
+            case "MUCOMDOTNET" -> formatType = FormatType.mucomDotNET_OPNA_ADPCM;
+            case "OPNA" -> formatType = FormatType.mucomDotNET_OPNA_ADPCM;
+            case "OPNB_B" -> formatType = FormatType.mucomDotNET_OPNB_ADPCMB;
+            case "OPNB_A" -> formatType = FormatType.mucomDotNET_OPNB_ADPCMA;
+            case "OPNB-B" -> formatType = FormatType.mucomDotNET_OPNB_ADPCMB;
+            case "OPNB-A" -> formatType = FormatType.mucomDotNET_OPNB_ADPCMA;
+            case "OPNBB" -> formatType = FormatType.mucomDotNET_OPNB_ADPCMB;
+            case "OPNBA" -> formatType = FormatType.mucomDotNET_OPNB_ADPCMA;
             default -> logger.log(Level.ERROR, "Unknown format type.[%s]".formatted(value));
             }
             break;

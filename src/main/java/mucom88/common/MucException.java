@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
 
 public class MucException extends RuntimeException implements Serializable {
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
+    private static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     public MucException(String message) {
         super(message);

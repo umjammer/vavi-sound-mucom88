@@ -12,13 +12,13 @@ import static mucom88.common.Common.charset;
 import static vavi.util.compat.Util.isNullOrEmpty;
 
 
-public class PCMFileManager {
+class PCMFileManager {
 
     private final Map<Integer, PCMFileInfo> dicFile = new HashMap<>();
     private final Config config;
     private final Function<String, InputStream> appendFileReaderCallback;
 
-    public PCMFileManager(Config config, Function<String, InputStream> appendFileReaderCallback /* = null */) {
+    PCMFileManager(Config config, Function<String, InputStream> appendFileReaderCallback /* = null */) {
         this.config = config;
         this.appendFileReaderCallback = appendFileReaderCallback;
     }
@@ -31,10 +31,10 @@ public class PCMFileManager {
         PCMFileInfo fi = new PCMFileInfo(itemList, appendFileReaderCallback);
         dicFile.remove(fi.getNumber() - 1);
         dicFile.put(fi.getNumber() - 1, fi);
-        if (fi.getLength() > -1) fi.encode(config.FormatType);
+        if (fi.getLength() > -1) fi.encode(config.formatType);
     }
 
-    public List<Byte> getRawData() {
+    List<Byte> getRawData() {
         List<Byte> ret = new ArrayList<>();
         int num = 0;
         int cnt = 0;
@@ -80,7 +80,7 @@ public class PCMFileManager {
         return dicFile.get(i).getVolume();
     }
 
-    public int getLengthAddress(int i) {
+    int getLengthAddress(int i) {
         if (!dicFile.containsKey(i) || dicFile.get(i) == null) {
             return 0;
         }

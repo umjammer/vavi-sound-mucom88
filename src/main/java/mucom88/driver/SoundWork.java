@@ -104,10 +104,10 @@ public class SoundWork {
             null, null, null, null
     };
     public int[] opSel = null;
-    public int[] TYPE1 = null;
-    public int[] TYPE2 = null;
+    private int[] TYPE1 = null;
+    private int[] TYPE2 = null;
     // DB 8
-    public int DMY = 0;
+    private int DMY = 0;
     public int[][] FNUMB = null;
     public int[][] FNUMBopm = null;
     public int[][] SNUMB = null;
@@ -694,7 +694,7 @@ public class SoundWork {
                 255, 255, 255, 190, 1, 10,
                 255, 255, 255, 170, 0, 10,
                 40, 70, 14, 190, 0, 15,
-                120, 030, 255, 255, 0, 10,
+                120, 30, 255, 255, 0, 10,
                 255, 255, 255, 225, 8, 15,
                 255, 255, 255, 1, 255, 255,
                 255, 255, 255, 200, 8, 255,
@@ -987,7 +987,7 @@ public class SoundWork {
                 backupHardEnvCoarse = value;
             }
 
-            private int[] tlDirectTable = new int[] {
+            private int[] tlDirectTable = {
                     255, 255, 255, 255
             };
 
@@ -1009,7 +1009,7 @@ public class SoundWork {
                 ssgWfNum = value;
             }
 
-            public final int[] vTl = new int[] {
+            public final int[] vTl = {
                     0, 0, 0, 0
             };
 

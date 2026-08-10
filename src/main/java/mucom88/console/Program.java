@@ -27,7 +27,7 @@ public class Program {
 
     private String srcFile;
     private boolean isXml = false;
-    public static boolean isTest = false;
+    private static boolean isTest = false;
 
     /**
      *
@@ -57,7 +57,7 @@ public class Program {
         return p.getFileName().toString().replaceFirst("\\.muc$", ".mub");
     }
 
-    void compile(String srcFile, String destFile /* = null */) {
+    private void compile(String srcFile, String destFile /* = null */) {
         try {
             Path path = Path.of(srcFile);
             if (path.getFileName().toString().lastIndexOf('.') == -1)

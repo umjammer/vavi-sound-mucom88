@@ -28,8 +28,8 @@ public class RC86ctlSoundChip extends RSoundChip {
     private static final Logger logger = getLogger(RC86ctlSoundChip.class.getName());
 
     public Nc86ctl c86ctl = null;
-    public Nc86ctl.NIRealChip realChip = null;
-    public Nc86ctl.ChipType chiptype = ChipType.CHIP_UNKNOWN;
+    private Nc86ctl.NIRealChip realChip = null;
+    private Nc86ctl.ChipType chiptype = ChipType.CHIP_UNKNOWN;
 
     public RC86ctlSoundChip(int soundLocation, int busID, int soundChip) {
         super(soundLocation, busID, soundChip);
@@ -40,7 +40,7 @@ public class RC86ctlSoundChip extends RSoundChip {
         NIRealChip rc = c86ctl.getChipInterface(BusID);
         rc.reset();
         realChip = rc;
-        NIGimic2 gm = rc.QueryInterface();
+        NIGimic2 gm = rc.queryInterface();
         dClock = gm.getPLLClock();
         chiptype = gm.getModuleType();
         if (chiptype == ChipType.CHIP_YM2608) {
@@ -71,8 +71,8 @@ public class RC86ctlSoundChip extends RSoundChip {
      * @return The actual value set
      */
     @Override
-    public int SetMasterClock(int mClock) {
-        NIGimic2 gm = realChip.QueryInterface();
+    public int setMasterClock(int mClock) {
+        NIGimic2 gm = realChip.queryInterface();
         int nowClock = gm.getPLLClock();
         if (nowClock != mClock) {
             gm.setPLLClock(mClock);
@@ -83,7 +83,7 @@ public class RC86ctlSoundChip extends RSoundChip {
 
     @Override
     public void setSSGVolume(int vol) {
-        NIGimic2 gm = realChip.QueryInterface();
+        NIGimic2 gm = realChip.queryInterface();
         gm.setSSGVolume(vol);
     }
 
@@ -97,7 +97,7 @@ public class RC86ctlSoundChip extends RSoundChip {
     }
 
     @Override
-    public void OPNAWaitSend(long elapsed, int size) {
+    public void opnaWaitSend(long elapsed, int size) {
         NScci.NSoundInterfaceManager().sendData();
         while (!NScci.NSoundInterfaceManager().isBufferEmpty()) {
             try { Thread.sleep(0); } catch (InterruptedException e) {}
@@ -105,7 +105,7 @@ public class RC86ctlSoundChip extends RSoundChip {
     }
 
     @Override
-    public RSoundChip CheckDevice() {
+    public RSoundChip checkDevice() {
         SChipType ct = null;
         int iCount;
 
