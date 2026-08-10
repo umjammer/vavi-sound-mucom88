@@ -10,14 +10,14 @@ import java.util.List;
 import vavi.util.compat.Tuple;
 
 
-public class VgmWriter {
+class VgmWriter {
 
     private static final Logger logger = System.getLogger(VgmWriter.class.getName());
 
     private RandomAccessFile dest = null;
     private long waitCounter = 0;
 
-    public static final byte[] hDat = {
+    private static final byte[] hDat = {
             // 00 'Vgm '          Eof offset           version number
             0x56, 0x67, 0x6d, 0x20, 0x00, 0x00, 0x00, 0x00, 0x71, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             // 10                 GD3 offset(no use)   Total # samples
@@ -58,7 +58,7 @@ public class VgmWriter {
 
     private int[] useChips;
 
-    public long totalSample;
+    private long totalSample;
 
     public void writeYM2608(int v, byte port, byte address, byte data) throws IOException {
         if (dest == null) return;

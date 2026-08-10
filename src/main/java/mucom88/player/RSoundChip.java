@@ -6,7 +6,7 @@ import real.nscci.NScci;
 
 public abstract class RSoundChip {
 
-    protected final int SoundLocation;
+    private final int SoundLocation;
     protected final int BusID;
     protected final int SoundChip;
 
@@ -14,7 +14,7 @@ public abstract class RSoundChip {
     protected NScci nScci;
     protected Nc86ctl nc86ctl;
 
-    public int dClock = 3579545;
+    protected int dClock = 3579545;
 
     public RSoundChip(int soundLocation, int busID, int soundChip) {
         SoundLocation = soundLocation;
@@ -30,11 +30,11 @@ public abstract class RSoundChip {
 
     public abstract boolean isBufferEmpty();
 
-    public abstract int SetMasterClock(int mClock);
+    public abstract int setMasterClock(int mClock);
 
     public abstract void setSSGVolume(int vol);
 
-    public abstract void OPNAWaitSend(long elapsed, int size);
+    public abstract void opnaWaitSend(long elapsed, int size);
 
-    public abstract RSoundChip CheckDevice();
+    public abstract RSoundChip checkDevice();
 }

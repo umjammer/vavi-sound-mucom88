@@ -21,30 +21,30 @@ public class MubHeader {
 
     private static final Logger logger = getLogger(MubHeader.class.getName());
 
-    public final int magic;
-    public int dataOffset = 0;
-    public int dataSize = 0;
-    public int tagData;
-    public int tagSize;
-    public final int[] pcmDataPtr = new int[] {0, 0, 0, 0, 0, 0};
-    public final int[] pcmSize = new int[] {0, 0, 0, 0, 0, 0};
+    private final int magic;
+    private int dataOffset = 0;
+    private int dataSize = 0;
+    private final int tagData;
+    private final int tagSize;
+    private final int[] pcmDataPtr = {0, 0, 0, 0, 0, 0};
+    private final int[] pcmSize = {0, 0, 0, 0, 0, 0};
     public int jumpCount;
-    public int jumpLine;
-    public int extFlags = 0;
-    public int extSystem = 0;
-    public int extTarget = 0;
-    public int extChannelNum = 0;
-    public int extFmVoiceNum = 0;
-    public int extPlayer = 0;
-    public int pad1 = 0;
-    public final byte[] extFmVoice = new byte[32];
+    private final int jumpLine;
+    private int extFlags = 0;
+    private int extSystem = 0;
+    private int extTarget = 0;
+    private int extChannelNum = 0;
+    private int extFmVoiceNum = 0;
+    private int extPlayer = 0;
+    private int pad1 = 0;
+    private final byte[] extFmVoice = new byte[32];
     private final MmlDatum[] srcBuf;
     public MupbInfo mupb;
     private int mupbDataPtr;
     public boolean carrierCorrection;
     public enmOPMClockMode opmClockMode;
     public boolean SSGExtend = false;
-    public final int[] rhythmMute = new int[] {0x3f, 0x3f, 0x3f, 0x3f};
+    public final int[] rhythmMute = {0x3f, 0x3f, 0x3f, 0x3f};
 
     public enum enmOPMClockMode {
         normal, X68000
@@ -299,7 +299,7 @@ logger.log(Level.DEBUG, srcBuf.length + ", " + dataOffset + ", " + dataSize + ",
         return tags;
     }
 
-    public void setDriverOptionFromTags(List<Tuple<String, String>> tags) {
+    private void setDriverOptionFromTags(List<Tuple<String, String>> tags) {
         if (tags == null) return;
         if (tags.isEmpty()) return;
 

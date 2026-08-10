@@ -16,7 +16,7 @@ import static java.lang.System.getLogger;
 import static vavi.util.compat.Util.getExtension;
 
 
-public class PCMFileInfo {
+class PCMFileInfo {
 
     private static final Logger logger = getLogger(PCMFileInfo.class.getName());
 
@@ -80,7 +80,7 @@ public class PCMFileInfo {
                     if (item.length() > 1 && item.charAt(0) == 'o') {
                         n = Integer.parseInt(item.substring(1, 1 + 1));
                         if (item.length() > 2) {
-                            String[] note = new String[] {"c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b"};
+                            String[] note = {"c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b"};
                             for (int i = 0; i < note.length; i++) {
                                 if (!note[i].equals(item.substring(2))) continue;
                                 n = n * 16 + i + 1;
@@ -142,7 +142,7 @@ public class PCMFileInfo {
         length = encData.length;
     }
 
-    public static byte[] getPCMDataFromFile(String path, String fileName, int vol, /* out */ boolean[] isRaw, /* out */ boolean[] is16bit, /* out */ int[] samplerate) throws IOException {
+    private static byte[] getPCMDataFromFile(String path, String fileName, int vol, /* out */ boolean[] isRaw, /* out */ boolean[] is16bit, /* out */ int[] samplerate) throws IOException {
         Path fnPcm = Path.of(path, fileName);
 
         isRaw[0] = false;
@@ -165,7 +165,7 @@ public class PCMFileInfo {
         return getPCMDataFromFile(buf, vol, /* out */ isRaw, /* out */ is16bit, /* out */ samplerate);
     }
 
-    public static byte[] getPCMDataFromFile(byte[] buf, int vol, /* out */ boolean[] isRaw, /* out */ boolean[] is16bit, /* out */ int[] samplerate) {
+    private static byte[] getPCMDataFromFile(byte[] buf, int vol, /* out */ boolean[] isRaw, /* out */ boolean[] is16bit, /* out */ int[] samplerate) {
         isRaw[0] = false;
         is16bit[0] = false;
         samplerate[0] = 8000;

@@ -8,7 +8,7 @@ import java.util.List;
 import vavi.util.ByteUtil;
 
 
-public class WaveWriter {
+class WaveWriter {
 
     private RandomAccessFile dest = null;
     private int len = 0;

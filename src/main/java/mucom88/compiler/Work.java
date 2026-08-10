@@ -7,7 +7,7 @@ import java.util.Set;
 import musicDriverInterface.CompilerInfo;
 
 
-public class Work {
+class Work {
 
     public static final int MAXChips = 5;
     public static final int MAXCH = 11; // The OPM is 8 though.
@@ -45,7 +45,7 @@ public class Work {
     public static final String titleFmt = "[  MUCOM88 Ver:0.0  ]  Address:0000-0000(0000)         [ 00:00 ] MODE:NORMAL  ";
     public String title = "[  MUCOM88 Ver:0.0  ]  Address:0000-0000(0000)         [ 00:00 ] MODE:NORMAL  ";
 //    public int fmvoiceCnt = 0; // 50
-    public final int[] lfoData = new int[] {1, 0, 0, 0, 0, 0, 0};
+    public final int[] lfoData = {1, 0, 0, 0, 0, 0, 0};
     public int linCfg = 0;
     public int adrStc = 0;
     public int vpco = 1; // Set dummy to 1
@@ -71,7 +71,7 @@ public class Work {
         secCom = value;
     }
 
-    private final int[] befTone = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    private final int[] befTone = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     public int[] getBeforeTone() {
         return befTone;
@@ -333,14 +333,14 @@ public class Work {
      */
     public int chipCh = 0;
 
-    public String currentChipName = "";
-    public String currentPartType = "";
+    String currentChipName = "";
+    String currentPartType = "";
 
-    public Work() {
+    Work() {
         clearCounter();
     }
 
-    public void clearCounter() {
+    private void clearCounter() {
         if (tCnt == null) tCnt = new int[MAXChips][][];
         if (lCnt == null) lCnt = new int[MAXChips][][];
         if (loopPoint == null) loopPoint = new int[MAXChips][][];
@@ -375,7 +375,7 @@ public class Work {
     // lmnopqrstuv OPNB ...4
     // WXYZwxyz    OPM  ...5
 
-    public static final String Tracks = "ABCDEFGHIJKLMNOPQRSTUVabcdefghijklmnopqrstuvWXYZwxyz";
+    private static final String Tracks = "ABCDEFGHIJKLMNOPQRSTUVabcdefghijklmnopqrstuvWXYZwxyz";
 
     public boolean setChipValueFromTrackCharacter(int ch) {
         int no = getTrackNo(ch);

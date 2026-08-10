@@ -6,8 +6,8 @@ import vavi.util.compat.Tuple;
 import musicDriverInterface.MmlDatum;
 
 
-public class Work {
-    public final Object lockObj = new Object();
+class Work {
+    private final Object lockObj = new Object();
     public final Object systemInterrupt = new Object();
     public boolean resetPlaySync = false;
 

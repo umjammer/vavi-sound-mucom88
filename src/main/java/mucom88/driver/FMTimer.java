@@ -1,18 +1,18 @@
 package mucom88.driver;
 
-public class FMTimer {
+class FMTimer {
 
     /** Timer A overflow setting */
-    public int timerA;
+    int timerA;
     /** Timer A counter value */
-    protected double timerACounter;
+    private double timerACounter;
     /** Timer B overflow setting */
-    public int timerB;
+    int timerB;
     /** Timer B counter value */
-    protected double timerBCounter;
+    private double timerBCounter;
     /** Timer control register (lower 4 bits + 7 bits) */
-    public int timerReg;
-    public double step;
+    int timerReg;
+    double step;
 
     /** Status register (lowest 2 bits) */
     int statReg;
@@ -23,7 +23,7 @@ public class FMTimer {
 
     public Runnable csmKeyOn;
 
-    public FMTimer(int renderingFreq, int masterClock) {
+    FMTimer(int renderingFreq, int masterClock) {
     }
 
     public void timer() {

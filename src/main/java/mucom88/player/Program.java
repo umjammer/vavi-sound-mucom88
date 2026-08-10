@@ -64,7 +64,7 @@ public class Program {
 
     private SourceDataLine audioOutput = null;
     private Thread threadMain = null;
-    public boolean threadClosed = false;
+    private boolean threadClosed = false;
     private boolean threadStopped;
 
     private static final int SamplingRate = 55467; // 44100;
@@ -352,7 +352,7 @@ Debug.println("STATUS: " + driver.getStatus());
         return i;
     }
 
-    public static String getApplicationFolder() {
+    private static String getApplicationFolder() {
         Path path = Path.of(System.getProperty("mdsound.pcm.path", System.getProperty("user.dir")));
 logger.log(Level.DEBUG, "path: [" + path + "]");
         return path.toString();

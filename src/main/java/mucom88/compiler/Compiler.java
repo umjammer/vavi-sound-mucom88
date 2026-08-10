@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -34,7 +36,7 @@ public class Compiler implements ICompiler {
 
     private static final Logger logger = getLogger(Compiler.class.getName());
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
+    private static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     private byte[] srcBuf = null;
     private MUCInfo mucInfo = new MUCInfo();
@@ -55,11 +57,11 @@ public class Compiler implements ICompiler {
 
     private static String md5Hex(byte[] buf) {
         try {
-            byte[] digest = java.security.MessageDigest.getInstance("MD5").digest(buf);
+            byte[] digest = MessageDigest.getInstance("MD5").digest(buf);
             StringBuilder sb = new StringBuilder();
             for (byte b : digest) sb.append("%02x".formatted(b));
             return sb.toString();
-        } catch (java.security.NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -180,7 +182,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
         return null;
     }
 
-    public MUCInfo getMUCInfo(byte[] buf) {
+    private MUCInfo getMUCInfo(byte[] buf) {
         if (checkFileType(buf) != MUCOMFileType.MUC) {
             throw new UnsupportedOperationException();
         }

@@ -9,7 +9,7 @@ import vavi.util.ByteUtil;
 import static vavi.util.compat.Util.isNullOrEmpty;
 
 
-public class GD3 {
+class GD3 {
 
     public String trackName = "";
     public String trackNameJ = "";

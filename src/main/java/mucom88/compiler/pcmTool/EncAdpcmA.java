@@ -7,9 +7,9 @@ import vavi.util.ByteUtil;
 
 
 // https://wiki.neogeodev.org/index.php?title=ADPCM_codecs
-public class EncAdpcmA {
+class EncAdpcmA {
 
-    static final int[] step_size = {
+    private static final int[] step_size = {
             16, 17, 19, 21, 23, 25, 28, 31, 34, 37,
             41, 45, 50, 55, 60, 66, 73, 80, 88, 97,
             107, 118, 130, 143, 157, 173, 190, 209, 230, 253,
@@ -17,7 +17,7 @@ public class EncAdpcmA {
             724, 796, 876, 963, 1060, 1166, 1282, 1411, 1552
     }; //49 items
 
-    static final int[] step_adj = {-1, -1, -1, -1, 2, 5, 7, 9, -1, -1, -1, -1, 2, 5, 7, 9};
+    private static final int[] step_adj = {-1, -1, -1, -1, 2, 5, 7, 9, -1, -1, -1, -1, 2, 5, 7, 9};
 
     // buffers
     /** temp Work buffer, used correct byte order and downsample */
@@ -28,19 +28,19 @@ public class EncAdpcmA {
     // decode stuff
     private int[] jedi_table;
     /** ADPCM accumulator, initial condition must be 0 */
-    int acc = 0;
+    private int acc = 0;
     /** ADPCM decoding step, initial condition must be 0 */
-    int decstep = 0;
+    private int decstep = 0;
 
     //encode stuff
-    int diff;
-    int step;
-    int predsample;
-    int index;
+    private int diff;
+    private int step;
+    private int predsample;
+    private int index;
     /**  previous sample, initial condition must be 0 */
-    int prevsample = 0;
+    private int prevsample = 0;
     /** previous index, initial condition must be 0 */
-    int previndex = 0;
+    private int previndex = 0;
 
     /** jedi table is used speed up decoding, run this to init the table before encoding. Mame copy-pasta. */
     private void jedi_table_init() {
@@ -168,7 +168,7 @@ public class EncAdpcmA {
         return outBuffer;
     }
 
-    static final int[] stepSizeTable = {57, 57, 57, 57, 77, 102, 128, 153, 57, 57, 57, 57, 77, 102, 128, 153};
+    private static final int[] stepSizeTable = {57, 57, 57, 57, 77, 102, 128, 153, 57, 57, 57, 57, 77, 102, 128, 153};
 //    /** our input buffer, load your sample file into this before encoding */
 //    private byte[] buffer;
 //    /**

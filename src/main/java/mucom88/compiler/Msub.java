@@ -17,18 +17,18 @@ public class Msub {
 
     private static final Logger logger = getLogger(Msub.class.getName());
 
-    static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
+    private static final ResourceBundle rb = ResourceBundle.getBundle("mucom88/message");
 
     private final Work work;
     private final MUCInfo mucInfo;
     public Muc88 muc88;
 
-    public final int[] scores = {
+    private final int[] scores = {
             0, 0, 0, 0, 0, 0
     };
 
     // COMMANDs
-    public static final int[] FCOMS = {
+    private static final int[] FCOMS = {
             0x6c,  // 'l' LIZM
             0x6f,  // 'o' octave
             0x44,  // 'D' DETUNE
@@ -81,7 +81,7 @@ public class Msub {
             0
     };
 
-    public final int[] TONES = {
+    private final int[] TONES = {
             0x63, 0, // 'c'
             0x64, 2, // 'd'
             0x65, 4, // 'e'
@@ -342,7 +342,7 @@ logger.log(Level.DEBUG, "error: %c not in %s".formatted(c, Arrays.toString(TONES
 
     private int toNext(int[] n) {
         n[0] = TONES[n[0] * 2 + 1];
-        int[] o = new int[] {work.octave};
+        int[] o = {work.octave};
 
         mucInfo.incAndGetSrcCPtr();
         char c = mucInfo.getSrcCPtr() < mucInfo.getLin().getItem2().length()
@@ -386,7 +386,7 @@ logger.log(Level.DEBUG, "error: %c not in %s".formatted(c, Arrays.toString(TONES
     }
 
     /** KEYSIFT */
-    public void siftKey(/* ref */ int[] oct, /* ref */ int[] n) {
+    private void siftKey(/* ref */ int[] oct, /* ref */ int[] n) {
         int shift = (work.siftDat & 0xff) + (work.siftDa2 & 0xff);
         if (shift == 0) return;
 
